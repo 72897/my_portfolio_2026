@@ -59,6 +59,16 @@ html {
   scroll-behavior: smooth;
 }
 
+html.scroll-snap-active {
+  scroll-snap-type: y mandatory;
+  scroll-padding-top: 4.5rem;
+}
+
+html.scroll-snap-active section {
+  scroll-snap-align: start;
+  scroll-snap-stop: normal;
+}
+
 body {
   font-family: var(--font-body);
   background-color: var(--color-background);

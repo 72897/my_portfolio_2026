@@ -13,7 +13,7 @@ export const siteConfig = {
     github: "https://github.com/72897",
     linkedin: "https://www.linkedin.com/in/kunal-singh-454368289/",
     leetcode: "https://leetcode.com/u/kunal26_7/",
-    resume: "/resume/Resume_Kunal_Singh.pdf",
+    resume: "https://drive.google.com/file/d/1t7Ws-Be5RBMl-QMIKngor6LCMr2gpBQ-/view?usp=sharing",
   },
   githubUsername: "72897",
   leetcodeUsername: "kunal26_7",

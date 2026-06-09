@@ -43,3 +43,12 @@ next-env.d.ts
 # local database data
 /mongodb_data/
 /query
+
+# AI Agent metadata and plans
+.agents/
+.system_generated/
+agents.md
+claude.md
+walkthrough.md
+implementation_plan.md
+task.md
