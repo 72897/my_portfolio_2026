@@ -1,3 +1,5 @@
+import type { IProject, ICertificate, IExperience } from "@/types";
+
 export const siteConfig = {
   name: "Kunal Singh",
   title: "AI Engineer | Full Stack Developer",
@@ -74,6 +76,8 @@ export const skillCategories = [
       { name: "PyTorch", icon: "cpu" },
       { name: "LangChain", icon: "link" },
       { name: "Hugging Face", icon: "smile" },
+      { name: "Large Language Models (LLMs)", icon: "bot" },
+      { name: "Generative AI", icon: "zap" },
       { name: "NumPy", icon: "calculator" },
       { name: "Pandas", icon: "bar-chart-3" },
       { name: "Streamlit", icon: "monitor" },
@@ -82,8 +86,10 @@ export const skillCategories = [
   {
     category: "AI/ML Techniques",
     skills: [
+      { name: "Prompt Engineering", icon: "terminal" },
+      { name: "Retrieval Augmented Generation (RAG)", icon: "search" },
+      { name: "Vector Search & Embeddings", icon: "scatter-chart" },
       { name: "Fine-tuning", icon: "settings" },
-      { name: "Vector Embeddings", icon: "scatter-chart" },
       { name: "NLP", icon: "message-square" },
       { name: "Neural Networks", icon: "git-branch" },
       { name: "Workflow Automation", icon: "workflow" },
@@ -96,12 +102,12 @@ export const skillCategories = [
       { name: "GitHub", icon: "github" },
       { name: "Postman", icon: "send" },
       { name: "Google Sheets", icon: "sheet" },
-      { name: "Codex", icon: "sparkles" },
+      { name: "Codex", icon: "code-2" },
     ],
   },
 ];
 
-export const experiences = [
+export const experiences: IExperience[] = [
   {
     company: "Manipal Business Solution",
     role: "AI Intern",
@@ -152,7 +158,7 @@ export const experiences = [
   },
 ];
 
-export const projects = [
+export const projects: IProject[] = [
   {
     title: "StudyMate",
     slug: "studymate",
@@ -218,29 +224,49 @@ export const projects = [
   },
 ];
 
-export const certificates = [
-  { title: "Google Cloud GenAI", organization: "Google Cloud", date: "2024" },
-  { title: "Advanced Software Engineering", organization: "Walmart USA - Forage", date: "2024" },
-  { title: "Deloitte Australia Technology", organization: "Deloitte - Forage", date: "2024" },
-  { title: "AWS Cloud Practitioner Essentials", organization: "Amazon Web Services", date: "2024" },
-  { title: "Generative AI", organization: "HP Life", date: "2024" },
-  { title: "API Certification", organization: "Postman", date: "2024" },
+export const certificates: ICertificate[] = [
+  { title: "Google Cloud GenAI", organization: "Google Cloud", issueDate: "2024" },
+  { title: "Advanced Software Engineering", organization: "Walmart USA - Forage", issueDate: "2024" },
+  { title: "Deloitte Australia Technology", organization: "Deloitte - Forage", issueDate: "2024" },
+  { title: "AWS Cloud Practitioner Essentials", organization: "Amazon Web Services", issueDate: "2024" },
+  { title: "Generative AI", organization: "HP Life", issueDate: "2024" },
+  { title: "API Certification", organization: "Postman", issueDate: "2024" },
 ];
 
-export const education = {
-  institution: "Gautam Buddha University",
-  degree: "Bachelor of Technology in Computer Science",
-  location: "Greater Noida, Uttar Pradesh, India",
-  period: "Aug 2022 – Jun 2026",
-  coursework: [
-    "Data Structures & Algorithms",
-    "Object-Oriented Programming",
-    "Database Management Systems",
-    "Operating Systems",
-    "Machine Learning",
-    "Natural Language Processing",
-  ],
-};
+export interface IEducation {
+  institution: string;
+  degree: string;
+  location?: string;
+  period: string;
+  coursework?: string[];
+}
+
+export const education: IEducation[] = [
+  {
+    institution: "Gautam Buddha University",
+    degree: "Bachelor of Technology in Computer Science",
+    location: "Greater Noida, Uttar Pradesh, India",
+    period: "Aug 2022 – Jun 2026",
+    coursework: [
+      "Data Structures & Algorithms",
+      "Object-Oriented Programming",
+      "Database Management Systems",
+      "Operating Systems",
+      "Machine Learning",
+      "Natural Language Processing",
+    ],
+  },
+  {
+    institution: "St. Aerjay Public School",
+    degree: "12th (Senior Secondary) - PCM",
+    period: "April 2020 – August 2022",
+  },
+  {
+    institution: "Nirmala Convent School",
+    degree: "10th (Secondary Education)",
+    period: "March 2008 – March 2020",
+  },
+];
 
 // Fallback GitHub data
 export const fallbackGitHub = {
