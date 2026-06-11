@@ -52,6 +52,8 @@ export default function HomePage() {
   });
 
   useEffect(() => {
+    document.documentElement.classList.add("scroll-snap-active");
+
     async function fetchExps() {
       try {
         const res = await fetch("/api/experience");
@@ -70,6 +72,10 @@ export default function HomePage() {
       }
     }
     fetchExps();
+
+    return () => {
+      document.documentElement.classList.remove("scroll-snap-active");
+    };
   }, []);
 
   return (
