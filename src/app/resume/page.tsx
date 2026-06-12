@@ -88,7 +88,7 @@ export default function ResumePage() {
               <span className="text-sm font-medium">Resume_Kunal_Singh.pdf</span>
             </div>
             <iframe
-              src={siteConfig.links.resume}
+              src={siteConfig.links.resume.includes("drive.google.com") ? siteConfig.links.resume.replace("/view?usp=sharing", "/preview").replace("/view", "/preview") : siteConfig.links.resume}
               title="Kunal Singh Resume"
               className="w-full h-[600px] md:h-[800px] bg-white"
             />
