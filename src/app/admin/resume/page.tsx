@@ -26,7 +26,7 @@ export default function AdminResumePage() {
   const [saving, setSaving] = useState(false);
   const [resume, setResume] = useState<Partial<IResumeData>>({
     summary: '',
-    pdfUrl: '/resume/Resume_Kunal_Singh.pdf',
+    pdfUrl: 'https://drive.google.com/file/d/1t7Ws-Be5RBMl-QMIKngor6LCMr2gpBQ-/view?usp=sharing',
     highlights: {
       experience: '',
       skills: '',
