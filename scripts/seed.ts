@@ -36,6 +36,7 @@ async function seed() {
     }
 
     // Seed Profile
+    const newUrl = "https://drive.google.com/file/d/1t7Ws-Be5RBMl-QMIKngor6LCMr2gpBQ-/view?usp=sharing";
     const existingProfile = await Profile.findOne();
     if (!existingProfile) {
       await Profile.create({
@@ -52,9 +53,13 @@ async function seed() {
         githubUsername: "72897",
         leetcodeUrl: "https://leetcode.com/u/kunal26_7/",
         leetcodeUsername: "kunal26_7",
-        resumeUrl: "/resume/Resume_Kunal_Singh.pdf",
+        resumeUrl: newUrl,
       });
       console.log("✅ Profile created");
+    } else {
+      existingProfile.resumeUrl = newUrl;
+      await existingProfile.save();
+      console.log("✅ Profile resumeUrl updated");
     }
 
     // Seed Projects
@@ -243,7 +248,7 @@ async function seed() {
     if (resumeCount === 0) {
       await Resume.create({
         summary: "AI Engineer and Full Stack Developer with hands-on experience in Generative AI, LLM integration, and scalable web applications. B.Tech CSE student at Gautam Buddha University.",
-        pdfUrl: "/resume/Resume_Kunal_Singh.pdf",
+        pdfUrl: newUrl,
         highlights: {
           experience: "3 internships at Manipal Business Solution, Thales Group, and MI Matdar",
           skills: "Python, React.js, Node.js, TensorFlow, LangChain, MongoDB",
@@ -254,6 +259,9 @@ async function seed() {
         downloadCount: 0,
       });
       console.log("✅ Resume data seeded");
+    } else {
+      await Resume.updateMany({}, { $set: { pdfUrl: newUrl } });
+      console.log("✅ Resume pdfUrl updated");
     }
 
     console.log("\n🎉 Database seeding completed successfully!");
