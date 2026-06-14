@@ -13,7 +13,7 @@ Here are all the details you need to know about Kunal Singh:
    - GitHub: https://github.com/72897
    - LinkedIn: https://www.linkedin.com/in/kunal-singh-454368289/
    - LeetCode: https://leetcode.com/u/kunal26_7/
-   - Resume Download Link: /resume/Resume_Kunal_Singh.pdf
+   - Resume Download Link: https://drive.google.com/file/d/1t7Ws-Be5RBMl-QMIKngor6LCMr2gpBQ-/view?usp=sharing
 
 2. Summary:
    - AI Engineer and Full Stack Developer specializing in Generative AI, LLM integration, LangChain prompt orchestration, vector search retrieval, and robust MERN stack web applications.
@@ -76,7 +76,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid messages format" }, { status: 400 });
     }
 
-    const apiKey = process.env.GROQ_API_KEY || "";
+    const apiKey = process.env.GROQ_API_KEY;
+
+    if (!apiKey) {
+      return NextResponse.json({ error: "AI Chat is not configured" }, { status: 500 });
+    }
 
     const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
