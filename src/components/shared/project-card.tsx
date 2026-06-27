@@ -14,6 +14,7 @@ interface ProjectCardProps {
   githubUrl?: string;
   liveUrl?: string;
   featured?: boolean;
+  metrics?: Record<string, string>;
 }
 
 export function ProjectCard({
@@ -25,6 +26,7 @@ export function ProjectCard({
   githubUrl,
   liveUrl,
   featured,
+  metrics,
 }: ProjectCardProps) {
   return (
     <motion.div
@@ -82,6 +84,16 @@ export function ProjectCard({
             <p className="text-sm text-muted-foreground mb-4 line-clamp-3 leading-relaxed">
               {description}
             </p>
+            {metrics && (
+              <div className="mb-4 grid grid-cols-3 gap-1.5 border-t border-border/20 pt-3">
+                {Object.entries(metrics).slice(0, 3).map(([key, val]) => (
+                  <div key={key} className="bg-muted/40 border border-border/20 rounded-lg p-1.5 text-center">
+                    <div className="text-[9px] font-mono text-muted-foreground capitalize truncate" title={key}>{key}</div>
+                    <div className="text-xs font-bold font-mono text-primary mt-0.5 truncate" title={val}>{val}</div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </Link>
 

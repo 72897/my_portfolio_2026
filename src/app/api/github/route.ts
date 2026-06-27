@@ -8,8 +8,10 @@ interface GitHubRepo {
   stargazers_count: number
   html_url: string
   fork: boolean
-  topics: string[]
+  topics?: string[]
   updated_at: string
+  pushed_at: string
+  created_at: string
 }
 
 interface GitHubUser {
@@ -39,7 +41,7 @@ export async function GET() {
         headers,
         next: { revalidate: 3600 },
       }),
-      fetch('https://api.github.com/users/72897/repos?sort=stars&per_page=10', {
+      fetch('https://api.github.com/users/72897/repos?sort=pushed&per_page=30', {
         headers,
         next: { revalidate: 3600 },
       }),
@@ -70,9 +72,13 @@ export async function GET() {
       languages[lang] = Math.round((count / totalWithLanguage) * 100)
     }
 
-    // Map top repos
+    // Map top repos sorted by pushed_at or created_at (most recent changes/creation first)
     const topRepos = nonForkRepos
-      .sort((a, b) => b.stargazers_count - a.stargazers_count)
+      .sort((a, b) => {
+        const timeA = Math.max(new Date(a.pushed_at || a.updated_at).getTime(), new Date(a.created_at).getTime());
+        const timeB = Math.max(new Date(b.pushed_at || b.updated_at).getTime(), new Date(b.created_at).getTime());
+        return timeB - timeA;
+      })
       .slice(0, 6)
       .map((repo) => ({
         name: repo.name,
@@ -81,7 +87,7 @@ export async function GET() {
         stars: repo.stargazers_count,
         url: repo.html_url,
         topics: repo.topics || [],
-        updatedAt: repo.updated_at,
+        updatedAt: repo.pushed_at || repo.updated_at,
       }))
 
     return NextResponse.json({

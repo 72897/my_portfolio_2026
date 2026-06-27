@@ -5,6 +5,7 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 import { useTheme } from "next-themes";
+import { motion } from "framer-motion";
 
 /* ──────────────────────────────────────────────────────────
    Goku Skinned Mesh Vertex Coloring Logic (Fallback for Xbot)
@@ -108,12 +109,13 @@ function applyGokuVertexColors(mesh: THREE.SkinnedMesh) {
    Super Saiyan Aura Particle System
    ────────────────────────────────────────────────────────── */
 interface AuraParticlesProps {
-  action: "idle" | "charging";
+  action: "idle" | "charging" | "firing";
 }
 
 function AuraParticles({ action }: AuraParticlesProps) {
   const pointsRef = useRef<THREE.Points>(null);
-  const count = 70;
+  const materialRef = useRef<THREE.PointsMaterial>(null);
+  const count = 90;
 
   const [positions, speeds] = useMemo(() => {
     const pos = new Float32Array(count * 3);
@@ -121,25 +123,25 @@ function AuraParticles({ action }: AuraParticlesProps) {
 
     for (let i = 0; i < count; i++) {
       const angle = Math.random() * Math.PI * 2;
-      const radius = 0.15 + Math.random() * 0.4;
+      const radius = 0.12 + Math.random() * 0.45;
       pos[i * 3] = Math.cos(angle) * radius;
       pos[i * 3 + 1] = -0.8 + Math.random() * 1.8;
       pos[i * 3 + 2] = Math.sin(angle) * radius;
 
-      spd[i] = 0.25 + Math.random() * 0.45;
+      spd[i] = 0.25 + Math.random() * 0.5;
     }
 
     return [pos, spd];
   }, []);
 
   useFrame((state, delta) => {
-    if (!pointsRef.current) return;
+    if (!pointsRef.current || !materialRef.current) return;
 
     const geo = pointsRef.current.geometry;
     const posAttr = geo.attributes.position as THREE.BufferAttribute;
     const array = posAttr.array as Float32Array;
 
-    const speedMult = action === "charging" ? 4.0 : 1.0;
+    const speedMult = action === "firing" ? 6.0 : action === "charging" ? 4.0 : 1.0;
 
     for (let i = 0; i < count; i++) {
       array[i * 3 + 1] += speeds[i] * delta * speedMult;
@@ -147,16 +149,28 @@ function AuraParticles({ action }: AuraParticlesProps) {
       if (array[i * 3 + 1] > 1.2) {
         array[i * 3 + 1] = -0.8;
         const angle = Math.random() * Math.PI * 2;
-        const radius = 0.15 + Math.random() * 0.4;
+        const radius = 0.12 + Math.random() * 0.45;
         array[i * 3] = Math.cos(angle) * radius;
         array[i * 3 + 2] = Math.sin(angle) * radius;
       }
 
-      array[i * 3] += Math.sin(state.clock.elapsedTime * 6.0 + i) * 0.002 * speedMult;
-      array[i * 3 + 2] += Math.cos(state.clock.elapsedTime * 6.0 + i) * 0.002 * speedMult;
+      array[i * 3] += Math.sin(state.clock.elapsedTime * 8.0 + i) * 0.003 * speedMult;
+      array[i * 3 + 2] += Math.cos(state.clock.elapsedTime * 8.0 + i) * 0.003 * speedMult;
     }
 
     posAttr.needsUpdate = true;
+
+    // Update material dynamically
+    if (action === "firing") {
+      materialRef.current.color.set("#00f3ff");
+      materialRef.current.opacity = 0.95;
+    } else if (action === "charging") {
+      materialRef.current.color.set("#ffe000");
+      materialRef.current.opacity = 0.85;
+    } else {
+      materialRef.current.color.set("#ffe000");
+      materialRef.current.opacity = 0.25;
+    }
   });
 
   return (
@@ -168,10 +182,11 @@ function AuraParticles({ action }: AuraParticlesProps) {
         />
       </bufferGeometry>
       <pointsMaterial
+        ref={materialRef}
         color="#ffe000"
         size={0.035}
         transparent
-        opacity={0.85}
+        opacity={0.3}
         blending={THREE.AdditiveBlending}
         depthWrite={false}
       />
@@ -184,8 +199,8 @@ function AuraParticles({ action }: AuraParticlesProps) {
    ────────────────────────────────────────────────────────── */
 interface FighterProps {
   theme?: string;
-  action: "idle" | "charging";
-  setAction: (act: "idle" | "charging") => void;
+  action: "idle" | "charging" | "firing";
+  setAction: (act: "idle" | "charging" | "firing") => void;
   isHolding: boolean;
 }
 
@@ -193,6 +208,10 @@ function FighterCharacter({ theme, action, setAction, isHolding }: FighterProps)
   const groupRef = useRef<THREE.Group>(null);
   const flareLightRef = useRef<THREE.PointLight>(null);
   const hairMaterialRef = useRef<THREE.MeshStandardMaterial | null>(null);
+
+  const kameBallRef = useRef<THREE.Mesh>(null);
+  const kameBeamRef = useRef<THREE.Mesh>(null);
+  const beamLightRef = useRef<THREE.PointLight>(null);
 
   // Load ready-made rigged Goku model
   const { scene, animations } = useGLTF("/goku-model.glb");
@@ -479,26 +498,19 @@ function FighterCharacter({ theme, action, setAction, isHolding }: FighterProps)
     let targetIdleWeight = 0;
     let targetChargeWeight = 0;
 
-    if (action === "charging") {
+    const isPoweringUp = action === "charging" || action === "firing";
+
+    if (isPoweringUp) {
       if (fightProgress.current < 1.0) {
-        fightProgress.current += delta * 1.6; // reaches full charge in ~0.6s
+        fightProgress.current += delta * 2.0; // reaches full charge in 0.5s
         if (fightProgress.current > 1.0) fightProgress.current = 1.0;
       }
-
-      if (!isHolding && fightProgress.current >= 1.0) {
-        overrideWeight.current = THREE.MathUtils.lerp(overrideWeight.current, 0.0, delta * 8.0);
-        if (overrideWeight.current < 0.01) {
-          fightProgress.current = 0;
-          setAction("idle");
-        }
-      } else {
-        overrideWeight.current = THREE.MathUtils.lerp(overrideWeight.current, 1.0, delta * 10.0);
-      }
-
+      overrideWeight.current = THREE.MathUtils.lerp(overrideWeight.current, 1.0, delta * 10.0);
       targetChargeWeight = overrideWeight.current;
       targetIdleWeight = 1.0 - targetChargeWeight;
       targetWalkWeight = 0;
     } else {
+      fightProgress.current = THREE.MathUtils.lerp(fightProgress.current, 0.0, delta * 8.0);
       overrideWeight.current = THREE.MathUtils.lerp(overrideWeight.current, 0.0, delta * 8.0);
       if (velocity > 0.05 && actions.walk) {
         targetWalkWeight = Math.min(velocity * 0.12, 1.0);
@@ -525,7 +537,7 @@ function FighterCharacter({ theme, action, setAction, isHolding }: FighterProps)
     }
 
     // 4. Head, Neck & Whole-Body cursor look-at tracking
-    const trackingWeight = 1.0 - (action === "charging" ? ow * 0.6 : 0.0);
+    const trackingWeight = 1.0 - (isPoweringUp ? ow * 0.6 : 0.0);
 
     const targetHipsRotY = pointer.x * 0.38 * trackingWeight;
     const targetHipsRotX = -pointer.y * 0.08 * trackingWeight;
@@ -536,7 +548,7 @@ function FighterCharacter({ theme, action, setAction, isHolding }: FighterProps)
     if (bones.Hips) {
       bones.Hips.rotation.setFromQuaternion(bones.Hips.quaternion);
       bones.Hips.rotation.y = THREE.MathUtils.lerp(bones.Hips.rotation.y, targetHipsRotY, 0.08);
-      if (action !== "charging") {
+      if (!isPoweringUp) {
         bones.Hips.rotation.x = THREE.MathUtils.lerp(bones.Hips.rotation.x, targetHipsRotX, 0.08);
       }
       bones.Hips.quaternion.setFromEuler(bones.Hips.rotation);
@@ -544,7 +556,7 @@ function FighterCharacter({ theme, action, setAction, isHolding }: FighterProps)
     if (bones.Spine) {
       bones.Spine.rotation.setFromQuaternion(bones.Spine.quaternion);
       bones.Spine.rotation.y = THREE.MathUtils.lerp(bones.Spine.rotation.y, targetSpineRotY, 0.08);
-      if (action !== "charging") {
+      if (!isPoweringUp) {
         bones.Spine.rotation.x = THREE.MathUtils.lerp(bones.Spine.rotation.x, targetSpineRotX, 0.08);
       }
       bones.Spine.quaternion.setFromEuler(bones.Spine.rotation);
@@ -566,108 +578,114 @@ function FighterCharacter({ theme, action, setAction, isHolding }: FighterProps)
     const hasBuiltInCharge = false;
 
     if (ow > 0.001) {
-      if (!hasBuiltInCharge) {
-        const t = fightProgress.current;
-        const easeCharge = Math.sin(t * Math.PI * 0.5);
+      const easeCharge = action === "firing" ? 1.0 : Math.sin(fightProgress.current * Math.PI * 0.5);
 
-        const targetHipsOffsetY = -0.12 * easeCharge;
-        const targetSpineX = 0.18 * easeCharge;
+      // Define target Euler angles for the pose
+      let targetLeftArmX = 0;
+      let targetLeftArmY = 0;
+      let targetLeftArmZ = 0;
+      let targetLeftForeArmZ = 0;
 
-        // Folded hands clenched at hips
-        const targetLeftArmX = -0.3 * easeCharge;
-        const targetLeftArmY = 0.25 * easeCharge;
-        const targetLeftArmZ = -0.5 * easeCharge;
-        const targetLeftForeArmZ = -1.5 * easeCharge;
+      let targetRightArmX = 0;
+      let targetRightArmY = 0;
+      let targetRightArmZ = 0;
+      let targetRightForeArmZ = 0;
 
-        const targetRightArmX = -0.3 * easeCharge;
-        const targetRightArmY = -0.25 * easeCharge;
-        const targetRightArmZ = 0.5 * easeCharge;
-        const targetRightForeArmZ = 1.5 * easeCharge;
+      let targetSpineX = 0;
+      let targetHipsOffsetY = 0;
 
+      if (action === "charging") {
+        targetHipsOffsetY = -0.12 * easeCharge;
+        targetSpineX = 0.25 * easeCharge; // Lean forward into charging stance
+
+        // Left arm drawn back & down towards right hip (crossing chest)
+        targetLeftArmX = -0.55 * easeCharge;
+        targetLeftArmY = -0.9 * easeCharge;
+        targetLeftArmZ = -0.2 * easeCharge;
+        targetLeftForeArmZ = -1.6 * easeCharge; // Deep elbow bend
+
+        // Right arm drawn back & up towards right hip
+        targetRightArmX = -0.4 * easeCharge;
+        targetRightArmY = -0.6 * easeCharge;
+        targetRightArmZ = 0.1 * easeCharge;
+        targetRightForeArmZ = 1.4 * easeCharge; // Deep elbow bend
+      } else if (action === "firing") {
+        targetHipsOffsetY = -0.04;
+        targetSpineX = 0.35; // Lean heavily forward into blast
+
+        // Left arm raised & pushed straight forward
+        targetLeftArmX = -1.45;
+        targetLeftArmY = 0.25;
+        targetLeftArmZ = 0.0;
+        targetLeftForeArmZ = -0.15; // Forearm almost straight
+
+        // Right arm raised & pushed straight forward
+        targetRightArmX = -1.45;
+        targetRightArmY = -0.25;
+        targetRightArmZ = 0.0;
+        targetRightForeArmZ = 0.15; // Forearm almost straight
+      }
+
+      // Convert target Euler rotations to quaternions
+      const qLeftArm = new THREE.Quaternion().setFromEuler(new THREE.Euler(targetLeftArmX, targetLeftArmY, targetLeftArmZ));
+      const qRightArm = new THREE.Quaternion().setFromEuler(new THREE.Euler(targetRightArmX, targetRightArmY, targetRightArmZ));
+      const qLeftForeArm = new THREE.Quaternion().setFromEuler(new THREE.Euler(0, 0, targetLeftForeArmZ));
+      const qRightForeArm = new THREE.Quaternion().setFromEuler(new THREE.Euler(0, 0, targetRightForeArmZ));
+      const qSpine = new THREE.Quaternion().setFromEuler(new THREE.Euler(targetSpineX, bones.Spine ? bones.Spine.rotation.y : 0, 0));
+
+      // Slerp upper arm bones
+      if (bones.LeftArm) bones.LeftArm.quaternion.slerp(qLeftArm, ow);
+      if (bones.RightArm) bones.RightArm.quaternion.slerp(qRightArm, ow);
+
+      // Slerp forearm bones (elbows)
+      if (bones.LeftForeArm) bones.LeftForeArm.quaternion.slerp(qLeftForeArm, ow);
+      if (bones.RightForeArm) bones.RightForeArm.quaternion.slerp(qRightForeArm, ow);
+
+      // Slerp Spine bone
+      if (bones.Spine) bones.Spine.quaternion.slerp(qSpine, ow);
+
+      // Apply hips vertical stance offset for the crouch (for non-loaded rigs)
+      if (!isGokuModel && bones.Hips) {
+        if (defaultHipsY.current === null) {
+          defaultHipsY.current = bones.Hips.position.y;
+        }
+        bones.Hips.position.y = THREE.MathUtils.lerp(
+          bones.Hips.position.y,
+          (defaultHipsY.current ?? bones.Hips.position.y) + targetHipsOffsetY,
+          ow
+        );
+      }
+
+      // Leg wide stance offsets (for non-loaded rigs)
+      if (!isGokuModel) {
         const targetLeftUpLegX = 0.35 * easeCharge;
         const targetLeftLegX = -0.7 * easeCharge;
         const targetRightUpLegX = 0.35 * easeCharge;
         const targetRightLegX = -0.7 * easeCharge;
 
-        if (bones.LeftArm) {
-          bones.LeftArm.rotation.setFromQuaternion(bones.LeftArm.quaternion);
-          bones.LeftArm.rotation.x = THREE.MathUtils.lerp(bones.LeftArm.rotation.x, targetLeftArmX, ow);
-          bones.LeftArm.rotation.y = THREE.MathUtils.lerp(bones.LeftArm.rotation.y, targetLeftArmY, ow);
-          bones.LeftArm.rotation.z = THREE.MathUtils.lerp(bones.LeftArm.rotation.z, targetLeftArmZ, ow);
-          bones.LeftArm.quaternion.setFromEuler(bones.LeftArm.rotation);
-        }
-        if (bones.LeftForeArm) {
-          bones.LeftForeArm.rotation.setFromQuaternion(bones.LeftForeArm.quaternion);
-          bones.LeftForeArm.rotation.z = THREE.MathUtils.lerp(bones.LeftForeArm.rotation.z, targetLeftForeArmZ, ow);
-          bones.LeftForeArm.quaternion.setFromEuler(bones.LeftForeArm.rotation);
-        }
+        const qLeftUpLeg = new THREE.Quaternion().setFromEuler(new THREE.Euler(targetLeftUpLegX, 0, 0));
+        const qLeftLeg = new THREE.Quaternion().setFromEuler(new THREE.Euler(targetLeftLegX, 0, 0));
+        const qRightUpLeg = new THREE.Quaternion().setFromEuler(new THREE.Euler(targetRightUpLegX, 0, 0));
+        const qRightLeg = new THREE.Quaternion().setFromEuler(new THREE.Euler(targetRightLegX, 0, 0));
 
-        if (bones.RightArm) {
-          bones.RightArm.rotation.setFromQuaternion(bones.RightArm.quaternion);
-          bones.RightArm.rotation.x = THREE.MathUtils.lerp(bones.RightArm.rotation.x, targetRightArmX, ow);
-          bones.RightArm.rotation.y = THREE.MathUtils.lerp(bones.RightArm.rotation.y, targetRightArmY, ow);
-          bones.RightArm.rotation.z = THREE.MathUtils.lerp(bones.RightArm.rotation.z, targetRightArmZ, ow);
-          bones.RightArm.quaternion.setFromEuler(bones.RightArm.rotation);
-        }
-        if (bones.RightForeArm) {
-          bones.RightForeArm.rotation.setFromQuaternion(bones.RightForeArm.quaternion);
-          bones.RightForeArm.rotation.z = THREE.MathUtils.lerp(bones.RightForeArm.rotation.z, targetRightForeArmZ, ow);
-          bones.RightForeArm.quaternion.setFromEuler(bones.RightForeArm.rotation);
-        }
-
-        if (!isGokuModel) {
-          if (bones.LeftUpLeg) {
-            bones.LeftUpLeg.rotation.setFromQuaternion(bones.LeftUpLeg.quaternion);
-            bones.LeftUpLeg.rotation.x = THREE.MathUtils.lerp(bones.LeftUpLeg.rotation.x, targetLeftUpLegX, ow);
-            bones.LeftUpLeg.quaternion.setFromEuler(bones.LeftUpLeg.rotation);
-          }
-          if (bones.LeftLeg) {
-            bones.LeftLeg.rotation.setFromQuaternion(bones.LeftLeg.quaternion);
-            bones.LeftLeg.rotation.x = THREE.MathUtils.lerp(bones.LeftLeg.rotation.x, targetLeftLegX, ow);
-            bones.LeftLeg.quaternion.setFromEuler(bones.LeftLeg.rotation);
-          }
-          if (bones.RightUpLeg) {
-            bones.RightUpLeg.rotation.setFromQuaternion(bones.RightUpLeg.quaternion);
-            bones.RightUpLeg.rotation.x = THREE.MathUtils.lerp(bones.RightUpLeg.rotation.x, targetRightUpLegX, ow);
-            bones.RightUpLeg.quaternion.setFromEuler(bones.RightUpLeg.rotation);
-          }
-          if (bones.RightLeg) {
-            bones.RightLeg.rotation.setFromQuaternion(bones.RightLeg.quaternion);
-            bones.RightLeg.rotation.x = THREE.MathUtils.lerp(bones.RightLeg.rotation.x, targetRightLegX, ow);
-            bones.RightLeg.quaternion.setFromEuler(bones.RightLeg.rotation);
-          }
-        }
-
-        if (bones.Spine) {
-          bones.Spine.rotation.setFromQuaternion(bones.Spine.quaternion);
-          bones.Spine.rotation.x = THREE.MathUtils.lerp(bones.Spine.rotation.x, targetSpineX, ow);
-          bones.Spine.quaternion.setFromEuler(bones.Spine.rotation);
-        }
-
-        if (!isGokuModel) {
-          if (bones.Hips) {
-            if (defaultHipsY.current === null) {
-              defaultHipsY.current = bones.Hips.position.y;
-            }
-            bones.Hips.position.y = THREE.MathUtils.lerp(bones.Hips.position.y, (defaultHipsY.current ?? bones.Hips.position.y) + targetHipsOffsetY, ow);
-          }
-        }
+        if (bones.LeftUpLeg) bones.LeftUpLeg.quaternion.slerp(qLeftUpLeg, ow);
+        if (bones.LeftLeg) bones.LeftLeg.quaternion.slerp(qLeftLeg, ow);
+        if (bones.RightUpLeg) bones.RightUpLeg.quaternion.slerp(qRightUpLeg, ow);
+        if (bones.RightLeg) bones.RightLeg.quaternion.slerp(qRightLeg, ow);
       }
     }
 
-    // Float entire group to follow mouse pointer + shake when charging
+    // Float entire group to follow mouse pointer + shake when charging or firing
     if (groupRef.current) {
-      // Goku floats gently towards the mouse pointer.
-      // We scale the float range to make it highly visible and responsive.
       const targetX = pointer.x * 0.6;
       const targetY = pointer.y * 0.4;
       
-      // Smoothly interpolate towards the target float coordinates
       const currentX = THREE.MathUtils.lerp(groupRef.current.position.x, targetX, 0.06);
       const currentY = THREE.MathUtils.lerp(groupRef.current.position.y, targetY, 0.06);
       
-      if (action === "charging" && ow > 0.4) {
-        const shakeAmplitude = 0.012 * ow;
+      if (isPoweringUp && ow > 0.4) {
+        const factor = action === "firing" ? 2.5 : 1.0;
+        const shakeAmplitude = 0.012 * ow * factor;
         groupRef.current.position.x = currentX + (Math.random() - 0.5) * shakeAmplitude;
         groupRef.current.position.y = currentY + (Math.random() - 0.5) * shakeAmplitude;
         groupRef.current.position.z = (Math.random() - 0.5) * shakeAmplitude;
@@ -691,15 +709,54 @@ function FighterCharacter({ theme, action, setAction, isHolding }: FighterProps)
       const surgeGlow = flareIntensity * 2.8;
       hairMaterialRef.current.emissiveIntensity = baseGlow + surgeGlow;
     }
+
+    // 7. Kamehameha Sphere, Beam and Light animations
+    if (kameBallRef.current) {
+      if (action === "charging") {
+        const scale = easeChargeVal * 1.5;
+        kameBallRef.current.scale.set(scale, scale, scale);
+        kameBallRef.current.visible = true;
+        const pulse = 1.0 + Math.sin(state.clock.elapsedTime * 30.0) * 0.15;
+        kameBallRef.current.scale.multiplyScalar(pulse);
+      } else if (action === "firing") {
+        kameBallRef.current.scale.set(2.0, 2.0, 2.0);
+        kameBallRef.current.visible = true;
+      } else {
+        kameBallRef.current.visible = false;
+      }
+    }
+
+    if (kameBeamRef.current) {
+      if (action === "firing") {
+        kameBeamRef.current.visible = true;
+        const scaleX = 1.0 + Math.sin(state.clock.elapsedTime * 40.0) * 0.2;
+        const scaleY = 1.0; 
+        const scaleZ = 1.0 + Math.sin(state.clock.elapsedTime * 40.0) * 0.2;
+        kameBeamRef.current.scale.set(scaleX, scaleY, scaleZ);
+      } else {
+        kameBeamRef.current.visible = false;
+      }
+    }
+
+    if (beamLightRef.current) {
+      if (action === "firing") {
+        beamLightRef.current.intensity = 25.0 + Math.random() * 5.0;
+      } else if (action === "charging") {
+        beamLightRef.current.intensity = easeChargeVal * 5.0;
+      } else {
+        beamLightRef.current.intensity = 0;
+      }
+    }
   });
 
-  // Calculate dynamic scale and position offsets based on whether native Goku model is loaded
+  // Calculate scale and position offsets based on model type
   const modelScale = isGokuModel ? 0.38 : 0.78;
   const modelPosition: [number, number, number] = isGokuModel ? [0, -0.65, 0] : [0, -0.8, 0];
 
   return (
     <group ref={groupRef}>
       <primitive object={scene} scale={modelScale} position={modelPosition} />
+      
       {/* Super Saiyan glow point light flare */}
       <pointLight 
         ref={flareLightRef} 
@@ -707,6 +764,37 @@ function FighterCharacter({ theme, action, setAction, isHolding }: FighterProps)
         distance={2.5} 
         color="#ffe600" 
         intensity={0} 
+      />
+
+      {/* Kamehameha Energy Sphere */}
+      <mesh ref={kameBallRef} position={[0, -0.12, 0.38]}>
+        <sphereGeometry args={[0.07, 32, 32]} />
+        <meshBasicMaterial 
+          color="#00f3ff" 
+          transparent 
+          opacity={0.85} 
+          blending={THREE.AdditiveBlending}
+        />
+      </mesh>
+
+      {/* Kamehameha Energy Beam */}
+      <mesh ref={kameBeamRef} position={[0, -0.12, 1.2]} rotation={[Math.PI / 2, 0, 0]}>
+        <cylinderGeometry args={[0.08, 0.15, 1.6, 32]} />
+        <meshBasicMaterial 
+          color="#00aaff" 
+          transparent 
+          opacity={0.8} 
+          blending={THREE.AdditiveBlending}
+        />
+      </mesh>
+      
+      {/* Point light for the Kamehameha blast */}
+      <pointLight
+        ref={beamLightRef}
+        position={[0, -0.12, 0.5]}
+        color="#00f3ff"
+        distance={4}
+        intensity={0}
       />
     </group>
   );
@@ -717,8 +805,8 @@ function FighterCharacter({ theme, action, setAction, isHolding }: FighterProps)
    ────────────────────────────────────────────────────────── */
 interface SceneProps {
   theme?: string;
-  action: "idle" | "charging";
-  setAction: (act: "idle" | "charging") => void;
+  action: "idle" | "charging" | "firing";
+  setAction: (act: "idle" | "charging" | "firing") => void;
   isHolding: boolean;
 }
 
@@ -728,9 +816,7 @@ function Scene({ theme, action, setAction, isHolding }: SceneProps) {
     <>
       <ambientLight intensity={isDark ? 0.75 : 0.85} color={isDark ? "#dbeafe" : "#e0e4ff"} />
       <directionalLight position={[5, 8, 5]} intensity={isDark ? 1.5 : 1.2} color="#ffffff" castShadow />
-      <pointLight position={[3, 2, -2]} intensity={isDark ? 2.5 : 1.8} color="#3b82f6" distance={10} />
-      <pointLight position={[-3, 2, -2]} intensity={isDark ? 2.0 : 1.5} color="#2563eb" distance={10} />
-      <pointLight position={[0, -2, 2]} intensity={0.6} color={isDark ? "#3f3f46" : "#a1a1aa"} distance={8} />
+      <pointLight position={[-3, 2, 1]} intensity={isDark ? 2.2 : 1.5} color="#8b7cff" distance={9} />
 
       {/* Super Saiyan aura particles */}
       <AuraParticles action={action} />
@@ -757,25 +843,91 @@ function LoadingFallback() {
 export function Hero3DLogo() {
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
-  const [action, setAction] = useState<"idle" | "charging">("charging");
-  const [isHolding, setIsHolding] = useState(true);
+  const [action, setAction] = useState<"idle" | "charging" | "firing">("idle");
+  const [isHolding, setIsHolding] = useState(false);
+  const [speech, setSpeech] = useState<string>("");
+
+  const timeoutsRef = useRef<NodeJS.Timeout[]>([]);
 
   useEffect(() => {
     setMounted(true);
+    return () => {
+      // Clear timeouts on unmount
+      timeoutsRef.current.forEach(clearTimeout);
+    };
   }, []);
 
   const theme = mounted ? resolvedTheme : "dark";
 
+  const handleClick = () => {
+    if (action !== "idle") return; // block multiple clicks during sequence
+
+    // Clear previous timeouts
+    timeoutsRef.current.forEach(clearTimeout);
+    timeoutsRef.current = [];
+
+    const addTimeout = (fn: () => void, delay: number) => {
+      const t = setTimeout(fn, delay);
+      timeoutsRef.current.push(t);
+    };
+
+    // 1. KA… (0ms) -> Clench hands & start charging
+    setAction("charging");
+    setSpeech("KA…");
+
+    // 2. ME… (500ms)
+    addTimeout(() => setSpeech("ME…"), 500);
+
+    // 3. HA… (1000ms)
+    addTimeout(() => setSpeech("HA…"), 1000);
+
+    // 4. ME… (1500ms)
+    addTimeout(() => setSpeech("ME…"), 1500);
+
+    // 5. HAAAA!!!! (2000ms) -> Blast!
+    addTimeout(() => {
+      setAction("firing");
+      setSpeech("HAAAA!!!!");
+    }, 2000);
+
+    // 6. Reset to Idle stance (3800ms)
+    addTimeout(() => {
+      setAction("idle");
+      setSpeech("");
+    }, 3800);
+  };
+
   return (
     <div 
-      className="w-64 h-64 sm:w-80 sm:h-80 md:w-96 md:h-96 relative cursor-pointer select-none group"
-      title="Move mouse to turn."
+      onClick={handleClick}
+      className="w-64 h-64 sm:w-80 sm:h-80 md:w-96 md:h-96 relative cursor-pointer select-none group pointer-events-auto"
+      title="Click to fire Kamehameha!"
     >
+      {/* Speech bubble or overlay text */}
+      {speech && (
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none z-30">
+          <motion.div
+            key={speech}
+            initial={{ scale: 0.5, opacity: 0, y: -20 }}
+            animate={{ scale: [1, 1.25, 1], opacity: 1, y: 0 }}
+            transition={{ duration: 0.25 }}
+            className={`font-[family-name:var(--font-heading)] font-extrabold tracking-tighter uppercase select-none ${
+              speech === "HAAAA!!!!"
+                ? "text-4xl sm:text-5xl md:text-6xl text-cyan-400 drop-shadow-[0_0_15px_rgba(6,182,212,0.9)]"
+                : "text-3xl sm:text-4xl md:text-5xl text-yellow-400 drop-shadow-[0_0_10px_rgba(234,179,8,0.85)]"
+            }`}
+          >
+            {speech}
+          </motion.div>
+        </div>
+      )}
+
       <Suspense fallback={<LoadingFallback />}>
         <Canvas
           camera={{ position: [0, 0, 2.1], fov: 45 }}
+          dpr={[1, 1.5]}
           style={{ background: "transparent" }}
-          gl={{ alpha: true, antialias: true }}
+          gl={{ alpha: true, antialias: true, powerPreference: "high-performance" }}
           shadows={{ type: THREE.PCFShadowMap }}
         >
           <Scene theme={theme} action={action} setAction={setAction} isHolding={isHolding} />

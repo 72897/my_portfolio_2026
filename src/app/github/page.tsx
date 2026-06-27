@@ -32,7 +32,7 @@ const LANG_COLORS: Record<string, string> = {
   Shell: "#89e051",
 };
 
-const PIE_COLORS = ["#2563eb", "#3b82f6", "#60a5fa", "#93c5fd", "#bfdbfe"];
+const PIE_COLORS = ["#22c55e", "#10b981", "#059669", "#64748b", "#334155"];
 
 export default function GitHubPage() {
   const [stats, setStats] = useState<GitHubStats | null>(null);
@@ -148,24 +148,8 @@ export default function GitHubPage() {
         </div>
       </section>
 
-      {/* GitHub Contributions (All Green) */}
-      <section className="py-16 border-y border-border bg-card/5">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <SectionHeading
-            title="GitHub Contributions"
-            subtitle="Daily commit and repository activity (365 consecutive days active)"
-          />
-          <ContributionGrid
-            title="Commit History"
-            subtitle="Vibrant green activity calendar showing continuous contributions"
-            totalCount={1542}
-            label="Contributions"
-          />
-        </div>
-      </section>
-
       {/* Language Chart + Stats */}
-      <section className="py-16">
+      <section className="py-16 border-t border-border bg-card/5">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <SectionHeading
             title="Language Distribution"
@@ -242,6 +226,8 @@ export default function GitHubPage() {
           </div>
         </div>
       </section>
+
+
 
       {/* Top Repos */}
       <section className="py-16 border-t border-border bg-card/5">

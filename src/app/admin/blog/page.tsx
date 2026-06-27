@@ -11,10 +11,12 @@ import {
   BookOpen,
   Calendar,
   Tag,
-  Eye,
   Globe,
   Lock,
+  RefreshCw,
+  ExternalLink,
 } from 'lucide-react';
+import { Linkedin } from '@/components/shared/brand-icons';
 
 interface IBlog {
   _id?: string;
@@ -24,6 +26,9 @@ interface IBlog {
   content: string;
   coverImage?: string;
   tags: string[];
+  source: 'article' | 'linkedin';
+  externalUrl?: string;
+  linkedinPostId?: string;
   published: boolean;
   publishedAt?: string;
   readingTime?: number;
@@ -36,6 +41,8 @@ const emptyBlog: Partial<IBlog> = {
   content: '',
   coverImage: '',
   tags: [],
+  source: 'article',
+  externalUrl: '',
   published: false,
 };
 
@@ -48,6 +55,7 @@ export default function AdminBlogPage() {
   const [formData, setFormData] = useState<Partial<IBlog>>(emptyBlog);
   const [tagsInput, setTagsInput] = useState('');
   const [saving, setSaving] = useState(false);
+  const [syncingLinkedIn, setSyncingLinkedIn] = useState(false);
 
   const fetchBlogs = useCallback(async () => {
     try {
@@ -65,7 +73,11 @@ export default function AdminBlogPage() {
   }, []);
 
   useEffect(() => {
-    if (session) fetchBlogs();
+    if (!session) return;
+    const timer = window.setTimeout(() => {
+      void fetchBlogs();
+    }, 0);
+    return () => window.clearTimeout(timer);
   }, [session, fetchBlogs]);
 
   const resetForm = () => {
@@ -146,6 +158,24 @@ export default function AdminBlogPage() {
     }
   };
 
+  const handleLinkedInSync = async () => {
+    setSyncingLinkedIn(true);
+    try {
+      const res = await fetch('/api/linkedin/sync', { method: 'POST' });
+      const data = await res.json();
+      if (res.ok) {
+        toast.success(data.message || 'LinkedIn posts synced');
+        fetchBlogs();
+      } else {
+        toast.error(data.error || 'LinkedIn sync failed');
+      }
+    } catch {
+      toast.error('Could not connect to LinkedIn sync');
+    } finally {
+      setSyncingLinkedIn(false);
+    }
+  };
+
   if (!session) return null;
 
   return (
@@ -161,16 +191,26 @@ export default function AdminBlogPage() {
             Write, review, and publish articles
           </p>
         </div>
-        <button
-          onClick={() => {
-            resetForm();
-            setShowForm(true);
-          }}
-          className="px-4 py-2 bg-primary text-primary-foreground rounded-xl hover:opacity-90 transition cursor-pointer flex items-center gap-2"
-        >
-          <Plus className="w-4 h-4" />
-          Create Post
-        </button>
+        <div className="flex flex-wrap items-center justify-end gap-2">
+          <button
+            onClick={handleLinkedInSync}
+            disabled={syncingLinkedIn}
+            className="px-4 py-2 border border-border bg-card text-foreground rounded-xl hover:border-primary/40 transition cursor-pointer flex items-center gap-2 disabled:opacity-50"
+          >
+            <RefreshCw className={`w-4 h-4 ${syncingLinkedIn ? 'animate-spin' : ''}`} />
+            {syncingLinkedIn ? 'Syncing…' : 'Sync LinkedIn'}
+          </button>
+          <button
+            onClick={() => {
+              resetForm();
+              setShowForm(true);
+            }}
+            className="px-4 py-2 bg-primary text-primary-foreground rounded-xl hover:opacity-90 transition cursor-pointer flex items-center gap-2"
+          >
+            <Plus className="w-4 h-4" />
+            Create Post
+          </button>
+        </div>
       </div>
 
       {/* Form Modal */}
@@ -189,6 +229,41 @@ export default function AdminBlogPage() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label htmlFor="blog-source" className="block text-sm font-medium text-foreground">Post Source</label>
+                <select
+                  id="blog-source"
+                  value={formData.source || 'article'}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      source: e.target.value as IBlog['source'],
+                    })
+                  }
+                  className="w-full px-4 py-2.5 bg-muted border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground"
+                >
+                  <option value="article">Portfolio Article</option>
+                  <option value="linkedin">LinkedIn Post</option>
+                </select>
+              </div>
+              <div className="space-y-2">
+                <label htmlFor="external-url" className="block text-sm font-medium text-foreground">
+                  LinkedIn Post URL
+                </label>
+                <input
+                  id="external-url"
+                  type="url"
+                  value={formData.externalUrl || ''}
+                  onChange={(e) => setFormData({ ...formData, externalUrl: e.target.value })}
+                  required={formData.source === 'linkedin'}
+                  disabled={formData.source !== 'linkedin'}
+                  className="w-full px-4 py-2.5 bg-muted border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground disabled:opacity-50"
+                  placeholder="https://www.linkedin.com/posts/…"
+                />
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <label className="block text-sm font-medium text-foreground">Title</label>
@@ -222,7 +297,7 @@ export default function AdminBlogPage() {
                   value={formData.coverImage || ''}
                   onChange={(e) => setFormData({ ...formData, coverImage: e.target.value })}
                   className="w-full px-4 py-2.5 bg-muted border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground"
-                  placeholder="https://..."
+                placeholder="https://example.com/cover.jpg"
                 />
               </div>
               <div className="space-y-2">
@@ -259,7 +334,9 @@ export default function AdminBlogPage() {
                 required
                 rows={12}
                 className="w-full px-4 py-2.5 bg-muted border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground resize-none font-[family-name:var(--font-mono)] text-sm"
-                placeholder="Write your article content here in Markdown format..."
+                placeholder={formData.source === 'linkedin'
+                  ? 'Paste the LinkedIn post text here…'
+                  : 'Write your article content here in Markdown format…'}
               />
             </div>
 
@@ -282,7 +359,7 @@ export default function AdminBlogPage() {
                 disabled={saving}
                 className="px-4 py-2 bg-primary text-primary-foreground rounded-xl hover:opacity-90 transition cursor-pointer disabled:opacity-50"
               >
-                {saving ? 'Saving...' : editingId ? 'Update Post' : 'Create Post'}
+                {saving ? 'Saving…' : editingId ? 'Update Post' : 'Create Post'}
               </button>
               <button
                 type="button"
@@ -345,6 +422,12 @@ export default function AdminBlogPage() {
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2 mb-3">
+                  {blog.source === 'linkedin' && (
+                    <span className="px-2 py-0.5 text-xs bg-[#0A66C2]/10 text-[#4ea1f3] border border-[#0A66C2]/20 rounded-full font-semibold flex items-center gap-1">
+                      <Linkedin className="w-3 h-3" />
+                      LinkedIn
+                    </span>
+                  )}
                   {blog.published ? (
                     <span className="px-2 py-0.5 text-xs bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 rounded-full font-semibold flex items-center gap-1">
                       <Globe className="w-3 h-3" />
@@ -380,6 +463,16 @@ export default function AdminBlogPage() {
                     <Tag className="w-3 h-3" />
                     {blog.tags[0]}
                   </span>
+                )}
+                {blog.source === 'linkedin' && blog.externalUrl && (
+                  <a
+                    href={blog.externalUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1 text-[#4ea1f3] hover:underline"
+                  >
+                    View post <ExternalLink className="w-3 h-3" />
+                  </a>
                 )}
               </div>
             </div>

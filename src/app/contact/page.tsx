@@ -135,6 +135,7 @@ export default function ContactPage() {
                     <input
                       id="name"
                       type="text"
+                      autoComplete="name"
                       placeholder="Your name"
                       {...register("name", {
                         required: "Name is required",
@@ -162,6 +163,8 @@ export default function ContactPage() {
                     <input
                       id="email"
                       type="email"
+                      autoComplete="email"
+                      spellCheck={false}
                       placeholder="your@email.com"
                       {...register("email", {
                         required: "Email is required",
@@ -189,6 +192,7 @@ export default function ContactPage() {
                     <input
                       id="subject"
                       type="text"
+                      autoComplete="off"
                       placeholder="What's this about?"
                       {...register("subject", {
                         required: "Subject is required",
@@ -216,7 +220,8 @@ export default function ContactPage() {
                     <textarea
                       id="message"
                       rows={5}
-                      placeholder="Your message..."
+                      autoComplete="off"
+                      placeholder="Your message…"
                       {...register("message", {
                         required: "Message is required",
                         minLength: {
@@ -241,7 +246,7 @@ export default function ContactPage() {
                     {isSubmitting ? (
                       <>
                         <Loader2 className="w-4 h-4 animate-spin" />
-                        Sending...
+                        Sending…
                       </>
                     ) : (
                       <>

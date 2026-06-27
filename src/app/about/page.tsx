@@ -106,8 +106,8 @@ export default function AboutPage() {
               <div className="mt-6 space-y-4 text-muted-foreground text-base md:text-lg leading-relaxed">
                 <p>
                   I&apos;m <strong className="text-foreground">{siteConfig.name}</strong>, an AI
-                  Engineer and Full Stack Developer currently pursuing my B.Tech
-                  in Computer Science at Gautam Buddha University, Greater Noida.
+                  Engineer and Full Stack Developer. I recently graduated with a B.Tech
+                  in Computer Science from Gautam Buddha University, Greater Noida.
                 </p>
                 <p>
                   My passion lies at the intersection of Artificial Intelligence

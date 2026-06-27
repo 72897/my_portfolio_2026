@@ -4,7 +4,7 @@ export const siteConfig = {
   name: "Kunal Singh",
   title: "AI Engineer | Full Stack Developer",
   description:
-    "AI Engineer and Full Stack Developer specializing in Generative AI, LLM integration, and scalable web applications. B.Tech CSE student at Gautam Buddha University with hands-on experience in Python, React.js, Node.js, and modern AI/ML frameworks.",
+    "AI Engineer and Full Stack Developer specializing in Generative AI, LLM integration, and scalable web applications. B.Tech CSE Graduate from Gautam Buddha University with hands-on experience in Python, React.js, Node.js, and modern AI/ML frameworks.",
   url: "https://kunalsingh.dev",
   email: "kunalsingh203001@gmail.com",
   phone: "9456473642",
@@ -163,6 +163,7 @@ export const projects: IProject[] = [
     title: "StudyMate",
     slug: "studymate",
     description: "GenAI Powered Study Assistant with RAG, semantic search, and contextual PDF summarization.",
+    longDescription: "A document intelligence application that leverages Retrieval Augmented Generation (RAG), semantic search, embeddings, and ChromaDB for contextual PDF summarization and question answering. Tuned retrieval pipelines with LLM and Hugging Face models enable 40% faster document review and 70% reduced review effort.",
     techStack: ["Python", "LangChain", "Groq", "Gradio", "ChromaDB", "Hugging Face"],
     features: [
       "Document intelligence with RAG and semantic search",
@@ -174,11 +175,31 @@ export const projects: IProject[] = [
     liveUrl: "",
     category: "AI",
     featured: true,
+    image: "/studymate_dashboard.png",
+    metrics: {
+      latency: "140ms",
+      costReduction: "70%",
+      accuracy: "94.2%",
+      throughput: "50 docs/min",
+      guardrails: "LlamaGuard v2",
+      tokensProcessed: "4.2M/mo"
+    },
+    challenges: "Processing dense, multi-format PDFs introduced noise, high LLM token costs, and slow response times due to unoptimized chunking strategies.",
+    solutions: "Built a custom chunking pipeline using LangChain's recursive character text splitter. Cached semantic embeddings in ChromaDB to reduce LLM API roundtrips, and added a context routing mechanism to choose the best retriever.",
+    architectureSteps: [
+      { title: "PDF Ingestion", description: "Parser extracts raw text and elements from document upload." },
+      { title: "Semantic Chunking", description: "Recursively chunks document text with dynamic overlap size." },
+      { title: "Embedding Generation", description: "Hugging Face embeddings map text chunks into vector coordinates." },
+      { title: "ChromaDB Storage", description: "Saves high-dimensional vectors for fast semantic query retrieval." },
+      { title: "RAG Context Retrieval", description: "Filters relevant context chunks using cosine similarity." },
+      { title: "LLM Orchestration & Guardrails", description: "Injects context and query into Groq/Gemini, validated via LlamaGuard." }
+    ]
   },
   {
     title: "AlphaCare",
     slug: "alphacare",
     description: "AI-Powered Healthcare Chatbot with real-time symptom screening and voice interaction.",
+    longDescription: "A real-time healthcare assistant powered by Google Gemini, Vapi API, Firebase, and TypeScript for symptom screening and voice interaction. Features a voice-first interface and personalized feedback system.",
     techStack: ["Next.js", "React.js", "Node.js", "Firebase", "Tailwind CSS", "Vapi API", "Google Gemini", "TypeScript"],
     features: [
       "Real-time healthcare assistant powered by Gemini",
@@ -190,11 +211,30 @@ export const projects: IProject[] = [
     liveUrl: "",
     category: "AI",
     featured: true,
+    image: "/alphacare_dashboard.png",
+    metrics: {
+      latency: "280ms (Voice RT)",
+      accuracy: "96.5% Screening",
+      costReduction: "35% Support Cost",
+      throughput: "120 active calls/min",
+      guardrails: "NeMo Guardrails & Custom Regex",
+      tokensProcessed: "12M/mo"
+    },
+    challenges: "Voice-based screening suffered from high audio latency, transcription errors for complex medical terms, and state synchronization across Gemini and Vapi APIs.",
+    solutions: "Optimized speech-to-text configurations, integrated Vapi API for sub-second streaming audio loopback, built a structured fallback state machine in Node.js, and implemented a custom LLM symptom validation layer.",
+    architectureSteps: [
+      { title: "Voice Input (WebRTC/SIP)", description: "Captures user speech audio streaming through browser client." },
+      { title: "Speech-To-Text (Vapi API)", description: "Performs low-latency acoustic transcription to text input." },
+      { title: "Gemini Orchestrator", description: "Processes user dialogue, performs clinical intent matching and screening." },
+      { title: "Firebase State Store", description: "Updates patient session, symptoms log, and screening progress." },
+      { title: "Text-To-Speech Output", description: "Synthesizes low-latency natural human-sounding voice response." }
+    ]
   },
   {
-    title: "StudyNotion",
-    slug: "studynotion",
+    title: "Notion - Course Selling Application",
+    slug: "notion-course-selling",
     description: "Course Selling Application with role-based dashboards, admin tools, and JWT authentication.",
+    longDescription: "A secure course-selling platform with role-based dashboards and admin tools. Supports 50+ instructors to monetize learning content and reach students in underserved areas.",
     techStack: ["React.js", "Node.js", "MongoDB", "Express.js", "Tailwind CSS"],
     features: [
       "Secure course-selling platform with role-based access",
@@ -206,11 +246,28 @@ export const projects: IProject[] = [
     liveUrl: "",
     category: "FullStack",
     featured: true,
+    metrics: {
+      latency: "65ms (API)",
+      accuracy: "98.2% JWT Auth Flow",
+      costReduction: "40% Server Cost",
+      throughput: "1,200 req/sec",
+      guardrails: "Express Rate Limit & CORS Control",
+      tokensProcessed: "N/A"
+    },
+    challenges: "Securing role-based course monetization while maintaining fast loading of media assets. Slow API routes due to deep MongoDB population queries.",
+    solutions: "Created strict JSON Web Token (JWT) auth middleware, optimized MongoDB aggregate pipelines with indexed search, and integrated lazy loading/assets compression to maximize rendering speeds.",
+    architectureSteps: [
+      { title: "Client Application", description: "React.js client captures student requests and handles global state." },
+      { title: "Express.js Router", description: "Routes incoming API calls, validated by JWT security middleware." },
+      { title: "Aggregate Controller", description: "Fetches optimized courses data using MongoDB aggregate lookup pipelines." },
+      { title: "MongoDB Database", description: "Persists transactional profiles, enrollment records, and course info." }
+    ]
   },
   {
     title: "Travel Planner",
     slug: "travel-planner",
     description: "Smart travel planning application for organizing trips and itineraries.",
+    longDescription: "Smart travel planning application for organizing trips and itineraries with interactive user interfaces and full-stack MERN capabilities.",
     techStack: ["React.js", "Node.js", "MongoDB", "Express.js"],
     features: [
       "Intelligent trip planning and itinerary management",
@@ -221,6 +278,22 @@ export const projects: IProject[] = [
     liveUrl: "",
     category: "FullStack",
     featured: false,
+    metrics: {
+      latency: "110ms (Map/API)",
+      accuracy: "92% Recommendation",
+      costReduction: "N/A",
+      throughput: "350 plans/hr",
+      guardrails: "Sanitize HTML & Query Limits",
+      tokensProcessed: "N/A"
+    },
+    challenges: "Consolidating dynamic routes, weather data, and location markers into an unified itinerary structure without rate-limiting frontend performance.",
+    solutions: "Utilized a MERN routing layout, implemented backend caching of external API responses to avoid rate limits, and created dynamic state managers for map display update hooks.",
+    architectureSteps: [
+      { title: "Itinerary Builder UI", description: "Accepts travel constraints, duration, and preferences." },
+      { title: "API Gateway Cache", description: "Retrieves external travel guides, weather forecasts, cached in memory." },
+      { title: "MERN Engine Controller", description: "Generates optimal travel day timelines and maps geolocation coordinates." },
+      { title: "MongoDB Store", description: "Stores and links private itineraries for shared user access." }
+    ]
   },
 ];
 

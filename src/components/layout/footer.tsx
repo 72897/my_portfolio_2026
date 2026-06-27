@@ -1,43 +1,71 @@
 "use client";
 
 import Link from "next/link";
-import { Mail, FileText, Heart } from "lucide-react";
-import { Github, Linkedin } from "@/components/shared/brand-icons";
-import { siteConfig, navLinks } from "@/lib/constants";
+import { ArrowUpRight, Code2, FileText, Mail } from "lucide-react";
 import { usePathname } from "next/navigation";
+import { Github, Linkedin } from "@/components/shared/brand-icons";
+import { navLinks, siteConfig } from "@/lib/constants";
+
+const footerLinks = navLinks.filter((link) =>
+  ["/about", "/skills", "/experience", "/projects", "/github", "/leetcode", "/certificates", "/blog", "/contact"].includes(link.href)
+);
 
 export function Footer() {
   const pathname = usePathname();
-
   if (pathname.startsWith("/admin")) return null;
 
-  return (
-    <footer className="relative border-t border-border">
+  const socialLinks = [
+    { label: "GitHub", href: siteConfig.links.github, icon: Github },
+    { label: "LinkedIn", href: siteConfig.links.linkedin, icon: Linkedin },
+    { label: "Email", href: `mailto:${siteConfig.email}`, icon: Mail },
+    { label: "Resume", href: siteConfig.links.resume, icon: FileText },
+  ];
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* Brand */}
-          <div className="space-y-4">
-            <Link href="/" className="text-xl font-bold font-[family-name:var(--font-heading)] gradient-text cursor-pointer">
-              Kunal Singh
+  return (
+    <footer className="site-footer relative">
+      <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20">
+        <div className="footer-cta mb-16">
+          <div className="max-w-3xl">
+            <span className="eyebrow">
+              <Code2 size={14} aria-hidden="true" />
+              Available for select opportunities
+            </span>
+            <h2 className="mt-5 text-4xl font-bold tracking-[-0.055em] sm:text-5xl md:text-6xl">
+              Have an ambitious idea?
+              <br />
+              <span className="gradient-text">Let&apos;s make it real.</span>
+            </h2>
+          </div>
+          <a
+            href="/contact"
+            className="anime-btn relative z-10 shrink-0 pointer-events-auto"
+            aria-label="Start a conversation on the contact page"
+          >
+            Start a conversation <ArrowUpRight size={16} aria-hidden="true" />
+          </a>
+        </div>
+
+        <div className="grid gap-10 border-t border-border/60 pt-10 md:grid-cols-[1.4fr_1fr_1fr]">
+          <div>
+            <Link href="/" className="text-lg font-bold tracking-[-0.03em]">
+              Kunal<span className="text-primary">/</span>Singh
             </Link>
-            <p className="text-sm text-muted-foreground max-w-xs">
-              AI Engineer & Full Stack Developer crafting intelligent applications
-              and scalable solutions.
+            <p className="mt-4 max-w-sm text-sm leading-6 text-muted-foreground">
+              AI engineer and full-stack developer building intelligent, useful,
+              and scalable digital products.
             </p>
           </div>
 
-          {/* Quick Links */}
-          <div className="space-y-4">
-            <h3 className="text-sm font-semibold font-[family-name:var(--font-heading)] uppercase tracking-wider text-muted-foreground">
-              Quick Links
+          <div>
+            <h3 className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+              Navigate
             </h3>
-            <div className="grid grid-cols-2 gap-2">
-              {navLinks.slice(0, 8).map((link) => (
+            <div className="mt-4 grid grid-cols-2 gap-x-5 gap-y-3">
+              {footerLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors cursor-pointer"
+                  className="text-sm text-muted-foreground transition-colors hover:text-primary"
                 >
                   {link.name}
                 </Link>
@@ -45,61 +73,30 @@ export function Footer() {
             </div>
           </div>
 
-          {/* Connect */}
-          <div className="space-y-4">
-            <h3 className="text-sm font-semibold font-[family-name:var(--font-heading)] uppercase tracking-wider text-muted-foreground">
+          <div>
+            <h3 className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
               Connect
             </h3>
-            <div className="flex gap-3">
-              <a
-                href={siteConfig.links.github}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-2.5 rounded-xl bg-muted/50 hover:bg-primary/10 text-muted-foreground hover:text-primary transition-all duration-300 cursor-pointer"
-                aria-label="GitHub"
-              >
-                <Github size={18} />
-              </a>
-              <a
-                href={siteConfig.links.linkedin}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-2.5 rounded-xl bg-muted/50 hover:bg-primary/10 text-muted-foreground hover:text-primary transition-all duration-300 cursor-pointer"
-                aria-label="LinkedIn"
-              >
-                <Linkedin size={18} />
-              </a>
-              <a
-                href={`mailto:${siteConfig.email}`}
-                className="p-2.5 rounded-xl bg-muted/50 hover:bg-primary/10 text-muted-foreground hover:text-primary transition-all duration-300 cursor-pointer"
-                aria-label="Email"
-              >
-                <Mail size={18} />
-              </a>
-              <a
-                href={siteConfig.links.resume}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-2.5 rounded-xl bg-muted/50 hover:bg-primary/10 text-muted-foreground hover:text-primary transition-all duration-300 cursor-pointer"
-                aria-label="Resume"
-              >
-                <FileText size={18} />
-              </a>
+            <div className="mt-4 flex flex-wrap gap-2">
+              {socialLinks.map(({ label, href, icon: Icon }) => (
+                <a
+                  key={label}
+                  href={href}
+                  target={href.startsWith("http") ? "_blank" : undefined}
+                  rel={href.startsWith("http") ? "noopener noreferrer" : undefined}
+                  className="grid size-11 place-items-center rounded-xl border border-border bg-card text-muted-foreground transition hover:-translate-y-0.5 hover:border-primary/40 hover:text-primary"
+                  aria-label={label}
+                >
+                  <Icon size={17} />
+                </a>
+              ))}
             </div>
-            <p className="text-sm text-muted-foreground">
-              {siteConfig.email}
-            </p>
           </div>
         </div>
 
-        {/* Bottom */}
-        <div className="mt-12 pt-6 border-t border-border/30 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} Kunal Singh. All rights reserved.
-          </p>
-          <p className="text-sm text-muted-foreground flex items-center gap-1.5">
-            Built with <Heart className="w-3.5 h-3.5 text-primary fill-primary" /> by Kunal Singh
-          </p>
+        <div className="mt-12 flex flex-col gap-3 border-t border-border/60 pt-6 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+          <p>© {new Date().getFullYear()} Kunal Singh. All rights reserved.</p>
+          <p>Designed &amp; engineered in Greater Noida, India.</p>
         </div>
       </div>
     </footer>

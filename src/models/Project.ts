@@ -25,6 +25,10 @@ export interface IProjectDoc extends Document {
   category: ProjectCategory;
   featured: boolean;
   order: number;
+  metrics?: Record<string, string>;
+  challenges?: string;
+  solutions?: string;
+  architectureSteps?: { title: string; description: string }[];
 }
 
 const ProjectSchema = new Schema<IProjectDoc>(
@@ -92,6 +96,24 @@ const ProjectSchema = new Schema<IProjectDoc>(
       default: 0,
       index: true,
     },
+    metrics: {
+      type: Map,
+      of: String,
+    },
+    challenges: {
+      type: String,
+      default: '',
+    },
+    solutions: {
+      type: String,
+      default: '',
+    },
+    architectureSteps: [
+      {
+        title: { type: String, required: true },
+        description: { type: String, required: true },
+      },
+    ],
   },
   {
     timestamps: true,

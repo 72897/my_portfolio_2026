@@ -81,13 +81,16 @@ export default function ExperiencePage() {
                 style={{ scaleY: scrollYProgress }}
               />
               {exps.map((exp, i) => {
-                // Format display dates
-                const startStr = exp.startDate ? new Date(exp.startDate).toLocaleDateString(undefined, { year: 'numeric', month: 'short' }) : '';
-                const endStr = exp.current 
-                  ? 'Present' 
-                  : exp.endDate 
-                    ? new Date(exp.endDate).toLocaleDateString(undefined, { year: 'numeric', month: 'short' }) 
-                    : '';
+                // Format display dates safely
+                const formatDate = (dateVal: string | undefined) => {
+                  if (!dateVal) return "";
+                  const parsed = new Date(dateVal);
+                  if (isNaN(parsed.getTime())) return dateVal;
+                  return parsed.toLocaleDateString(undefined, { year: 'numeric', month: 'short' });
+                };
+
+                const startStr = formatDate(exp.startDate);
+                const endStr = exp.current ? 'Present' : formatDate(exp.endDate);
 
                 return (
                   <motion.div
@@ -107,7 +110,7 @@ export default function ExperiencePage() {
                           {exp.role}
                         </h3>
                         <span className="text-xs text-muted-foreground font-medium">
-                          {startStr || exp.startDate} – {endStr || exp.endDate}
+                          {startStr} {endStr ? `– ${endStr}` : ""}
                         </span>
                       </div>
                       <p className="text-sm font-medium text-primary font-[family-name:var(--font-body)]">

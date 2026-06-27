@@ -1,13 +1,17 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Code2 } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
+import { ArrowUpRight, Code2, Menu, X } from "lucide-react";
 import { navLinks } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "./theme-toggle";
+
+const primaryLinks = navLinks.filter((link) =>
+  ["/about", "/skills", "/experience", "/projects", "/github", "/leetcode", "/certificates", "/blog"].includes(link.href)
+);
 
 export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -17,33 +21,21 @@ export function Navbar() {
 
   useEffect(() => {
     let lastScrollY = window.scrollY;
-
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
-      setIsScrolled(currentScrollY > 20);
-
-      // Hide navbar when scrolling down, show when scrolling up
-      if (currentScrollY > lastScrollY && currentScrollY > 80) {
-        setIsVisible(false);
-      } else {
-        setIsVisible(true);
-      }
-
+      setIsScrolled(currentScrollY > 24);
+      setIsVisible(currentScrollY < lastScrollY || currentScrollY < 96);
       lastScrollY = currentScrollY;
     };
-
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   useEffect(() => {
-    setIsMobileOpen(false);
-  }, [pathname]);
-
-  // Prevent body scroll when mobile menu is open
-  useEffect(() => {
     document.body.style.overflow = isMobileOpen ? "hidden" : "";
-    return () => { document.body.style.overflow = ""; };
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, [isMobileOpen]);
 
   if (pathname.startsWith("/admin")) return null;
@@ -51,63 +43,62 @@ export function Navbar() {
   return (
     <>
       <motion.header
-        initial={{ y: -100 }}
-        animate={{ y: isVisible ? 0 : -100 }}
-        transition={{ duration: 0.3 }}
-        className={cn(
-          "fixed top-0 left-0 right-0 z-50 transition-all duration-500",
-          isScrolled
-            ? "glass shadow-sm shadow-black/5"
-            : "bg-transparent"
-        )}
+        initial={{ y: -96 }}
+        animate={{ y: isVisible ? 0 : -96 }}
+        transition={{ duration: 0.28, ease: "easeOut" }}
+        className="fixed inset-x-0 top-0 z-50 px-3 pt-3 sm:px-5 pointer-events-none"
       >
-        <nav className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-          {/* Logo */}
-          <Link
-            href="/"
-            className="relative group cursor-pointer flex items-center gap-2.5"
-          >
-            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform duration-300">
-              <Code2 className="w-4 h-4 text-primary-foreground" />
-            </div>
-            <span className="font-[family-name:var(--font-heading)] text-base font-bold tracking-tight hidden sm:inline">
-              Kunal
-              <span className="text-primary">.</span>
+        <nav
+          aria-label="Primary navigation"
+          className={cn(
+            "nav-shell mx-auto flex h-16 max-w-7xl items-center justify-between px-3 sm:px-4 pointer-events-auto",
+            isScrolled && "nav-shell--scrolled"
+          )}
+        >
+          <Link href="/" className="group flex items-center gap-2.5" aria-label="Kunal Singh home">
+            <span className="brand-mark">
+              <Code2 size={17} aria-hidden="true" />
+            </span>
+            <span className="hidden text-sm font-bold tracking-[-0.03em] sm:inline">
+              Kunal<span className="text-primary">/</span>Singh
             </span>
           </Link>
 
-          {/* Desktop Nav */}
-          <div className="hidden lg:flex items-center gap-0.5">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={cn(
-                  "relative px-3 py-2 text-sm font-medium transition-colors duration-200 cursor-pointer rounded-lg",
-                  pathname === link.href
-                    ? "text-primary font-semibold"
-                    : "text-muted-foreground hover:text-foreground"
-                )}
-              >
-                {link.name}
-                {pathname === link.href && (
-                  <motion.div
-                    layoutId="navbar-indicator"
-                    className="absolute bottom-0 left-3 right-3 h-0.5 bg-primary rounded-full"
-                    transition={{ type: "spring", stiffness: 350, damping: 30 }}
-                  />
-                )}
-              </Link>
-            ))}
+          <div className="hidden items-center gap-1 lg:flex">
+            {primaryLinks.map((link) => {
+              const active = pathname === link.href;
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={cn(
+                    "nav-link relative rounded-lg px-3 py-2 text-xs font-semibold",
+                    active ? "text-foreground" : "text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  {link.name}
+                  {active ? (
+                    <motion.span
+                      layoutId="navbar-indicator"
+                      className="absolute inset-x-3 -bottom-1 h-px rounded-full bg-primary shadow-[0_0_10px_var(--color-primary)]"
+                    />
+                  ) : null}
+                </Link>
+              );
+            })}
           </div>
 
-          {/* Right side */}
           <div className="flex items-center gap-2">
             <ThemeToggle />
+            <Link href="/contact" className="nav-cta hidden sm:inline-flex">
+              Let&apos;s talk <ArrowUpRight size={14} aria-hidden="true" />
+            </Link>
             <button
-              onClick={() => setIsMobileOpen(!isMobileOpen)}
-              className="lg:hidden p-2 rounded-lg hover:bg-muted transition-colors cursor-pointer"
-              aria-label="Toggle menu"
+              type="button"
+              onClick={() => setIsMobileOpen((open) => !open)}
+              className="grid size-11 place-items-center rounded-xl transition-colors hover:bg-muted lg:hidden"
+              aria-label={isMobileOpen ? "Close navigation menu" : "Open navigation menu"}
+              aria-expanded={isMobileOpen}
             >
               {isMobileOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
@@ -115,58 +106,63 @@ export function Navbar() {
         </nav>
       </motion.header>
 
-      {/* Mobile Menu */}
       <AnimatePresence>
-        {isMobileOpen && (
+        {isMobileOpen ? (
           <>
-            <motion.div
+            <motion.button
+              type="button"
+              aria-label="Close navigation menu"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 z-40 bg-background/80 backdrop-blur-sm lg:hidden"
+              className="fixed inset-0 z-40 bg-background/80 backdrop-blur-md lg:hidden"
               onClick={() => setIsMobileOpen(false)}
             />
-            <motion.div
+            <motion.aside
               initial={{ x: "100%" }}
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
-              transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="fixed top-0 right-0 bottom-0 z-50 w-72 bg-card/95 backdrop-blur-xl border-l border-border p-6 lg:hidden overflow-y-auto"
+              transition={{ type: "spring", damping: 28, stiffness: 220 }}
+              className="mobile-nav-panel fixed inset-y-0 right-0 z-50 w-[min(88vw,360px)] overflow-y-auto p-6 lg:hidden"
             >
-              <div className="flex justify-between items-center mb-8">
-                <span className="text-sm font-semibold text-primary">Menu</span>
+              <div className="mb-8 flex items-center justify-between">
+                <span className="eyebrow">Explore portfolio</span>
                 <button
+                  type="button"
                   onClick={() => setIsMobileOpen(false)}
-                  className="p-2 rounded-lg hover:bg-muted transition-colors cursor-pointer"
+                  className="grid size-11 place-items-center rounded-xl hover:bg-muted"
+                  aria-label="Close navigation menu"
                 >
                   <X size={20} />
                 </button>
               </div>
               <div className="flex flex-col gap-1">
-                {navLinks.map((link, i) => (
+                {navLinks.map((link, index) => (
                   <motion.div
                     key={link.href}
-                    initial={{ opacity: 0, x: 20 }}
+                    initial={{ opacity: 0, x: 18 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: i * 0.04 }}
+                    transition={{ delay: index * 0.025 }}
                   >
                     <Link
                       href={link.href}
+                      onClick={() => setIsMobileOpen(false)}
                       className={cn(
-                        "block px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 cursor-pointer",
+                        "flex min-h-12 items-center justify-between rounded-xl px-4 py-3 text-sm font-semibold",
                         pathname === link.href
-                          ? "bg-primary/10 text-primary border border-primary/20"
-                          : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                          ? "bg-primary/10 text-primary"
+                          : "text-muted-foreground hover:bg-muted hover:text-foreground"
                       )}
                     >
                       {link.name}
+                      <ArrowUpRight size={14} aria-hidden="true" />
                     </Link>
                   </motion.div>
                 ))}
               </div>
-            </motion.div>
+            </motion.aside>
           </>
-        )}
+        ) : null}
       </AnimatePresence>
     </>
   );

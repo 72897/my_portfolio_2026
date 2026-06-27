@@ -7,6 +7,10 @@ import { AnimeBackground } from "@/components/effects/anime-background";
 import { Chatbot } from "@/components/layout/chatbot";
 import { Toaster } from "sonner";
 import { ScrollNavButton } from "@/components/effects/scroll-nav-button";
+import {
+  SpatialInteractions,
+  SpatialWorld,
+} from "@/components/effects/spatial-world";
 
 export const metadata: Metadata = {
   title: {
@@ -48,9 +52,12 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning data-scroll-behavior="smooth">
       <body className="min-h-screen bg-background text-foreground antialiased">
         <ThemeProvider>
+          <a href="#main-content" className="skip-link">Skip to content</a>
           <AnimeBackground />
+          <SpatialWorld />
+          <SpatialInteractions />
           <Navbar />
-          <main className="min-h-screen pt-16 relative z-10">{children}</main>
+          <main id="main-content" className="min-h-screen pt-20 relative z-10">{children}</main>
           <ScrollNavButton />
           <Chatbot />
           <Footer />

@@ -15,6 +15,10 @@ export interface IProject {
   order?: number;
   createdAt?: Date;
   updatedAt?: Date;
+  metrics?: Record<string, string>;
+  challenges?: string;
+  solutions?: string;
+  architectureSteps?: { title: string; description: string }[];
 }
 
 export interface ICertificate {
@@ -77,8 +81,12 @@ export interface IBlog {
   content: string;
   coverImage?: string;
   tags: string[];
+  source?: "article" | "linkedin";
+  externalUrl?: string;
+  linkedinPostId?: string;
   published: boolean;
   publishedAt?: Date;
+  readingTime?: number;
   createdAt?: Date;
   updatedAt?: Date;
 }

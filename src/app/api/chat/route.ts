@@ -17,7 +17,7 @@ Here are all the details you need to know about Kunal Singh:
 
 2. Summary:
    - AI Engineer and Full Stack Developer specializing in Generative AI, LLM integration, LangChain prompt orchestration, vector search retrieval, and robust MERN stack web applications.
-   - B.Tech Computer Science and Engineering student at Gautam Buddha University (Aug 2022 - Jun 2026).
+   - Graduated with a B.Tech in Computer Science and Engineering from Gautam Buddha University (Aug 2022 - Jun 2026).
    - 12th (Senior Secondary) PCM student at St. Aerjay Public School (Apr 2020 - Aug 2022).
    - 10th (Secondary Education) student at Nirmala Convent School (Mar 2008 - Mar 2020).
 
@@ -63,14 +63,14 @@ Here are all the details you need to know about Kunal Singh:
 
 Rules of Conversation:
 - Speak in a friendly, engaging, and professional tone.
-- Keep answers concise and direct.
+- IMPORTANT: Keep all answers extremely short and concise (maximum 2-3 sentences or 3 brief bullet points). Never write long paragraphs or blocky texts. Keep it punchy!
 - When describing projects, experience, or skills, mention links or sections of the site where they can learn more (e.g., "You can see my project StudyMate in the Projects section" or "You can contact me at /contact or by email at kunalsingh203001@gmail.com").
 - If asked about something you don't know or that is not in Kunal's portfolio, politely explain that you only know details about Kunal Singh and his professional background, and suggest they contact him directly.
 - Always be helpful and promote Kunal's skills and availability for roles or collaborations.`;
 
 export async function POST(req: NextRequest) {
   try {
-    const { messages } = await req.json();
+    const { messages, systemPrompt, temperature, maxTokens } = await req.json();
 
     if (!messages || !Array.isArray(messages)) {
       return NextResponse.json({ error: "Invalid messages format" }, { status: 400 });
@@ -91,11 +91,11 @@ export async function POST(req: NextRequest) {
       body: JSON.stringify({
         model: "llama-3.3-70b-versatile",
         messages: [
-          { role: "system", content: SYSTEM_PROMPT },
+          { role: "system", content: systemPrompt || SYSTEM_PROMPT },
           ...messages,
         ],
-        temperature: 1,
-        max_completion_tokens: 1024,
+        temperature: typeof temperature === "number" ? temperature : 1,
+        max_completion_tokens: typeof maxTokens === "number" ? maxTokens : 1024,
         top_p: 1,
         stream: false,
       }),
@@ -109,7 +109,10 @@ export async function POST(req: NextRequest) {
 
     const data = await response.json();
     const reply = data.choices?.[0]?.message?.content || "";
-    return NextResponse.json({ message: reply });
+    return NextResponse.json({ 
+      message: reply,
+      usage: data.usage
+    });
   } catch (error) {
     console.error("Chat API error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
