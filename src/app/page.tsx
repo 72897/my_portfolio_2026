@@ -125,14 +125,7 @@ export default function HomePage() {
 
   const marqueeItems = [...mockTestimonials, ...mockTestimonials, ...mockTestimonials, ...mockTestimonials];
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center">
-        <div className="w-12 h-12 rounded-full border-2 border-primary/20 border-t-primary animate-spin mb-4" />
-        <span className="text-sm text-muted-foreground font-mono">Loading Kunal&apos;s Portfolio…</span>
-      </div>
-    );
-  }
+
 
   return (
     <div className="relative min-h-screen bg-background text-foreground overflow-hidden font-sans">
