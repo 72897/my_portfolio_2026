@@ -8,6 +8,7 @@ import Skill from '@/models/Skill';
 import Blog from '@/models/Blog';
 import ContactMessage from '@/models/ContactMessage';
 import JobPost from '@/models/JobPost';
+import Education from '@/models/Education';
 
 export async function GET() {
   try {
@@ -28,6 +29,7 @@ export async function GET() {
       messageCount,
       unreadMessageCount,
       jobCount,
+      educationCount,
     ] = await Promise.all([
       Project.countDocuments(),
       Certificate.countDocuments(),
@@ -38,6 +40,7 @@ export async function GET() {
       ContactMessage.countDocuments(),
       ContactMessage.countDocuments({ read: false }),
       JobPost.countDocuments(),
+      Education.countDocuments(),
     ]);
 
     return NextResponse.json({
@@ -50,6 +53,7 @@ export async function GET() {
       messages: messageCount,
       unreadMessages: unreadMessageCount,
       jobs: jobCount,
+      education: educationCount,
     });
   } catch (error) {
     console.error('Dashboard API error:', error);

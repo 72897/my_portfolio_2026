@@ -422,7 +422,46 @@ async function seed() {
         publishedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
       }
     ]);
-    console.log("✅ Blogs and LinkedIn posts seeded");
+    // Seed Education
+    const Education = (await import("../src/models/Education")).default;
+    await Education.deleteMany({});
+    await Education.create([
+      {
+        institution: "Gautam Buddha University",
+        degree: "Bachelor of Technology in Computer Science",
+        location: "Greater Noida, Uttar Pradesh, India",
+        period: "Aug 2022 – Jun 2026",
+        grade: "",
+        coursework: [
+          "Data Structures & Algorithms",
+          "Object-Oriented Programming",
+          "Database Management Systems",
+          "Operating Systems",
+          "Machine Learning",
+          "Natural Language Processing",
+        ],
+        order: 1,
+      },
+      {
+        institution: "St. Aerjay Public School",
+        degree: "12th, Science",
+        location: "",
+        period: "Mar 2020 – Jun 2022",
+        grade: "87%",
+        coursework: [],
+        order: 2,
+      },
+      {
+        institution: "Nirmala Convent School",
+        degree: "10th",
+        location: "",
+        period: "Mar 2008 – Mar 2020",
+        grade: "85%",
+        coursework: [],
+        order: 3,
+      },
+    ]);
+    console.log("✅ Education details seeded");
 
     // Seed Resume
     const resumeCount = await Resume.countDocuments();

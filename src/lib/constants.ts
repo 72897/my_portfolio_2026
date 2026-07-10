@@ -311,6 +311,7 @@ export interface IEducation {
   degree: string;
   location?: string;
   period: string;
+  grade?: string;
   coursework?: string[];
 }
 
@@ -331,13 +332,15 @@ export const education: IEducation[] = [
   },
   {
     institution: "St. Aerjay Public School",
-    degree: "12th (Senior Secondary) - PCM",
-    period: "April 2020 – August 2022",
+    degree: "12th, Science",
+    period: "Mar 2020 – Jun 2022",
+    grade: "87%",
   },
   {
     institution: "Nirmala Convent School",
-    degree: "10th (Secondary Education)",
-    period: "March 2008 – March 2020",
+    degree: "10th",
+    period: "Mar 2008 – Mar 2020",
+    grade: "85%",
   },
 ];
 

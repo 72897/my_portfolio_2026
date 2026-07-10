@@ -304,6 +304,9 @@ export default function HomePage() {
                         <div className="absolute left-0 top-1 w-2.5 h-2.5 rounded-full bg-primary -translate-x-[5px]" />
                         <h4 className="font-bold text-sm text-foreground">{edu.institution}</h4>
                         <p className="text-xs text-muted-foreground mt-0.5">{edu.degree}</p>
+                        {edu.grade && (
+                          <p className="text-[10px] text-muted-foreground/85 mt-0.5 font-medium">Grade: {edu.grade}</p>
+                        )}
                         <span className="text-[10px] font-mono text-primary font-semibold mt-1 inline-block">{edu.period}</span>
                       </div>
                     ))}

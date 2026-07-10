@@ -223,6 +223,20 @@
         "Machine Learning",
         "Natural Language Processing"
       ]
+    },
+    {
+      "institution": "St. Aerjay Public School",
+      "degree": "12th, Science",
+      "location": "",
+      "period": "Mar 2020 – Jun 2022",
+      "grade": "87%"
+    },
+    {
+      "institution": "Nirmala Convent School",
+      "degree": "10th",
+      "location": "",
+      "period": "Mar 2008 – Mar 2020",
+      "grade": "85%"
     }
   ],
   "testimonials": []

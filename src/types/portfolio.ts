@@ -60,6 +60,7 @@ export interface IEducationData {
   degree: string;
   location?: string;
   period: string;
+  grade?: string;
   coursework?: string[];
 }
 

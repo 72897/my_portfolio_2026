@@ -30,3 +30,7 @@ export type { IContactMessageDoc } from './ContactMessage';
 
 export { default as Resume } from './Resume';
 export type { IResumeDoc, IResumeHighlights } from './Resume';
+
+export { default as Education } from './Education';
+export type { IEducationDoc } from './Education';
+

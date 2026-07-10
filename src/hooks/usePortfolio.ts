@@ -9,11 +9,12 @@ export function usePortfolio() {
   useEffect(() => {
     async function fetchUpdates() {
       try {
-        // Fetch profile, experiences, and projects in parallel from our MongoDB APIs
-        const [profileRes, expRes, projRes] = await Promise.all([
+        // Fetch profile, experiences, projects, and education in parallel from our MongoDB APIs
+        const [profileRes, expRes, projRes, eduRes] = await Promise.all([
           fetch("/api/profile"),
           fetch("/api/experience"),
           fetch("/api/projects"),
+          fetch("/api/education"),
         ]);
 
         const staticData = portfolioStatic as unknown as IPortfolioData;
@@ -95,6 +96,23 @@ export function usePortfolio() {
               challenges: p.challenges,
               solutions: p.solutions,
               architectureSteps: p.architectureSteps,
+            }));
+            hasUpdates = true;
+          }
+        }
+
+        if (eduRes.ok) {
+          const educations = await eduRes.json();
+          const array = Array.isArray(educations) ? educations : (educations.education || educations);
+          if (Array.isArray(array) && array.length > 0) {
+            const sorted = [...array].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+            updatedData.education = sorted.map((edu: any) => ({
+              institution: edu.institution,
+              degree: edu.degree,
+              location: edu.location || "",
+              period: edu.period,
+              grade: edu.grade || "",
+              coursework: edu.coursework || [],
             }));
             hasUpdates = true;
           }

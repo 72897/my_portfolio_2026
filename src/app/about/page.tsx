@@ -12,7 +12,8 @@ import {
   TrendingUp,
   BookOpen,
 } from "lucide-react";
-import { siteConfig, education } from "@/lib/constants";
+import { siteConfig } from "@/lib/constants";
+import { usePortfolio } from "@/hooks/usePortfolio";
 import { SectionHeading } from "@/components/section-heading";
 
 function AnimatedCounter({ target, suffix = "" }: { target: number; suffix?: string }) {
@@ -56,6 +57,8 @@ function AnimatedCounter({ target, suffix = "" }: { target: number; suffix?: str
 }
 
 export default function AboutPage() {
+  const { data } = usePortfolio();
+  const { education } = data;
   const containerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -195,6 +198,11 @@ export default function AboutPage() {
                   <p className="text-sm font-medium text-primary font-[family-name:var(--font-body)]">
                     {edu.institution} {edu.location && <><span className="text-muted-foreground/30"> • </span> {edu.location}</>}
                   </p>
+                  {edu.grade && (
+                    <span className="text-xs text-muted-foreground font-mono mt-0.5 inline-block">
+                      Grade: {edu.grade}
+                    </span>
+                  )}
 
                   {edu.coursework && edu.coursework.length > 0 && (
                     <div className="mt-3">
