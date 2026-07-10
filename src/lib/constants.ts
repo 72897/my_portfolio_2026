@@ -246,6 +246,7 @@ export const projects: IProject[] = [
     liveUrl: "",
     category: "FullStack",
     featured: true,
+    image: "/studynotion_preview.png",
     metrics: {
       latency: "65ms (API)",
       accuracy: "98.2% JWT Auth Flow",

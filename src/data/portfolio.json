@@ -161,7 +161,7 @@
       "role": "Backend & Core Developer",
       "year": "2025",
       "link": "https://github.com/72897/Studynotion_course",
-      "image": "",
+      "image": "/studynotion_preview.png",
       "highlight": true,
       "metrics": {
         "latency": "65ms (API)",

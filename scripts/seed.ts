@@ -167,6 +167,7 @@ async function seed() {
         category: "FullStack",
         featured: true,
         order: 3,
+        image: "/studynotion_preview.png",
         metrics: {
           latency: "65ms (API)",
           accuracy: "98.2% JWT Auth Flow",
