@@ -47,6 +47,8 @@ export interface IProjectData {
   role: string;
   year: string;
   link: string;
+  githubUrl?: string;
+  liveUrl?: string;
   image: string;
   highlight: boolean;
   metrics?: Record<string, string>;

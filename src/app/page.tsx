@@ -25,6 +25,7 @@ import {
   Terminal,
   Server
 } from "lucide-react";
+import { Github } from "@/components/shared/brand-icons";
 import { usePortfolio } from "@/hooks/usePortfolio";
 import { ScrollReveal } from "@/components/effects/scroll-reveal";
 import { TiltCard } from "@/components/effects/tilt-card";
@@ -511,16 +512,28 @@ export default function HomePage() {
                         ))}
                       </div>
                       
-                      {proj.link && (
-                        <a 
-                          href={proj.link} 
-                          target="_blank" 
-                          rel="noopener noreferrer" 
-                          className="anime-badge bg-primary text-primary-foreground font-semibold hover:opacity-90 inline-flex items-center gap-1.5 w-fit cursor-pointer"
-                        >
-                          Live Project <ExternalLink size={12} />
-                        </a>
-                      )}
+                      <div className="flex flex-wrap gap-2.5">
+                        {proj.liveUrl && (
+                          <a 
+                            href={proj.liveUrl} 
+                            target="_blank" 
+                            rel="noopener noreferrer" 
+                            className="anime-badge bg-primary text-primary-foreground font-semibold hover:opacity-90 inline-flex items-center gap-1.5 w-fit cursor-pointer"
+                          >
+                            Live Demo <ExternalLink size={12} />
+                          </a>
+                        )}
+                        {proj.githubUrl && (
+                          <a 
+                            href={proj.githubUrl} 
+                            target="_blank" 
+                            rel="noopener noreferrer" 
+                            className="anime-badge bg-muted text-muted-foreground hover:bg-muted/80 font-semibold inline-flex items-center gap-1.5 w-fit cursor-pointer border border-border/40"
+                          >
+                            Source Code <Github size={12} className="w-3.5 h-3.5" />
+                          </a>
+                        )}
+                      </div>
                     </div>
                   </div>
 

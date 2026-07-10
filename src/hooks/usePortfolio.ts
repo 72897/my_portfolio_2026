@@ -89,6 +89,8 @@ export function usePortfolio() {
               stack: p.techStack || [],
               role: p.role || "Developer",
               year: p.year || "2026",
+              githubUrl: p.githubUrl || "",
+              liveUrl: p.liveUrl || "",
               link: p.githubUrl || p.liveUrl || "",
               image: p.image || "",
               highlight: p.featured || false,
