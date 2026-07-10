@@ -292,7 +292,40 @@ export const projects: IProject[] = [
       { title: "Itinerary Builder UI", description: "Accepts travel constraints, duration, and preferences." },
       { title: "API Gateway Cache", description: "Retrieves external travel guides, weather forecasts, cached in memory." },
       { title: "MERN Engine Controller", description: "Generates optimal travel day timelines and maps geolocation coordinates." },
-      { title: "MongoDB Store", description: "Stores and links private itineraries for shared user access." }
+    ]
+  },
+  {
+    title: "Buddhimaan",
+    slug: "buddhimaan",
+    description: "AI-Powered Content Creation Platform with advanced article layout and image synthesis.",
+    longDescription: "A premium AI content generation suite enabling users to write articles, generate high-fidelity images, and optimize editorial workflows. Leverages advanced LLMs and text-to-image models.",
+    techStack: ["Next.js", "React.js", "Node.js", "MongoDB", "Express.js", "OpenAI API", "Tailwind CSS", "TypeScript"],
+    features: [
+      "AI-powered content generation suite",
+      "Write articles, generate high-fidelity images",
+      "Optimize editorial workflows",
+      "Advanced LLMs and text-to-image models orchestration"
+    ],
+    githubUrl: "https://github.com/72897/buddhimaan",
+    liveUrl: "",
+    category: "AI",
+    featured: true,
+    image: "/buddhimaan_preview.png",
+    metrics: {
+      latency: "180ms",
+      accuracy: "95% Relevance",
+      costReduction: "50% Time",
+      throughput: "200 generations/min",
+      guardrails: "Content Moderation Filters",
+      tokensProcessed: "8M/mo"
+    },
+    challenges: "Generating structured articles and realistic images simultaneously required orchestrating multiple API latency streams and rate-limiting limits.",
+    solutions: "Built an asynchronous queue manager in Node.js, optimized prompt chaining to reduce model hallucination, and designed a responsive bento-grid UI for dynamic asset layout.",
+    architectureSteps: [
+      { title: "Prompt Input & Routing", description: "Routing queries to text-generation or image-generation nodes." },
+      { title: "LLM Article Writer", description: "Orchestrating OpenAI GPT-4o for structured blog templates." },
+      { title: "Image Gen Engine", description: "Calling Stable Diffusion/DALL-E for context-matching images." },
+      { title: "MongoDB Storage", description: "Saving generated articles and media assets metadata." }
     ]
   },
 ];
