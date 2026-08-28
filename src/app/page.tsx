@@ -40,6 +40,7 @@ import { AnimatedCounter } from "@/components/shared/animated-counter";
 import { TypeAnimation } from "react-type-animation";
 import { siteConfig } from "@/lib/constants";
 import { soundManager } from "@/lib/sounds";
+import { ShootingStars3D } from "@/components/effects/shooting-stars-3d";
 
 const Hero3DLogo = dynamic(
   () => import("@/components/effects/hero-3d-logo").then((mod) => mod.Hero3DLogo),
@@ -152,10 +153,14 @@ export default function HomePage() {
       <ScrollRail />
 
       {/* ── 1. Hero Section (Asymmetric Split Layout) ── */}
-      <section id="hero" className="home-hero min-h-[92vh] flex flex-col justify-center items-center py-12 px-4 sm:px-6 relative">
+      <section id="hero" className="home-hero min-h-[92vh] flex flex-col justify-center items-center py-12 px-4 sm:px-6 relative overflow-hidden">
+        
+        {/* 3D Shooting Stars & Cosmic Stardust Canvas */}
+        <ShootingStars3D starCount={130} />
+
         <div className="hero-orbit hero-orbit--one" aria-hidden="true" />
         <div className="hero-orbit hero-orbit--two" aria-hidden="true" />
-        <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-center pt-8 relative">
+        <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-center pt-8 relative z-10">
           
           {/* Headline and CTAs - Left 7 columns */}
           <div className="lg:col-span-7 flex flex-col items-start text-left gap-6 z-10">
