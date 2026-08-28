@@ -344,6 +344,41 @@ export const projects: IProject[] = [
       { title: "MongoDB Storage", description: "Saving generated articles and media assets metadata." }
     ]
   },
+  {
+    title: "Duli Interiors",
+    slug: "duliinteriors",
+    description: "Interior design and project-management platform bringing concepts, 2D plans, and estimates into one workspace.",
+    longDescription: "An end-to-end interior design and project-management platform bringing the entire journey — from AI concept moodboards to 2D floor plans, area-based quotes, and print-ready proposals — into a single collaborative workspace.",
+    techStack: ["Next.js", "Python", "Google Gemini", "TypeScript", "Node.js", "Tailwind CSS", "Three.js"],
+    features: [
+      "Explore AI-assisted room concepts and browse a curated product catalog",
+      "Sketch rooms on a 2D floor planner with live carpet area calculation",
+      "Build itemized, area-based estimates seeded directly from drawn rooms",
+      "Receive a branded, print-ready proposal with product schedule and quote",
+      "Book consultations and track project status in a single workspace"
+    ],
+    githubUrl: "https://github.com/72897/duli-interiors",
+    liveUrl: "https://duli-interiors.vercel.app/",
+    category: "FullStack",
+    featured: true,
+    image: "/duli_preview.png",
+    metrics: {
+      latency: "120ms (Planner)",
+      accuracy: "99% Area Calc",
+      costReduction: "45% Estimation Time",
+      throughput: "500 designs/mo",
+      guardrails: "Strict Geometry Sanitization",
+      tokensProcessed: "2.5M/mo"
+    },
+    challenges: "Synchronizing real-time 2D floor geometry drawing coordinates with dynamic price estimation models and Gemini room styling suggestions without UI lag.",
+    solutions: "Implemented optimized canvas vector geometry calculations, cached catalog pricing structures in client-side state, and streamed AI room descriptions with Next.js edge functions.",
+    architectureSteps: [
+      { title: "2D Planner Canvas", description: "Interactive vector coordinate floor planner with automatic square footage calculation." },
+      { title: "Gemini Concept AI", description: "Generates theme palettes and room moodboards based on client preferences." },
+      { title: "Estimation Aggregator", description: "Computes line-item costing based on area measurements and product catalog." },
+      { title: "Proposal Pipeline", description: "Renders branded exportable client proposals and consultation booking." }
+    ]
+  }
 ];
 
 export const certificates: ICertificate[] = [

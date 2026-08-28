@@ -257,6 +257,36 @@
         { "title": "Image Gen Engine", "description": "Calling Stable Diffusion/DALL-E for context-matching images." },
         { "title": "MongoDB Storage", "description": "Saving generated articles and media assets metadata." }
       ]
+    },
+    {
+      "id": "duliinteriors",
+      "title": "Duli Interiors",
+      "subtitle": "Interior Design & Project Management Platform",
+      "description": "An end-to-end interior design and project-management platform bringing the entire journey — from AI concept moodboards to 2D floor plans, area-based quotes, and print-ready proposals — into a single collaborative workspace.",
+      "stack": ["Next.js", "Python", "Google Gemini", "TypeScript", "Node.js", "Tailwind CSS", "Three.js"],
+      "role": "Full Stack & AI Engineer",
+      "year": "2026",
+      "githubUrl": "https://github.com/72897/duli-interiors",
+      "liveUrl": "https://duli-interiors.vercel.app/",
+      "link": "https://duli-interiors.vercel.app/",
+      "image": "/duli_preview.png",
+      "highlight": true,
+      "metrics": {
+        "latency": "120ms (Planner)",
+        "accuracy": "99% Area Calc",
+        "costReduction": "45% Estimation Time",
+        "throughput": "500 designs/mo",
+        "guardrails": "Strict Geometry Sanitization",
+        "tokensProcessed": "2.5M/mo"
+      },
+      "challenges": "Synchronizing real-time 2D floor geometry drawing coordinates with dynamic price estimation models and Gemini room styling suggestions without UI lag.",
+      "solutions": "Implemented optimized canvas vector geometry calculations, cached catalog pricing structures in client-side state, and streamed AI room descriptions with Next.js edge functions.",
+      "architectureSteps": [
+        { "title": "2D Planner Canvas", "description": "Interactive vector coordinate floor planner with automatic square footage calculation." },
+        { "title": "Gemini Concept AI", "description": "Generates theme palettes and room moodboards based on client preferences." },
+        { "title": "Estimation Aggregator", "description": "Computes line-item costing based on area measurements and product catalog." },
+        { "title": "Proposal Pipeline", "description": "Renders branded exportable client proposals and consultation booking." }
+      ]
     }
   ],
   "education": [
