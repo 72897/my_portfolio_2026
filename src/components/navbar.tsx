@@ -11,9 +11,15 @@ import {
   Sun,
   Moon,
   Code2,
+  Terminal,
+  Volume2,
+  VolumeX,
+  Search,
+  Command
 } from "lucide-react";
 import { navLinks, siteConfig } from "@/lib/constants";
 import { cn } from "@/lib/utils";
+import { soundManager } from "@/lib/sounds";
 
 export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -21,9 +27,11 @@ export function Navbar() {
   const pathname = usePathname();
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const [soundEnabled, setSoundEnabled] = useState(true);
 
   useEffect(() => {
     setMounted(true);
+    setSoundEnabled(soundManager.isEnabled());
   }, []);
 
   useEffect(() => {
@@ -35,6 +43,21 @@ export function Navbar() {
   useEffect(() => {
     setIsMobileOpen(false);
   }, [pathname]);
+
+  const toggleSound = () => {
+    const next = soundManager.toggle();
+    setSoundEnabled(next);
+  };
+
+  const openCommandPalette = () => {
+    window.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "k", metaKey: true, bubbles: true })
+    );
+  };
+
+  const openTerminal = () => {
+    window.dispatchEvent(new CustomEvent("open-terminal-modal"));
+  };
 
   // Prevent body scroll when mobile menu is open
   useEffect(() => {
@@ -56,6 +79,7 @@ export function Navbar() {
           {/* Logo */}
           <Link
             href="/"
+            onClick={() => soundManager.playClick()}
             className="flex items-center gap-2 cursor-pointer group"
           >
             <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
@@ -75,6 +99,8 @@ export function Navbar() {
                 <Link
                   key={link.href}
                   href={link.href}
+                  onClick={() => soundManager.playClick()}
+                  onMouseEnter={() => soundManager.playPop()}
                   className={cn(
                     "relative px-3 py-2 text-sm font-medium rounded-lg transition-colors duration-200 cursor-pointer",
                     isActive
@@ -95,17 +121,55 @@ export function Navbar() {
             })}
           </div>
 
-          {/* Right side */}
-          <div className="flex items-center gap-2">
+          {/* Right side controls */}
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            {/* Command Palette Trigger */}
+            <button
+              onClick={openCommandPalette}
+              className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-muted/40 hover:bg-muted/70 border border-border/40 text-xs text-muted-foreground hover:text-foreground transition cursor-pointer"
+              title="Open Command Palette (⌘K)"
+            >
+              <Search size={13} className="text-primary" />
+              <span className="text-[11px] font-medium">Search</span>
+              <kbd className="text-[9px] font-mono bg-background px-1.5 py-0.2 rounded border border-border/60">⌘K</kbd>
+            </button>
+
+            {/* Interactive Terminal Trigger */}
+            <button
+              onClick={openTerminal}
+              className="w-9 h-9 rounded-xl flex items-center justify-center cursor-pointer hover:bg-muted/60 text-muted-foreground hover:text-foreground transition-colors duration-200 border border-border/30"
+              title="Launch Terminal (~)"
+              aria-label="Launch Terminal (~)"
+            >
+              <Terminal className="w-4 h-4 text-emerald-400" />
+            </button>
+
+            {/* Sound Toggle */}
+            <button
+              onClick={toggleSound}
+              className="w-9 h-9 rounded-xl flex items-center justify-center cursor-pointer hover:bg-muted/60 text-muted-foreground hover:text-foreground transition-colors duration-200 border border-border/30"
+              title={soundEnabled ? "Mute UI sounds" : "Enable UI sounds"}
+              aria-label="Toggle sound effects"
+            >
+              {soundEnabled ? (
+                <Volume2 className="w-4 h-4 text-primary" />
+              ) : (
+                <VolumeX className="w-4 h-4 text-muted-foreground" />
+              )}
+            </button>
+
             {/* Theme Toggle */}
             {mounted && (
               <button
-                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-                className="w-9 h-9 rounded-lg flex items-center justify-center cursor-pointer hover:bg-muted transition-colors duration-200"
+                onClick={() => {
+                  soundManager.playToggle();
+                  setTheme(theme === "dark" ? "light" : "dark");
+                }}
+                className="w-9 h-9 rounded-xl flex items-center justify-center cursor-pointer hover:bg-muted/60 text-muted-foreground hover:text-foreground transition-colors duration-200 border border-border/30"
                 aria-label="Toggle theme"
               >
                 {theme === "dark" ? (
-                  <Sun className="w-4 h-4" />
+                  <Sun className="w-4 h-4 text-yellow-400" />
                 ) : (
                   <Moon className="w-4 h-4" />
                 )}
@@ -114,8 +178,11 @@ export function Navbar() {
 
             {/* Mobile Hamburger */}
             <button
-              onClick={() => setIsMobileOpen(!isMobileOpen)}
-              className="lg:hidden w-9 h-9 rounded-lg flex items-center justify-center cursor-pointer hover:bg-muted transition-colors duration-200"
+              onClick={() => {
+                soundManager.playClick();
+                setIsMobileOpen(!isMobileOpen);
+              }}
+              className="lg:hidden w-9 h-9 rounded-xl flex items-center justify-center cursor-pointer hover:bg-muted transition-colors duration-200 border border-border/30"
               aria-label="Toggle menu"
             >
               {isMobileOpen ? (

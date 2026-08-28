@@ -29,11 +29,15 @@ import { Github } from "@/components/shared/brand-icons";
 import { usePortfolio } from "@/hooks/usePortfolio";
 import { ScrollReveal } from "@/components/effects/scroll-reveal";
 import { TiltCard } from "@/components/effects/tilt-card";
+import { SpotlightCard } from "@/components/effects/spotlight-card";
+import { Magnetic } from "@/components/effects/magnetic";
+import { ScrollRail } from "@/components/effects/scroll-rail";
 import { AiPlayground } from "@/components/effects/ai-playground";
 import { RagVisualizer } from "@/components/effects/rag-visualizer";
 import { AnimatedCounter } from "@/components/shared/animated-counter";
 import { TypeAnimation } from "react-type-animation";
 import { siteConfig } from "@/lib/constants";
+import { soundManager } from "@/lib/sounds";
 
 const Hero3DLogo = dynamic(
   () => import("@/components/effects/hero-3d-logo").then((mod) => mod.Hero3DLogo),
@@ -56,6 +60,7 @@ export default function HomePage() {
 
   // Copy email helper
   const handleCopyEmail = () => {
+    soundManager.playSuccess();
     navigator.clipboard.writeText(profile.social.email || "kunalsingh203001@gmail.com");
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -70,8 +75,8 @@ export default function HomePage() {
 
   // Stats bar definitions
   const stats = [
-    { icon: Briefcase, label: "Internships", value: 3, suffix: "" },
-    { icon: Rocket, label: "Projects", value: 4, suffix: "+" },
+    { icon: Briefcase, label: "Work Roles", value: 4, suffix: "" },
+    { icon: Rocket, label: "Projects", value: 6, suffix: "+" },
     { icon: Code2, label: "Problems Solved", value: 150, suffix: "+" },
     { icon: Award, label: "Certificates", value: 6, suffix: "+" },
   ];
@@ -131,6 +136,9 @@ export default function HomePage() {
   return (
     <div className="relative min-h-screen bg-background text-foreground overflow-hidden font-sans">
       
+      {/* ── Section Scroll Progress Rail ── */}
+      <ScrollRail />
+
       {/* ── 1. Hero Section (Asymmetric Split Layout) ── */}
       <section id="hero" className="home-hero min-h-[92vh] flex flex-col justify-center items-center py-12 px-4 sm:px-6 relative">
         <div className="hero-orbit hero-orbit--one" aria-hidden="true" />
@@ -175,41 +183,62 @@ export default function HomePage() {
             {/* Social pills */}
             <div className="flex flex-wrap gap-2">
               {profile.social.github && (
-                <a href={profile.social.github} target="_blank" rel="noopener noreferrer" className="anime-badge hover:bg-primary/20 transition cursor-pointer">
+                <a 
+                  href={profile.social.github} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  onClick={() => soundManager.playClick()}
+                  className="anime-badge hover:bg-primary/20 transition cursor-pointer"
+                >
                   GitHub
                 </a>
               )}
               {profile.social.linkedin && (
-                <a href={profile.social.linkedin} target="_blank" rel="noopener noreferrer" className="anime-badge hover:bg-primary/20 transition cursor-pointer">
+                <a 
+                  href={profile.social.linkedin} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  onClick={() => soundManager.playClick()}
+                  className="anime-badge hover:bg-primary/20 transition cursor-pointer"
+                >
                   LinkedIn
                 </a>
               )}
               {profile.social.email && (
-                <button onClick={handleCopyEmail} className="anime-badge hover:bg-primary/20 transition cursor-pointer flex items-center gap-1.5">
+                <button 
+                  onClick={handleCopyEmail} 
+                  className="anime-badge hover:bg-primary/20 transition cursor-pointer flex items-center gap-1.5"
+                >
                   {copied ? <Check size={10} className="text-green-500" /> : <Copy size={10} />}
                   <span>{copied ? "Copied Email" : "Email"}</span>
                 </button>
               )}
             </div>
 
-            {/* CTAs */}
+            {/* CTAs with Magnetic physics */}
             <div className="flex flex-wrap gap-4 mt-2">
               {profile.social.resume && (
-                <a 
-                  href={profile.social.resume} 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  className="anime-btn flex items-center gap-2 cursor-pointer shadow-lg shadow-primary/20"
-                >
-                  <Download size={16} /> Download Resume
-                </a>
+                <Magnetic strength={0.25}>
+                  <a 
+                    href={profile.social.resume} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    onClick={() => soundManager.playSuccess()}
+                    className="anime-btn flex items-center gap-2 cursor-pointer shadow-lg shadow-primary/20"
+                  >
+                    <Download size={16} /> Download Resume
+                  </a>
+                </Magnetic>
               )}
-              <a 
-                href="#contact" 
-                className="anime-btn-outline cursor-pointer inline-flex items-center gap-2"
-              >
-                <Mail size={16} /> Get In Touch
-              </a>
+              <Magnetic strength={0.25}>
+                <a 
+                  href="#contact" 
+                  onClick={() => soundManager.playClick()}
+                  className="anime-btn-outline cursor-pointer inline-flex items-center gap-2"
+                >
+                  <Mail size={16} /> Get In Touch
+                </a>
+              </Magnetic>
             </div>
           </div>
 
@@ -230,7 +259,10 @@ export default function HomePage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
             {stats.map((stat, i) => (
               <ScrollReveal key={stat.label} delay={i * 0.05}>
-                <div className="anime-card rounded-2xl p-6 text-center flex flex-col items-center gap-2 hover:border-primary/45 transition-colors duration-300">
+                <SpotlightCard
+                  spotlightColor="rgba(16, 185, 129, 0.14)"
+                  className="p-6 text-center flex flex-col items-center gap-2 hover:border-primary/50 transition-colors duration-300"
+                >
                   <div className="p-3 rounded-xl bg-primary/5 text-primary mb-1">
                     <stat.icon size={20} />
                   </div>
@@ -240,7 +272,7 @@ export default function HomePage() {
                   <span className="text-[11px] uppercase tracking-wider font-semibold text-muted-foreground">
                     {stat.label}
                   </span>
-                </div>
+                </SpotlightCard>
               </ScrollReveal>
             ))}
           </div>
@@ -388,8 +420,10 @@ export default function HomePage() {
             {services.map((svc, idx) => (
               <ScrollReveal key={idx} delay={idx * 0.05} className={svc.className}>
                 <TiltCard>
-                  <div className={`anime-card h-full rounded-2xl p-6 sm:p-8 flex flex-col justify-between hover:border-primary/40 transition-colors duration-300 relative group overflow-hidden`}>
-                    
+                  <SpotlightCard
+                    spotlightColor="rgba(16, 185, 129, 0.16)"
+                    className="h-full p-6 sm:p-8 flex flex-col justify-between hover:border-primary/50 transition-colors duration-300 relative group overflow-hidden"
+                  >
                     {/* Gradient Glow */}
                     <div className={`absolute -right-16 -top-16 w-36 h-36 rounded-full bg-gradient-to-br ${svc.gradient} filter blur-2xl opacity-40 group-hover:scale-125 transition-transform duration-500`} />
                     
@@ -405,8 +439,7 @@ export default function HomePage() {
                       <span>Active stack integration</span>
                       <ArrowRight size={12} className="group-hover:translate-x-1 transition-transform" />
                     </div>
-
-                  </div>
+                  </SpotlightCard>
                 </TiltCard>
               </ScrollReveal>
             ))}
@@ -475,8 +508,9 @@ export default function HomePage() {
           <div className="relative space-y-12 mt-16">
             {sortedProjects.slice(0, 4).map((proj, idx) => (
               <ScrollReveal key={proj.id} delay={0.05}>
-                <div 
-                  className="sticky bg-card border border-border/80 rounded-3xl p-6 md:p-8 flex flex-col md:flex-row gap-6 md:gap-8 shadow-2xl min-h-[320px] transition-all hover:border-primary/30"
+                <SpotlightCard
+                  spotlightColor="rgba(59, 130, 246, 0.14)"
+                  className="sticky bg-card border border-border/80 rounded-3xl p-6 md:p-8 flex flex-col md:flex-row gap-6 md:gap-8 shadow-2xl min-h-[320px] transition-all hover:border-primary/40"
                   style={{ top: `${80 + idx * 24}px` }}
                 >
                   {/* Left: Details */}
@@ -514,24 +548,30 @@ export default function HomePage() {
                       
                       <div className="flex flex-wrap gap-2.5">
                         {proj.liveUrl && (
-                          <a 
-                            href={proj.liveUrl} 
-                            target="_blank" 
-                            rel="noopener noreferrer" 
-                            className="anime-badge bg-primary text-primary-foreground font-semibold hover:opacity-90 inline-flex items-center gap-1.5 w-fit cursor-pointer"
-                          >
-                            Live Demo <ExternalLink size={12} />
-                          </a>
+                          <Magnetic strength={0.2}>
+                            <a 
+                              href={proj.liveUrl} 
+                              target="_blank" 
+                              rel="noopener noreferrer" 
+                              onClick={() => soundManager.playSuccess()}
+                              className="anime-badge bg-primary text-primary-foreground font-semibold hover:opacity-90 inline-flex items-center gap-1.5 w-fit cursor-pointer"
+                            >
+                              Live Demo <ExternalLink size={12} />
+                            </a>
+                          </Magnetic>
                         )}
                         {proj.githubUrl && (
-                          <a 
-                            href={proj.githubUrl} 
-                            target="_blank" 
-                            rel="noopener noreferrer" 
-                            className="anime-badge bg-muted text-muted-foreground hover:bg-muted/80 font-semibold inline-flex items-center gap-1.5 w-fit cursor-pointer border border-border/40"
-                          >
-                            Source Code <Github size={12} className="w-3.5 h-3.5" />
-                          </a>
+                          <Magnetic strength={0.2}>
+                            <a 
+                              href={proj.githubUrl} 
+                              target="_blank" 
+                              rel="noopener noreferrer" 
+                              onClick={() => soundManager.playClick()}
+                              className="anime-badge bg-muted text-muted-foreground hover:bg-muted/80 font-semibold inline-flex items-center gap-1.5 w-fit cursor-pointer border border-border/40"
+                            >
+                              Source Code <Github size={12} className="w-3.5 h-3.5" />
+                            </a>
+                          </Magnetic>
                         )}
                       </div>
                     </div>
@@ -548,7 +588,7 @@ export default function HomePage() {
                       </div>
                     )}
                   </div>
-                </div>
+                </SpotlightCard>
               </ScrollReveal>
             ))}
           </div>
@@ -622,20 +662,26 @@ export default function HomePage() {
 
           <ScrollReveal delay={0.05}>
             <div className="flex flex-wrap gap-4 justify-center mt-6">
-              <Link
-                href="/contact"
-                className="anime-btn px-6 py-2.5 rounded-full text-sm font-semibold inline-flex items-center gap-2 cursor-pointer"
-              >
-                <Mail size={16} /> Write A Message
-              </Link>
-              <a
-                href={profile.social.linkedin || siteConfig.links.linkedin}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="anime-btn-outline cursor-pointer inline-flex items-center gap-2"
-              >
-                <ExternalLink size={16} /> Connect LinkedIn
-              </a>
+              <Magnetic strength={0.25}>
+                <Link
+                  href="/contact"
+                  onClick={() => soundManager.playClick()}
+                  className="anime-btn px-6 py-2.5 rounded-full text-sm font-semibold inline-flex items-center gap-2 cursor-pointer shadow-lg shadow-primary/20"
+                >
+                  <Mail size={16} /> Write A Message
+                </Link>
+              </Magnetic>
+              <Magnetic strength={0.25}>
+                <a
+                  href={profile.social.linkedin || siteConfig.links.linkedin}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => soundManager.playClick()}
+                  className="anime-btn-outline cursor-pointer inline-flex items-center gap-2"
+                >
+                  <ExternalLink size={16} /> Connect LinkedIn
+                </a>
+              </Magnetic>
             </div>
           </ScrollReveal>
         </div>

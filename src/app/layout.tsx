@@ -11,6 +11,8 @@ import {
   SpatialInteractions,
   SpatialWorld,
 } from "@/components/effects/spatial-world";
+import { CommandPalette } from "@/components/effects/command-palette";
+import { TerminalModal } from "@/components/effects/terminal-modal";
 
 export const metadata: Metadata = {
   title: {
@@ -59,6 +61,8 @@ export default function RootLayout({
           <Navbar />
           <main id="main-content" className="min-h-screen pt-20 relative z-10">{children}</main>
           <ScrollNavButton />
+          <CommandPalette />
+          <TerminalModal />
           <Chatbot />
           <Footer />
           <Toaster

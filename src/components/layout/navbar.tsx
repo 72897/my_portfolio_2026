@@ -4,10 +4,12 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowUpRight, Code2, Menu, X } from "lucide-react";
+import { ArrowUpRight, Code2, Menu, X, Terminal, Volume2, VolumeX, Search } from "lucide-react";
 import { navLinks } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "./theme-toggle";
+import { soundManager } from "@/lib/sounds";
+import { Magnetic } from "@/components/effects/magnetic";
 
 const primaryLinks = navLinks.filter((link) =>
   ["/about", "/skills", "/experience", "/projects", "/github", "/leetcode", "/certificates", "/blog"].includes(link.href)
@@ -17,9 +19,11 @@ export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [soundEnabled, setSoundEnabled] = useState(true);
   const pathname = usePathname();
 
   useEffect(() => {
+    setSoundEnabled(soundManager.isEnabled());
     let lastScrollY = window.scrollY;
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
@@ -30,6 +34,21 @@ export function Navbar() {
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  const toggleSound = () => {
+    const next = soundManager.toggle();
+    setSoundEnabled(next);
+  };
+
+  const openCommandPalette = () => {
+    window.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "k", metaKey: true, bubbles: true })
+    );
+  };
+
+  const openTerminal = () => {
+    window.dispatchEvent(new CustomEvent("open-terminal-modal"));
+  };
 
   useEffect(() => {
     document.body.style.overflow = isMobileOpen ? "hidden" : "";
@@ -55,7 +74,12 @@ export function Navbar() {
             isScrolled && "nav-shell--scrolled"
           )}
         >
-          <Link href="/" className="group flex items-center gap-2.5" aria-label="Kunal Singh home">
+          <Link 
+            href="/" 
+            onClick={() => soundManager.playClick()}
+            className="group flex items-center gap-2.5" 
+            aria-label="Kunal Singh home"
+          >
             <span className="brand-mark">
               <Code2 size={17} aria-hidden="true" />
             </span>
@@ -71,6 +95,8 @@ export function Navbar() {
                 <Link
                   key={link.href}
                   href={link.href}
+                  onClick={() => soundManager.playClick()}
+                  onMouseEnter={() => soundManager.playPop()}
                   className={cn(
                     "nav-link relative rounded-lg px-3 py-2 text-xs font-semibold",
                     active ? "text-foreground" : "text-muted-foreground hover:text-foreground"
@@ -88,15 +114,65 @@ export function Navbar() {
             })}
           </div>
 
-          <div className="flex items-center gap-2">
-            <ThemeToggle />
-            <Link href="/contact" className="nav-cta hidden sm:inline-flex">
-              Let&apos;s talk <ArrowUpRight size={14} aria-hidden="true" />
-            </Link>
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            {/* Search Command Palette Trigger */}
             <button
               type="button"
-              onClick={() => setIsMobileOpen((open) => !open)}
-              className="grid size-11 place-items-center rounded-xl transition-colors hover:bg-muted lg:hidden"
+              onClick={openCommandPalette}
+              className="hidden md:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-muted/40 hover:bg-muted/70 border border-border/40 text-xs text-muted-foreground hover:text-foreground transition cursor-pointer"
+              title="Search & Commands (⌘K)"
+              aria-label="Search & Commands (⌘K)"
+            >
+              <Search size={13} className="text-primary" />
+              <span className="text-[11px] font-medium">Search</span>
+              <kbd className="text-[9px] font-mono bg-background px-1.5 py-0.2 rounded border border-border/60">⌘K</kbd>
+            </button>
+
+            {/* Interactive Terminal Trigger */}
+            <button
+              type="button"
+              onClick={openTerminal}
+              className="grid size-9 place-items-center rounded-xl border border-border/30 bg-card/40 hover:bg-muted text-muted-foreground hover:text-foreground transition cursor-pointer"
+              title="Developer Terminal (~)"
+              aria-label="Developer Terminal (~)"
+            >
+              <Terminal size={15} className="text-emerald-400" />
+            </button>
+
+            {/* Sound Toggle */}
+            <button
+              type="button"
+              onClick={toggleSound}
+              className="grid size-9 place-items-center rounded-xl border border-border/30 bg-card/40 hover:bg-muted text-muted-foreground hover:text-foreground transition cursor-pointer"
+              title={soundEnabled ? "Mute audio" : "Enable audio"}
+              aria-label="Toggle UI sound effects"
+            >
+              {soundEnabled ? (
+                <Volume2 size={15} className="text-primary" />
+              ) : (
+                <VolumeX size={15} className="text-muted-foreground" />
+              )}
+            </button>
+
+            <ThemeToggle />
+
+            <Magnetic strength={0.2}>
+              <Link
+                href="/contact"
+                onClick={() => soundManager.playClick()}
+                className="nav-cta hidden sm:inline-flex"
+              >
+                Let&apos;s talk <ArrowUpRight size={14} aria-hidden="true" />
+              </Link>
+            </Magnetic>
+
+            <button
+              type="button"
+              onClick={() => {
+                soundManager.playClick();
+                setIsMobileOpen((open) => !open);
+              }}
+              className="grid size-9 sm:size-11 place-items-center rounded-xl transition-colors hover:bg-muted lg:hidden"
               aria-label={isMobileOpen ? "Close navigation menu" : "Open navigation menu"}
               aria-expanded={isMobileOpen}
             >

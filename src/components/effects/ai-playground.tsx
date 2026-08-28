@@ -259,7 +259,7 @@ export function AiPlayground() {
             {isLoading && !displayedResponse && (
               <div className="flex items-center gap-2 text-primary animate-pulse">
                 <span className="w-2 h-2 rounded-full bg-primary animate-ping" />
-                <span>Executing forward pass (Groq Llama 3.3)...</span>
+                <span>Executing forward pass (Groq Qwen 3.8 LPU)...</span>
               </div>
             )}
 
@@ -300,7 +300,7 @@ export function AiPlayground() {
             </div>
             <div className="py-1">
               <span>MODEL: </span>
-              <span className="text-primary font-bold">llama-3.3-70b</span>
+              <span className="text-primary font-bold">qwen-3.8-27b</span>
             </div>
           </div>
 
