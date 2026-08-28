@@ -1,10 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import * as LucideIcons from "lucide-react";
 import { skillCategories as fallbackCategories } from "@/lib/constants";
 import type { ISkill } from "@/types";
+import { NeuralVectorCloud } from "@/components/effects/neural-vector-cloud";
+import { TechGlobe3D } from "@/components/effects/tech-globe-3d";
+import { soundManager } from "@/lib/sounds";
+import { Brain, Globe, LayoutGrid, Sparkles } from "lucide-react";
 
 // Dynamically resolve lucide icons from string name
 function getIcon(name: string) {
@@ -25,6 +29,7 @@ interface SkillGroup {
 export default function SkillsPage() {
   const [skillGroups, setSkillGroups] = useState<SkillGroup[]>([]);
   const [loading, setLoading] = useState(true);
+  const [viewMode, setViewMode] = useState<"3d-cloud" | "3d-globe" | "grid">("3d-cloud");
 
   useEffect(() => {
     async function fetchSkills() {
@@ -69,19 +74,118 @@ export default function SkillsPage() {
             animate={{ opacity: 1, y: 0 }}
             className="text-center"
           >
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-mono mb-4 border border-primary/20">
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Interactive 3D Skillscapes</span>
+            </div>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-[family-name:var(--font-heading)] text-foreground">
               Skills & <span className="gradient-text">Technologies</span>
             </h1>
             <p className="mt-4 text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
-              A comprehensive overview of my technical toolkit
+              Explore my technical toolkit through interactive 3D embedding clouds, spherical physics orbits, or categorized matrix grids.
             </p>
+
+            {/* View Mode Switcher */}
+            <div className="mt-8 inline-flex items-center p-1.5 rounded-2xl bg-card border border-border/80 shadow-lg gap-1.5 flex-wrap justify-center">
+              <button
+                type="button"
+                onClick={() => {
+                  soundManager.playClick();
+                  setViewMode("3d-cloud");
+                }}
+                className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all duration-200 cursor-pointer ${
+                  viewMode === "3d-cloud"
+                    ? "bg-primary text-primary-foreground shadow-md shadow-primary/25"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                }`}
+              >
+                <Brain className="w-4 h-4" />
+                <span>3D Vector Cloud</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  soundManager.playClick();
+                  setViewMode("3d-globe");
+                }}
+                className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all duration-200 cursor-pointer ${
+                  viewMode === "3d-globe"
+                    ? "bg-primary text-primary-foreground shadow-md shadow-primary/25"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                }`}
+              >
+                <Globe className="w-4 h-4" />
+                <span>3D Tech Globe</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  soundManager.playClick();
+                  setViewMode("grid");
+                }}
+                className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all duration-200 cursor-pointer ${
+                  viewMode === "grid"
+                    ? "bg-primary text-primary-foreground shadow-md shadow-primary/25"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                }`}
+              >
+                <LayoutGrid className="w-4 h-4" />
+                <span>Matrix Grid</span>
+              </button>
+            </div>
           </motion.div>
         </div>
       </section>
 
-      {/* Skills Grid */}
-      <section className="py-20 border-t border-border">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 space-y-16">
+      {/* Main Content Area */}
+      <section className="py-12 border-t border-border min-h-[600px]">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <AnimatePresence mode="wait">
+            {viewMode === "3d-cloud" && (
+              <motion.div
+                key="3d-cloud"
+                initial={{ opacity: 0, scale: 0.96 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.96 }}
+                transition={{ duration: 0.3 }}
+                className="space-y-6"
+              >
+                <NeuralVectorCloud />
+              </motion.div>
+            )}
+
+            {viewMode === "3d-globe" && (
+              <motion.div
+                key="3d-globe"
+                initial={{ opacity: 0, scale: 0.96 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.96 }}
+                transition={{ duration: 0.3 }}
+                className="anime-card p-6 sm:p-12 rounded-3xl border border-border/80 shadow-2xl flex flex-col items-center justify-center bg-card/60 backdrop-blur-xl"
+              >
+                <div className="text-center mb-6">
+                  <h3 className="text-xl font-bold font-[family-name:var(--font-heading)] text-foreground">
+                    Interactive 3D Tech Sphere
+                  </h3>
+                  <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+                    Drag with your cursor to spin with angular momentum. Click any technology to focus.
+                  </p>
+                </div>
+                <TechGlobe3D radius={220} />
+              </motion.div>
+            )}
+
+            {viewMode === "grid" && (
+              <motion.div
+                key="grid"
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -15 }}
+                transition={{ duration: 0.3 }}
+                className="space-y-16"
+              >
           {loading ? (
             <div className="space-y-12">
               {[1, 2].map((n) => (
@@ -141,6 +245,9 @@ export default function SkillsPage() {
               );
             })
           )}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </section>
     </>

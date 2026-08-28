@@ -23,13 +23,15 @@ import {
   Cpu,
   Globe,
   Terminal,
-  Server
+  Server,
+  Sparkles
 } from "lucide-react";
 import { Github } from "@/components/shared/brand-icons";
 import { usePortfolio } from "@/hooks/usePortfolio";
 import { ScrollReveal } from "@/components/effects/scroll-reveal";
 import { TiltCard } from "@/components/effects/tilt-card";
 import { SpotlightCard } from "@/components/effects/spotlight-card";
+import { Depth3DCard, DepthLayer } from "@/components/effects/depth-3d-card";
 import { Magnetic } from "@/components/effects/magnetic";
 import { ScrollRail } from "@/components/effects/scroll-rail";
 import { AiPlayground } from "@/components/effects/ai-playground";
@@ -49,6 +51,16 @@ const Hero3DLogo = dynamic(
       </div>
     ),
   }
+);
+
+const TechGlobe3D = dynamic(
+  () => import("@/components/effects/tech-globe-3d").then((mod) => mod.TechGlobe3D),
+  { ssr: false }
+);
+
+const AiCore3D = dynamic(
+  () => import("@/components/effects/ai-core-3d").then((mod) => mod.AiCore3D),
+  { ssr: false }
 );
 
 export default function HomePage() {
@@ -444,6 +456,38 @@ export default function HomePage() {
               </ScrollReveal>
             ))}
           </div>
+
+          {/* Interactive 3D Tech Orbit Feature Card */}
+          <ScrollReveal delay={0.1} className="mt-12">
+            <div className="anime-card rounded-3xl p-6 sm:p-10 border border-border/80 bg-gradient-to-b from-card/80 to-card/30 backdrop-blur-xl shadow-2xl relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8">
+              <div className="flex-1 space-y-4 text-left z-10">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-mono border border-primary/20">
+                  <Sparkles size={12} />
+                  <span>Interactive 3D Orbit</span>
+                </div>
+                <h3 className="text-2xl sm:text-3xl font-bold font-[family-name:var(--font-heading)] text-foreground tracking-tight">
+                  Full-Stack & AI Skill Sphere
+                </h3>
+                <p className="text-muted-foreground text-sm leading-relaxed max-w-lg">
+                  Drag the 3D sphere with your cursor to spin with inertia physics. Explore 28+ core technologies spanning generative AI, modern frontend, resilient backends, and high-performance databases.
+                </p>
+                <div className="pt-2">
+                  <Link
+                    href="/skills"
+                    onClick={() => soundManager.playClick()}
+                    className="anime-btn-outline px-5 py-2 rounded-full text-xs font-semibold inline-flex items-center gap-2 cursor-pointer hover:border-primary transition"
+                  >
+                    <span>Open 3D Vector Space & Grid</span>
+                    <ArrowRight size={14} />
+                  </Link>
+                </div>
+              </div>
+
+              <div className="w-full md:w-1/2 flex items-center justify-center relative">
+                <TechGlobe3D radius={180} />
+              </div>
+            </div>
+          </ScrollReveal>
         </div>
       </section>
 
@@ -504,91 +548,96 @@ export default function HomePage() {
             </h2>
           </ScrollReveal>
 
-          {/* Sticky Stack Layout */}
+          {/* Sticky Stack Layout with True 3D Depth Layers */}
           <div className="relative space-y-12 mt-16">
             {sortedProjects.slice(0, 4).map((proj, idx) => (
               <ScrollReveal key={proj.id} delay={0.05}>
-                <SpotlightCard
-                  spotlightColor="rgba(59, 130, 246, 0.14)"
-                  className="sticky bg-card border border-border/80 rounded-3xl p-6 md:p-8 flex flex-col md:flex-row gap-6 md:gap-8 shadow-2xl min-h-[320px] transition-all hover:border-primary/40"
+                <Depth3DCard
+                  depthStrength={10}
+                  className="sticky"
                   style={{ top: `${80 + idx * 24}px` }}
                 >
-                  {/* Left: Details */}
-                  <div className="flex-1 flex flex-col justify-between">
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-mono text-muted-foreground/60">
-                          Project #{String(idx + 1).padStart(2, "0")} {proj.highlight && "★ Pinned"}
-                        </span>
-                        <span className="text-[10px] bg-primary/10 text-primary border border-primary/20 px-2 py-0.5 rounded-full font-semibold">{proj.year}</span>
-                      </div>
-                      <h3 className="text-xl sm:text-2xl font-bold text-foreground font-[family-name:var(--font-heading)] leading-tight">{proj.title}</h3>
-                      <p className="text-xs text-primary font-semibold tracking-wide uppercase">{proj.subtitle}</p>
-                      <p className="text-muted-foreground text-sm leading-relaxed max-w-xl">{proj.description}</p>
-                      {proj.metrics && (
-                        <div className="flex flex-wrap gap-2 pt-2 border-t border-border/20">
-                          {Object.entries(proj.metrics).slice(0, 3).map(([key, val]) => (
-                            <div key={key} className="bg-muted/40 border border-border/20 rounded-xl px-3 py-1 flex flex-col justify-center min-w-[90px] text-center">
-                              <span className="text-[9px] font-mono text-muted-foreground uppercase tracking-wider">{key}</span>
-                              <span className="text-xs font-mono font-bold text-primary mt-0.5">{val}</span>
-                            </div>
+                  <SpotlightCard
+                    spotlightColor="rgba(59, 130, 246, 0.14)"
+                    className="bg-card border border-border/80 rounded-3xl p-6 md:p-8 flex flex-col md:flex-row gap-6 md:gap-8 shadow-2xl min-h-[320px] transition-all hover:border-primary/40"
+                  >
+                    {/* Left: Details with Multi-layer 3D elevation */}
+                    <div className="flex-1 flex flex-col justify-between">
+                      <DepthLayer z={35} className="space-y-4">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-mono text-muted-foreground/60">
+                            Project #{String(idx + 1).padStart(2, "0")} {proj.highlight && "★ Pinned"}
+                          </span>
+                          <span className="text-[10px] bg-primary/10 text-primary border border-primary/20 px-2 py-0.5 rounded-full font-semibold">{proj.year}</span>
+                        </div>
+                        <h3 className="text-xl sm:text-2xl font-bold text-foreground font-[family-name:var(--font-heading)] leading-tight">{proj.title}</h3>
+                        <p className="text-xs text-primary font-semibold tracking-wide uppercase">{proj.subtitle}</p>
+                        <p className="text-muted-foreground text-sm leading-relaxed max-w-xl">{proj.description}</p>
+                        {proj.metrics && (
+                          <div className="flex flex-wrap gap-2 pt-2 border-t border-border/20">
+                            {Object.entries(proj.metrics).slice(0, 3).map(([key, val]) => (
+                              <div key={key} className="bg-muted/40 border border-border/20 rounded-xl px-3 py-1 flex flex-col justify-center min-w-[90px] text-center">
+                                <span className="text-[9px] font-mono text-muted-foreground uppercase tracking-wider">{key}</span>
+                                <span className="text-xs font-mono font-bold text-primary mt-0.5">{val}</span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </DepthLayer>
+                      
+                      <DepthLayer z={45} className="mt-6 space-y-4">
+                        <div className="flex flex-wrap gap-1.5">
+                          {proj.stack.map((tech) => (
+                            <span key={tech} className="text-[10px] bg-muted text-muted-foreground px-2.5 py-0.5 rounded-full font-medium border border-border/30">
+                              {tech}
+                            </span>
                           ))}
                         </div>
-                      )}
+                        
+                        <div className="flex flex-wrap gap-2.5">
+                          {(proj.liveUrl || (proj.link && !proj.link.includes("github.com"))) && (
+                            <Magnetic strength={0.2}>
+                              <a 
+                                href={proj.liveUrl || proj.link} 
+                                target="_blank" 
+                                rel="noopener noreferrer" 
+                                onClick={() => soundManager.playSuccess()}
+                                className="anime-badge bg-primary text-primary-foreground font-semibold hover:opacity-90 inline-flex items-center gap-1.5 w-fit cursor-pointer shadow-sm"
+                              >
+                                Live Demo <ExternalLink size={12} />
+                              </a>
+                            </Magnetic>
+                          )}
+                          {(proj.githubUrl || (proj.link && proj.link.includes("github.com"))) && (
+                            <Magnetic strength={0.2}>
+                              <a 
+                                href={proj.githubUrl || proj.link} 
+                                target="_blank" 
+                                rel="noopener noreferrer" 
+                                onClick={() => soundManager.playClick()}
+                                className="anime-badge bg-muted text-muted-foreground hover:bg-muted/80 font-semibold inline-flex items-center gap-1.5 w-fit cursor-pointer border border-border/40"
+                              >
+                                Source Code <Github size={12} className="w-3.5 h-3.5" />
+                              </a>
+                            </Magnetic>
+                          )}
+                        </div>
+                      </DepthLayer>
                     </div>
-                    
-                    <div className="mt-6 space-y-4">
-                      <div className="flex flex-wrap gap-1.5">
-                        {proj.stack.map((tech) => (
-                          <span key={tech} className="text-[10px] bg-muted text-muted-foreground px-2.5 py-0.5 rounded-full font-medium border border-border/30">
-                            {tech}
-                          </span>
-                        ))}
-                      </div>
-                      
-                      <div className="flex flex-wrap gap-2.5">
-                        {(proj.liveUrl || (proj.link && !proj.link.includes("github.com"))) && (
-                          <Magnetic strength={0.2}>
-                            <a 
-                              href={proj.liveUrl || proj.link} 
-                              target="_blank" 
-                              rel="noopener noreferrer" 
-                              onClick={() => soundManager.playSuccess()}
-                              className="anime-badge bg-primary text-primary-foreground font-semibold hover:opacity-90 inline-flex items-center gap-1.5 w-fit cursor-pointer shadow-sm"
-                            >
-                              Live Demo <ExternalLink size={12} />
-                            </a>
-                          </Magnetic>
-                        )}
-                        {(proj.githubUrl || (proj.link && proj.link.includes("github.com"))) && (
-                          <Magnetic strength={0.2}>
-                            <a 
-                              href={proj.githubUrl || proj.link} 
-                              target="_blank" 
-                              rel="noopener noreferrer" 
-                              onClick={() => soundManager.playClick()}
-                              className="anime-badge bg-muted text-muted-foreground hover:bg-muted/80 font-semibold inline-flex items-center gap-1.5 w-fit cursor-pointer border border-border/40"
-                            >
-                              Source Code <Github size={12} className="w-3.5 h-3.5" />
-                            </a>
-                          </Magnetic>
-                        )}
-                      </div>
-                    </div>
-                  </div>
 
-                  {/* Right: Visual representation */}
-                  <div className="w-full md:w-80 h-48 md:h-auto rounded-2xl bg-muted border border-border/30 overflow-hidden relative flex items-center justify-center shrink-0">
-                    {proj.image ? (
-                      <img src={proj.image} alt={proj.title} className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="absolute inset-0 flex flex-col justify-center items-center text-center p-6 bg-gradient-to-br from-card to-muted">
-                        <Code2 className="w-10 h-10 text-primary/30 mb-2" />
-                        <span className="text-xs font-mono text-muted-foreground/50 uppercase tracking-widest font-semibold">{proj.title}</span>
-                      </div>
-                    )}
-                  </div>
-                </SpotlightCard>
+                    {/* Right: Visual representation on elevated 3D plane */}
+                    <DepthLayer z={25} className="w-full md:w-80 h-48 md:h-auto rounded-2xl bg-muted border border-border/30 overflow-hidden relative flex items-center justify-center shrink-0">
+                      {proj.image ? (
+                        <img src={proj.image} alt={proj.title} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="absolute inset-0 flex flex-col justify-center items-center text-center p-6 bg-gradient-to-br from-card to-muted">
+                          <Code2 className="w-10 h-10 text-primary/30 mb-2" />
+                          <span className="text-xs font-mono text-muted-foreground/50 uppercase tracking-widest font-semibold">{proj.title}</span>
+                        </div>
+                      )}
+                    </DepthLayer>
+                  </SpotlightCard>
+                </Depth3DCard>
               </ScrollReveal>
             ))}
           </div>
@@ -596,21 +645,22 @@ export default function HomePage() {
           <div className="mt-12 text-center">
             <Link 
               href="/projects" 
-              className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:text-foreground transition-colors group cursor-pointer"
+              className="anime-btn-outline px-6 py-2.5 rounded-full text-xs font-semibold inline-flex items-center gap-2 cursor-pointer hover:border-primary transition"
             >
-              <span>View All Projects</span>
-              <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+              <span>View All 6 Projects & Architecture</span>
+              <ArrowRight size={14} />
             </Link>
           </div>
         </div>
       </section>
 
-      {/* ── 7. Testimonials Section (Infinite Marquee) ── */}
-      <section id="testimonials" className="py-24 border-t border-border/40 relative z-10 scroll-mt-20">
-        <div className="max-w-4xl mx-auto px-4 text-center">
+      {/* ── 7. Social Proof / Testimonials Section ── */}
+      <section id="testimonials" className="py-24 border-t border-border/40 relative z-10 px-4 sm:px-6 scroll-mt-20">
+        <div className="max-w-6xl mx-auto text-center">
           <ScrollReveal>
             <div className="flex items-center gap-2 text-primary font-mono text-sm uppercase tracking-wider justify-center">
-              <span>reviews</span>
+              <Sparkles size={14} />
+              <span>recommendations</span>
             </div>
             <h2 className="text-3xl md:text-5xl font-bold font-[family-name:var(--font-heading)] text-foreground tracking-tight mt-2">
               What People Say
@@ -644,9 +694,17 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── 8. Contact / CTA Section ── */}
+      {/* ── 8. Contact / CTA Section with 3D AI Neural Core ── */}
       <section id="contact" className="py-24 border-t border-border/40 relative z-10 px-4 sm:px-6 scroll-mt-20 bg-card/10">
-        <div className="max-w-4xl mx-auto text-center space-y-8">
+        <div className="max-w-4xl mx-auto text-center space-y-8 flex flex-col items-center">
+          
+          {/* Interactive 3D Neural AI Core */}
+          <ScrollReveal>
+            <div className="flex justify-center -mb-4">
+              <AiCore3D size={200} />
+            </div>
+          </ScrollReveal>
+
           <ScrollReveal>
             <div className="flex items-center gap-2 text-primary font-mono text-sm uppercase tracking-wider justify-center">
               <Mail size={14} />
@@ -656,7 +714,7 @@ export default function HomePage() {
               Let&apos;s Build Something Great
             </h2>
             <p className="text-muted-foreground text-sm sm:text-base mt-4 max-w-xl mx-auto leading-relaxed">
-              Open to collaborations, internship opportunities, and technical discussions. Drop me a line and let&apos;s build something impactful together.
+              Open to collaborations, engineering roles, and technical discussions. Drop me a line and let&apos;s build something impactful together.
             </p>
           </ScrollReveal>
 
