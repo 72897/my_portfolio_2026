@@ -269,6 +269,22 @@ async function seed() {
     await Experience.deleteMany({});
     await Experience.insertMany([
       {
+        company: "Technocratiq Digital Pvt. Ltd.",
+        role: "Software Engineer",
+        type: "Full-time",
+        location: "Delhi",
+        startDate: "2026-07-01",
+        endDate: "",
+        current: true,
+        bullets: [
+          "Orchestrated 47+ automation workflows across marketing, CRM, analytics, lead generation, and internal operations, improving efficiency and reducing manual effort.",
+          "Architected scalable systems for task tracking, reporting, notifications, and workflow execution, supporting reliable cross-functional operations.",
+          "Connected multiple business platforms through REST APIs and AI-driven automation pipelines, enabling seamless data exchange and process automation.",
+        ],
+        technologies: ["Python", "Node.js", "REST APIs", "Workflow Automation", "AI Integration"],
+        order: 1,
+      },
+      {
         company: "Manipal Business Solution",
         role: "AI Intern",
         type: "Internship",
@@ -283,7 +299,7 @@ async function seed() {
           "Trained task-specific models on labeled datasets, error diagnostics, and performance benchmarking to strengthen output quality.",
         ],
         technologies: ["Python", "APIs", "Google Sheets", "AI/ML", "Prompt Engineering"],
-        order: 1,
+        order: 2,
       },
       {
         company: "Thales Group",
@@ -300,7 +316,7 @@ async function seed() {
           "Conducted data analysis and model fine-tuning with Python and TensorFlow, reducing processing latency by 25% and supporting production-scale deployment.",
         ],
         technologies: ["Python", "TensorFlow", "Google Gemini", "OpenAI", "NLP", "LLM"],
-        order: 2,
+        order: 3,
       },
       {
         company: "MI Matdar",
@@ -317,7 +333,7 @@ async function seed() {
           "Integrated MongoDB with schema design and query optimization, improving data retrieval by 35%.",
         ],
         technologies: ["React.js", "Tailwind CSS", "Node.js", "Express.js", "MongoDB", "Vercel"],
-        order: 3,
+        order: 4,
       },
     ]);
     console.log("✅ Experience seeded");
@@ -497,26 +513,21 @@ async function seed() {
     ]);
     console.log("✅ Education details seeded");
 
-    // Seed Resume
-    const resumeCount = await Resume.countDocuments();
-    if (resumeCount === 0) {
-      await Resume.create({
-        summary: "AI Engineer and Full Stack Developer with hands-on experience in Generative AI, LLM integration, and scalable web applications. B.Tech CSE student at Gautam Buddha University.",
-        pdfUrl: newUrl,
-        highlights: {
-          experience: "3 internships at Manipal Business Solution, Thales Group, and MI Matdar",
-          skills: "Python, React.js, Node.js, TensorFlow, LangChain, MongoDB",
-          projects: "4 projects including AI-powered study assistant and healthcare chatbot",
-          education: "B.Tech CSE (GBU), 12th PCM (St. Aerjay), 10th (Nirmala Convent)",
-          certifications: "6 certifications from Google Cloud, AWS, Walmart, Deloitte, HP, Postman",
-        },
-        downloadCount: 0,
-      });
-      console.log("✅ Resume data seeded");
-    } else {
-      await Resume.updateMany({}, { $set: { pdfUrl: newUrl } });
-      console.log("✅ Resume pdfUrl updated");
-    }
+    // Seed Resume (Truncate and recreate to keep highlights updated)
+    await Resume.deleteMany({});
+    await Resume.create({
+      summary: "AI Engineer and Full Stack Developer with hands-on experience in Generative AI, LLM integration, and scalable web applications. B.Tech CSE student at Gautam Buddha University.",
+      pdfUrl: newUrl,
+      highlights: {
+        experience: "1 job at Technocratiq Digital and 3 internships at Manipal Business Solution, Thales Group, and MI Matdar",
+        skills: "Python, React.js, Node.js, TensorFlow, LangChain, MongoDB",
+        projects: "6 projects including StudyMate, AlphaCare, and Buddhimaan",
+        education: "B.Tech CSE (GBU), 12th PCM (St. Aerjay), 10th (Nirmala Convent)",
+        certifications: "6 certifications from Google Cloud, AWS, Walmart, Deloitte, HP, Postman",
+      },
+      downloadCount: 0,
+    });
+    console.log("✅ Resume data seeded");
 
     console.log("\n🎉 Database seeding completed successfully!");
     process.exit(0);

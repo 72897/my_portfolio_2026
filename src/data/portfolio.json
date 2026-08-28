@@ -53,6 +53,18 @@
   },
   "experience": [
     {
+      "company": "Technocratiq Digital Pvt. Ltd.",
+      "role": "Software Engineer",
+      "period": "Jul 2026 – Present",
+      "location": "Delhi",
+      "summary": "Orchestrated 47+ automation workflows across CRM/analytics, architected scalable tracking/reporting systems, and connected multiple business platforms through REST APIs and AI pipelines.",
+      "highlights": [
+        "Orchestrated 47+ automation workflows across marketing, CRM, analytics, lead generation, and internal operations, improving efficiency and reducing manual effort.",
+        "Architected scalable systems for task tracking, reporting, notifications, and workflow execution, supporting reliable cross-functional operations.",
+        "Connected multiple business platforms through REST APIs and AI-driven automation pipelines, enabling seamless data exchange and process automation."
+      ]
+    },
+    {
       "company": "Manipal Business Solution",
       "role": "AI Intern",
       "period": "Apr 2026 – Jun 2026",

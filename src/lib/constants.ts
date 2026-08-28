@@ -109,13 +109,28 @@ export const skillCategories = [
 
 export const experiences: IExperience[] = [
   {
+    company: "Technocratiq Digital Pvt. Ltd.",
+    role: "Software Engineer",
+    type: "Full-time",
+    location: "Delhi",
+    startDate: "Jul 2026",
+    endDate: "Present",
+    current: true,
+    bullets: [
+      "Orchestrated 47+ automation workflows across marketing, CRM, analytics, lead generation, and internal operations, improving efficiency and reducing manual effort.",
+      "Architected scalable systems for task tracking, reporting, notifications, and workflow execution, supporting reliable cross-functional operations.",
+      "Connected multiple business platforms through REST APIs and AI-driven automation pipelines, enabling seamless data exchange and process automation.",
+    ],
+    technologies: ["Python", "Node.js", "REST APIs", "Workflow Automation", "AI Integration"],
+  },
+  {
     company: "Manipal Business Solution",
     role: "AI Intern",
     type: "Internship",
     location: "Noida",
     startDate: "Apr 2026",
-    endDate: "Present",
-    current: true,
+    endDate: "Jun 2026",
+    current: false,
     bullets: [
       "Automated business workflows with Python, APIs, and Google Sheets, cutting manual reporting effort by 90%.",
       "Analyzed operational datasets and developed KPI reports to generate insights for leadership and process optimization.",
