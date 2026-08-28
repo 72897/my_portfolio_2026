@@ -547,23 +547,23 @@ export default function HomePage() {
                       </div>
                       
                       <div className="flex flex-wrap gap-2.5">
-                        {proj.liveUrl && (
+                        {(proj.liveUrl || (proj.link && !proj.link.includes("github.com"))) && (
                           <Magnetic strength={0.2}>
                             <a 
-                              href={proj.liveUrl} 
+                              href={proj.liveUrl || proj.link} 
                               target="_blank" 
                               rel="noopener noreferrer" 
                               onClick={() => soundManager.playSuccess()}
-                              className="anime-badge bg-primary text-primary-foreground font-semibold hover:opacity-90 inline-flex items-center gap-1.5 w-fit cursor-pointer"
+                              className="anime-badge bg-primary text-primary-foreground font-semibold hover:opacity-90 inline-flex items-center gap-1.5 w-fit cursor-pointer shadow-sm"
                             >
                               Live Demo <ExternalLink size={12} />
                             </a>
                           </Magnetic>
                         )}
-                        {proj.githubUrl && (
+                        {(proj.githubUrl || (proj.link && proj.link.includes("github.com"))) && (
                           <Magnetic strength={0.2}>
                             <a 
-                              href={proj.githubUrl} 
+                              href={proj.githubUrl || proj.link} 
                               target="_blank" 
                               rel="noopener noreferrer" 
                               onClick={() => soundManager.playClick()}

@@ -238,19 +238,40 @@ export default function ProjectsPage() {
                       </div>
 
                         {/* Links */}
-                        <div className="mt-4 pt-3 border-t border-border/40 flex items-center gap-3">
-                        {project.githubUrl && (
-                          <span className="inline-flex items-center gap-1 text-xs text-muted-foreground group-hover:text-primary transition-colors duration-200">
-                            <Github className="w-3.5 h-3.5" />
-                            Source
+                        <div className="mt-4 pt-3 border-t border-border/40 flex items-center justify-between gap-2">
+                          <span className="text-[11px] font-mono text-primary font-semibold group-hover:underline">
+                            View Case Study →
                           </span>
-                        )}
-                        {project.liveUrl && (
-                          <span className="inline-flex items-center gap-1 text-xs text-muted-foreground group-hover:text-primary transition-colors duration-200">
-                            <ExternalLink className="w-3.5 h-3.5" />
-                            Live
-                          </span>
-                        )}
+                          <div className="flex items-center gap-2">
+                            {project.liveUrl && (
+                              <a
+                                href={project.liveUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition shadow-sm"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                }}
+                              >
+                                <ExternalLink className="w-3.5 h-3.5" />
+                                Live Demo
+                              </a>
+                            )}
+                            {project.githubUrl && (
+                              <a
+                                href={project.githubUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-lg bg-muted text-muted-foreground hover:text-foreground hover:bg-muted/80 transition border border-border/40"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                }}
+                              >
+                                <Github className="w-3.5 h-3.5" />
+                                Code
+                              </a>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </Link>
