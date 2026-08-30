@@ -3,14 +3,9 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
-import { AnimeBackground } from "@/components/effects/anime-background";
 import { Chatbot } from "@/components/layout/chatbot";
 import { Toaster } from "sonner";
 import { ScrollNavButton } from "@/components/effects/scroll-nav-button";
-import {
-  SpatialInteractions,
-  SpatialWorld,
-} from "@/components/effects/spatial-world";
 import { CommandPalette } from "@/components/effects/command-palette";
 import { TerminalModal } from "@/components/effects/terminal-modal";
 
@@ -52,12 +47,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning data-scroll-behavior="smooth">
-      <body className="min-h-screen bg-background text-foreground antialiased">
+      <body className="min-h-screen bg-background text-foreground antialiased selection:bg-primary/20 selection:text-primary">
         <ThemeProvider>
           <a href="#main-content" className="skip-link">Skip to content</a>
-          <AnimeBackground />
-          <SpatialWorld />
-          <SpatialInteractions />
           <Navbar />
           <main id="main-content" className="min-h-screen pt-20 relative z-10">{children}</main>
           <ScrollNavButton />

@@ -82,11 +82,11 @@ export default function AboutPage() {
             animate={{ opacity: 1, y: 0 }}
             className="text-center"
           >
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-[family-name:var(--font-heading)] text-foreground">
-              About <span className="gradient-text">Me</span>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-[family-name:var(--font-heading)] text-foreground tracking-tight">
+              About <span className="text-primary">Me</span>
             </h1>
             <p className="mt-4 text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
-              Get to know the person behind the code
+              Engineering background, philosophy, and production focus
             </p>
           </motion.div>
         </div>
@@ -102,28 +102,18 @@ export default function AboutPage() {
               viewport={{ once: true }}
               transition={{ duration: 0.4 }}
             >
-              <h2 className="text-3xl md:text-4xl font-bold font-[family-name:var(--font-heading)] text-foreground">
-                Professional{" "}
-                <span className="gradient-text">Summary</span>
+              <h2 className="text-3xl md:text-4xl font-bold font-[family-name:var(--font-heading)] text-foreground tracking-tight">
+                Professional <span className="text-primary">Summary</span>
               </h2>
               <div className="mt-6 space-y-4 text-muted-foreground text-base md:text-lg leading-relaxed">
                 <p>
-                  I&apos;m <strong className="text-foreground">{siteConfig.name}</strong>, an AI
-                  Engineer and Full Stack Developer. I recently graduated with a B.Tech
-                  in Computer Science from Gautam Buddha University, Greater Noida.
+                  I&apos;m <strong className="text-foreground">{siteConfig.name}</strong>, a Software Engineer and AI & Full Stack Developer with a B.Tech in Computer Science from Gautam Buddha University.
                 </p>
                 <p>
-                  My passion lies at the intersection of Artificial Intelligence
-                  and modern web development. I specialize in building
-                  intelligent systems powered by LLMs, RAG pipelines, and
-                  conversational AI, while crafting performant, user-centric
-                  full-stack applications with React, Node.js, and Next.js.
+                  My focus is architecting production AI systems—from multi-agent workflows and low-latency RAG pipelines to high-throughput full-stack MERN and Next.js applications.
                 </p>
                 <p>
-                  With hands-on experience at organizations like Thales Group,
-                  Manipal Business Solutions, and MI Matdar, I&apos;ve delivered
-                  production-ready AI platforms, automated business workflows,
-                  and built scalable web applications that create real impact.
+                  Currently at <strong className="text-foreground">Technocratiq Digital</strong>, I orchestrate 47+ automation workflows across CRM, marketing, and operations. Previously at <strong className="text-foreground">Thales Group</strong> and <strong className="text-foreground">MI Matdar</strong>, I engineered generative AI platforms and scalable REST backends.
                 </p>
               </div>
             </motion.div>

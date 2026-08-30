@@ -29,7 +29,7 @@ interface SkillGroup {
 export default function SkillsPage() {
   const [skillGroups, setSkillGroups] = useState<SkillGroup[]>([]);
   const [loading, setLoading] = useState(true);
-  const [viewMode, setViewMode] = useState<"3d-cloud" | "3d-globe" | "grid">("3d-cloud");
+  const [viewMode, setViewMode] = useState<"grid" | "3d-cloud" | "3d-globe">("grid");
 
   useEffect(() => {
     async function fetchSkills() {
@@ -74,19 +74,35 @@ export default function SkillsPage() {
             animate={{ opacity: 1, y: 0 }}
             className="text-center"
           >
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-mono mb-4 border border-primary/20">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Interactive 3D Skillscapes</span>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-muted text-muted-foreground text-xs font-mono mb-4 border border-border">
+              <Sparkles className="w-3.5 h-3.5 text-primary" />
+              <span>Technical Stack & Proficiency</span>
             </div>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-[family-name:var(--font-heading)] text-foreground">
-              Skills & <span className="gradient-text">Technologies</span>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-[family-name:var(--font-heading)] text-foreground tracking-tight">
+              Skills & <span className="text-primary">Architectures</span>
             </h1>
-            <p className="mt-4 text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
-              Explore my technical toolkit through interactive 3D embedding clouds, spherical physics orbits, or categorized matrix grids.
+            <p className="mt-4 text-base md:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+              Core technologies, frameworks, and tools powering my production applications, RAG pipelines, and automated workflows.
             </p>
 
             {/* View Mode Switcher */}
-            <div className="mt-8 inline-flex items-center p-1.5 rounded-2xl bg-card border border-border/80 shadow-lg gap-1.5 flex-wrap justify-center">
+            <div className="mt-8 inline-flex items-center p-1.5 rounded-2xl bg-card border border-border shadow-sm gap-1.5 flex-wrap justify-center">
+              <button
+                type="button"
+                onClick={() => {
+                  soundManager.playClick();
+                  setViewMode("grid");
+                }}
+                className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all duration-200 cursor-pointer ${
+                  viewMode === "grid"
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                }`}
+              >
+                <LayoutGrid className="w-4 h-4" />
+                <span>Matrix Grid</span>
+              </button>
+
               <button
                 type="button"
                 onClick={() => {
@@ -95,12 +111,12 @@ export default function SkillsPage() {
                 }}
                 className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all duration-200 cursor-pointer ${
                   viewMode === "3d-cloud"
-                    ? "bg-primary text-primary-foreground shadow-md shadow-primary/25"
+                    ? "bg-primary text-primary-foreground shadow-sm"
                     : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                 }`}
               >
                 <Brain className="w-4 h-4" />
-                <span>3D Vector Cloud</span>
+                <span>3D Vector Space</span>
               </button>
 
               <button
@@ -111,28 +127,12 @@ export default function SkillsPage() {
                 }}
                 className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all duration-200 cursor-pointer ${
                   viewMode === "3d-globe"
-                    ? "bg-primary text-primary-foreground shadow-md shadow-primary/25"
+                    ? "bg-primary text-primary-foreground shadow-sm"
                     : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                 }`}
               >
                 <Globe className="w-4 h-4" />
                 <span>3D Tech Globe</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  soundManager.playClick();
-                  setViewMode("grid");
-                }}
-                className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all duration-200 cursor-pointer ${
-                  viewMode === "grid"
-                    ? "bg-primary text-primary-foreground shadow-md shadow-primary/25"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-                }`}
-              >
-                <LayoutGrid className="w-4 h-4" />
-                <span>Matrix Grid</span>
               </button>
             </div>
           </motion.div>

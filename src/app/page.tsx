@@ -31,7 +31,6 @@ import { usePortfolio } from "@/hooks/usePortfolio";
 import { ScrollReveal } from "@/components/effects/scroll-reveal";
 import { TiltCard } from "@/components/effects/tilt-card";
 import { SpotlightCard } from "@/components/effects/spotlight-card";
-import { Depth3DCard, DepthLayer } from "@/components/effects/depth-3d-card";
 import { Magnetic } from "@/components/effects/magnetic";
 import { ScrollRail } from "@/components/effects/scroll-rail";
 import { AiPlayground } from "@/components/effects/ai-playground";
@@ -40,29 +39,6 @@ import { AnimatedCounter } from "@/components/shared/animated-counter";
 import { TypeAnimation } from "react-type-animation";
 import { siteConfig } from "@/lib/constants";
 import { soundManager } from "@/lib/sounds";
-import { ShootingStars3D } from "@/components/effects/shooting-stars-3d";
-
-const Hero3DLogo = dynamic(
-  () => import("@/components/effects/hero-3d-logo").then((mod) => mod.Hero3DLogo),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="w-full h-full flex items-center justify-center min-h-[300px]">
-        <div className="w-12 h-12 rounded-full border border-dashed border-primary/30 border-t-primary animate-spin" />
-      </div>
-    ),
-  }
-);
-
-const TechGlobe3D = dynamic(
-  () => import("@/components/effects/tech-globe-3d").then((mod) => mod.TechGlobe3D),
-  { ssr: false }
-);
-
-const AiCore3D = dynamic(
-  () => import("@/components/effects/ai-core-3d").then((mod) => mod.AiCore3D),
-  { ssr: false }
-);
 
 export default function HomePage() {
   const { data, loading } = usePortfolio();
@@ -153,38 +129,32 @@ export default function HomePage() {
       <ScrollRail />
 
       {/* ── 1. Hero Section (Asymmetric Split Layout) ── */}
-      <section id="hero" className="home-hero min-h-[92vh] flex flex-col justify-center items-center py-12 px-4 sm:px-6 relative overflow-hidden">
-        
-        {/* 3D Shooting Stars & Cosmic Stardust Canvas */}
-        <ShootingStars3D starCount={130} />
-
-        <div className="hero-orbit hero-orbit--one" aria-hidden="true" />
-        <div className="hero-orbit hero-orbit--two" aria-hidden="true" />
-        <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-center pt-8 relative z-10">
+      <section id="hero" className="home-hero min-h-[88vh] flex flex-col justify-center items-center py-16 px-4 sm:px-6 relative">
+        <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-10 items-center relative z-10">
           
           {/* Headline and CTAs - Left 7 columns */}
           <div className="lg:col-span-7 flex flex-col items-start text-left gap-6 z-10">
             <div className="eyebrow">
               <span className="status-dot" />
-              <span>AI engineer · Full-stack creator</span>
+              <span>Software Engineer · Technocratiq Digital</span>
             </div>
             
-            <h1 className="hero-title font-[family-name:var(--font-heading)] text-5xl sm:text-7xl md:text-8xl font-extrabold tracking-tighter leading-[0.88] select-none text-foreground">
-              Building<br /><span className="gradient-text">intelligence</span><br />into products.
+            <h1 className="hero-title font-[family-name:var(--font-heading)] text-5xl sm:text-7xl md:text-8xl font-extrabold tracking-tighter leading-[0.9] text-foreground">
+              Building<br /><span className="text-primary">production AI</span><br />& web systems.
             </h1>
 
             <div className="hero-role text-base sm:text-lg md:text-xl font-mono text-muted-foreground min-h-[40px] flex items-center">
               <span className="mr-2 text-primary font-bold">↳</span>
               <TypeAnimation
                 sequence={[
-                  "AI Engineer",
-                  1500,
-                  "Full Stack Developer",
-                  1500,
-                  "GenAI Specialist",
-                  1500,
-                  "MERN Developer",
-                  1500
+                  "AI Engineer & Full-Stack Developer",
+                  1800,
+                  "47+ Automation Workflows Deployed",
+                  1800,
+                  "GenAI, RAG & Vector Search Architect",
+                  1800,
+                  "Scalable MERN & Next.js Platforms",
+                  1800
                 ]}
                 wrapper="span"
                 speed={50}
@@ -194,7 +164,7 @@ export default function HomePage() {
             </div>
 
             <p className="text-muted-foreground text-sm sm:text-base md:text-lg leading-relaxed max-w-xl">
-              I&apos;m {profile.shortName}—{profile.tagline}. I turn generative AI, RAG systems, and modern web technology into useful, scalable experiences.
+              I&apos;m {profile.shortName}—{profile.tagline}. I architect production-grade AI agents, high-throughput RAG systems, and robust full-stack applications.
             </p>
             
             {/* Social pills */}
@@ -205,9 +175,9 @@ export default function HomePage() {
                   target="_blank" 
                   rel="noopener noreferrer" 
                   onClick={() => soundManager.playClick()}
-                  className="anime-badge hover:bg-primary/20 transition cursor-pointer"
+                  className="anime-badge hover:bg-muted transition cursor-pointer"
                 >
-                  GitHub
+                  <Github className="w-3.5 h-3.5" /> GitHub
                 </a>
               )}
               {profile.social.linkedin && (
@@ -216,7 +186,7 @@ export default function HomePage() {
                   target="_blank" 
                   rel="noopener noreferrer" 
                   onClick={() => soundManager.playClick()}
-                  className="anime-badge hover:bg-primary/20 transition cursor-pointer"
+                  className="anime-badge hover:bg-muted transition cursor-pointer"
                 >
                   LinkedIn
                 </a>
@@ -224,16 +194,16 @@ export default function HomePage() {
               {profile.social.email && (
                 <button 
                   onClick={handleCopyEmail} 
-                  className="anime-badge hover:bg-primary/20 transition cursor-pointer flex items-center gap-1.5"
+                  className="anime-badge hover:bg-muted transition cursor-pointer flex items-center gap-1.5"
                 >
-                  {copied ? <Check size={10} className="text-green-500" /> : <Copy size={10} />}
+                  {copied ? <Check size={12} className="text-primary" /> : <Copy size={12} />}
                   <span>{copied ? "Copied Email" : "Email"}</span>
                 </button>
               )}
             </div>
 
             {/* CTAs with Magnetic physics */}
-            <div className="flex flex-wrap gap-4 mt-2">
+            <div className="flex flex-wrap gap-3.5 mt-2">
               {profile.social.resume && (
                 <Magnetic strength={0.25}>
                   <a 
@@ -241,9 +211,9 @@ export default function HomePage() {
                     target="_blank" 
                     rel="noopener noreferrer" 
                     onClick={() => soundManager.playSuccess()}
-                    className="anime-btn flex items-center gap-2 cursor-pointer shadow-lg shadow-primary/20"
+                    className="anime-btn flex items-center gap-2 cursor-pointer shadow-sm"
                   >
-                    <Download size={16} /> Download Resume
+                    <Download size={15} /> Download Resume
                   </a>
                 </Magnetic>
               )}
@@ -253,19 +223,75 @@ export default function HomePage() {
                   onClick={() => soundManager.playClick()}
                   className="anime-btn-outline cursor-pointer inline-flex items-center gap-2"
                 >
-                  <Mail size={16} /> Get In Touch
+                  <Mail size={15} /> Get In Touch
+                </a>
+              </Magnetic>
+              <Magnetic strength={0.25}>
+                <a 
+                  href="#playground" 
+                  onClick={() => soundManager.playClick()}
+                  className="anime-btn-outline cursor-pointer inline-flex items-center gap-2 text-primary border-primary/30"
+                >
+                  <Sliders size={15} /> Try AI Sandbox
                 </a>
               </Magnetic>
             </div>
           </div>
 
-          {/* Centered 3D Avatar - Right 5 columns */}
-          <div className="hero-stage lg:col-span-5 w-full h-[350px] md:h-[450px] lg:h-[540px] z-20 relative flex justify-center items-center">
-            <div className="hero-stage__halo" aria-hidden="true" />
-            <div className="floating-chip floating-chip--top"><span>GenAI</span> LLM systems</div>
-            <div className="floating-chip floating-chip--bottom"><span>MERN</span> Product engineering</div>
-            <Hero3DLogo />
-            <div className="hero-stage__base" aria-hidden="true" />
+          {/* Clean Senior Engineering Console - Right 5 columns */}
+          <div className="lg:col-span-5 w-full z-20 flex justify-center">
+            <div className="w-full max-w-md rounded-2xl border border-border/80 bg-card shadow-xl overflow-hidden font-mono text-xs">
+              {/* Window Header */}
+              <div className="flex items-center justify-between px-4 py-3 border-b border-border/80 bg-muted/40">
+                <div className="flex items-center gap-2">
+                  <span className="w-3 h-3 rounded-full bg-red-500/80 inline-block" />
+                  <span className="w-3 h-3 rounded-full bg-yellow-500/80 inline-block" />
+                  <span className="w-3 h-3 rounded-full bg-green-500/80 inline-block" />
+                </div>
+                <span className="text-[11px] text-muted-foreground font-medium">kunal@system ~ live-status</span>
+                <span className="flex items-center gap-1.5 text-[10px] text-primary font-semibold">
+                  <span className="w-2 h-2 rounded-full bg-primary animate-pulse" /> LIVE
+                </span>
+              </div>
+
+              {/* Console Body */}
+              <div className="p-5 space-y-4 text-left leading-relaxed">
+                <div>
+                  <span className="text-muted-foreground">$ whoami</span>
+                  <p className="text-foreground font-bold mt-0.5">Kunal Singh · Software Engineer</p>
+                </div>
+
+                <div>
+                  <span className="text-muted-foreground">$ cat experience/current.json</span>
+                  <div className="mt-1 p-2.5 rounded-lg bg-muted/50 border border-border/50 text-[11px] space-y-1">
+                    <p><span className="text-primary font-semibold">company:</span> &quot;Technocratiq Digital&quot;</p>
+                    <p><span className="text-primary font-semibold">role:</span> &quot;Software Engineer&quot; (Jul 2026 - Present)</p>
+                    <p><span className="text-primary font-semibold">impact:</span> &quot;47+ automation workflows across CRM, marketing & operations&quot;</p>
+                  </div>
+                </div>
+
+                <div>
+                  <span className="text-muted-foreground">$ cat stack/active.json</span>
+                  <div className="mt-1 flex flex-wrap gap-1.5 pt-1">
+                    {["Google Gemini", "LangChain", "ChromaDB", "Python", "Next.js", "Node.js", "TypeScript", "MongoDB"].map((tech) => (
+                      <span key={tech} className="px-2 py-0.5 rounded-md bg-muted text-muted-foreground border border-border/60 text-[10px]">
+                        {tech}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="pt-2 border-t border-border/60 flex items-center justify-between text-[11px]">
+                  <span className="text-muted-foreground">p95 Latency: <strong className="text-primary font-bold">140ms</strong></span>
+                  <Link 
+                    href="#projects" 
+                    className="text-primary hover:underline font-semibold flex items-center gap-1"
+                  >
+                    Explore 6 Projects →
+                  </Link>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -461,38 +487,6 @@ export default function HomePage() {
               </ScrollReveal>
             ))}
           </div>
-
-          {/* Interactive 3D Tech Orbit Feature Card */}
-          <ScrollReveal delay={0.1} className="mt-12">
-            <div className="anime-card rounded-3xl p-6 sm:p-10 border border-border/80 bg-gradient-to-b from-card/80 to-card/30 backdrop-blur-xl shadow-2xl relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8">
-              <div className="flex-1 space-y-4 text-left z-10">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-mono border border-primary/20">
-                  <Sparkles size={12} />
-                  <span>Interactive 3D Orbit</span>
-                </div>
-                <h3 className="text-2xl sm:text-3xl font-bold font-[family-name:var(--font-heading)] text-foreground tracking-tight">
-                  Full-Stack & AI Skill Sphere
-                </h3>
-                <p className="text-muted-foreground text-sm leading-relaxed max-w-lg">
-                  Drag the 3D sphere with your cursor to spin with inertia physics. Explore 28+ core technologies spanning generative AI, modern frontend, resilient backends, and high-performance databases.
-                </p>
-                <div className="pt-2">
-                  <Link
-                    href="/skills"
-                    onClick={() => soundManager.playClick()}
-                    className="anime-btn-outline px-5 py-2 rounded-full text-xs font-semibold inline-flex items-center gap-2 cursor-pointer hover:border-primary transition"
-                  >
-                    <span>Open 3D Vector Space & Grid</span>
-                    <ArrowRight size={14} />
-                  </Link>
-                </div>
-              </div>
-
-              <div className="w-full md:w-1/2 flex items-center justify-center relative">
-                <TechGlobe3D radius={180} />
-              </div>
-            </div>
-          </ScrollReveal>
         </div>
       </section>
 
@@ -553,96 +547,91 @@ export default function HomePage() {
             </h2>
           </ScrollReveal>
 
-          {/* Sticky Stack Layout with True 3D Depth Layers */}
+          {/* Sticky Stack Layout */}
           <div className="relative space-y-12 mt-16">
             {sortedProjects.slice(0, 4).map((proj, idx) => (
               <ScrollReveal key={proj.id} delay={0.05}>
-                <Depth3DCard
-                  depthStrength={10}
-                  className="sticky"
+                <SpotlightCard
+                  spotlightColor="rgba(16, 185, 129, 0.12)"
+                  className="sticky bg-card border border-border rounded-3xl p-6 md:p-8 flex flex-col md:flex-row gap-6 md:gap-8 shadow-xl min-h-[320px] transition-all hover:border-primary/40"
                   style={{ top: `${80 + idx * 24}px` }}
                 >
-                  <SpotlightCard
-                    spotlightColor="rgba(59, 130, 246, 0.14)"
-                    className="bg-card border border-border/80 rounded-3xl p-6 md:p-8 flex flex-col md:flex-row gap-6 md:gap-8 shadow-2xl min-h-[320px] transition-all hover:border-primary/40"
-                  >
-                    {/* Left: Details with Multi-layer 3D elevation */}
-                    <div className="flex-1 flex flex-col justify-between">
-                      <DepthLayer z={35} className="space-y-4">
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs font-mono text-muted-foreground/60">
-                            Project #{String(idx + 1).padStart(2, "0")} {proj.highlight && "★ Pinned"}
-                          </span>
-                          <span className="text-[10px] bg-primary/10 text-primary border border-primary/20 px-2 py-0.5 rounded-full font-semibold">{proj.year}</span>
-                        </div>
-                        <h3 className="text-xl sm:text-2xl font-bold text-foreground font-[family-name:var(--font-heading)] leading-tight">{proj.title}</h3>
-                        <p className="text-xs text-primary font-semibold tracking-wide uppercase">{proj.subtitle}</p>
-                        <p className="text-muted-foreground text-sm leading-relaxed max-w-xl">{proj.description}</p>
-                        {proj.metrics && (
-                          <div className="flex flex-wrap gap-2 pt-2 border-t border-border/20">
-                            {Object.entries(proj.metrics).slice(0, 3).map(([key, val]) => (
-                              <div key={key} className="bg-muted/40 border border-border/20 rounded-xl px-3 py-1 flex flex-col justify-center min-w-[90px] text-center">
-                                <span className="text-[9px] font-mono text-muted-foreground uppercase tracking-wider">{key}</span>
-                                <span className="text-xs font-mono font-bold text-primary mt-0.5">{val}</span>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </DepthLayer>
-                      
-                      <DepthLayer z={45} className="mt-6 space-y-4">
-                        <div className="flex flex-wrap gap-1.5">
-                          {proj.stack.map((tech) => (
-                            <span key={tech} className="text-[10px] bg-muted text-muted-foreground px-2.5 py-0.5 rounded-full font-medium border border-border/30">
-                              {tech}
-                            </span>
+                  {/* Left: Details */}
+                  <div className="flex-1 flex flex-col justify-between">
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-mono text-muted-foreground/60">
+                          Project #{String(idx + 1).padStart(2, "0")} {proj.highlight && "★ Pinned"}
+                        </span>
+                        <span className="text-[10px] bg-primary/10 text-primary border border-primary/20 px-2 py-0.5 rounded-full font-semibold">{proj.year}</span>
+                      </div>
+                      <h3 className="text-xl sm:text-2xl font-bold text-foreground font-[family-name:var(--font-heading)] leading-tight">{proj.title}</h3>
+                      <p className="text-xs text-primary font-semibold tracking-wide uppercase">{proj.subtitle}</p>
+                      <p className="text-muted-foreground text-sm leading-relaxed max-w-xl">{proj.description}</p>
+                      {proj.metrics && (
+                        <div className="flex flex-wrap gap-2 pt-2 border-t border-border/20">
+                          {Object.entries(proj.metrics).slice(0, 3).map(([key, val]) => (
+                            <div key={key} className="bg-muted/40 border border-border/20 rounded-xl px-3 py-1 flex flex-col justify-center min-w-[90px] text-center">
+                              <span className="text-[9px] font-mono text-muted-foreground uppercase tracking-wider">{key}</span>
+                              <span className="text-xs font-mono font-bold text-primary mt-0.5">{val}</span>
+                            </div>
                           ))}
                         </div>
-                        
-                        <div className="flex flex-wrap gap-2.5">
-                          {(proj.liveUrl || (proj.link && !proj.link.includes("github.com"))) && (
-                            <Magnetic strength={0.2}>
-                              <a 
-                                href={proj.liveUrl || proj.link} 
-                                target="_blank" 
-                                rel="noopener noreferrer" 
-                                onClick={() => soundManager.playSuccess()}
-                                className="anime-badge bg-primary text-primary-foreground font-semibold hover:opacity-90 inline-flex items-center gap-1.5 w-fit cursor-pointer shadow-sm"
-                              >
-                                Live Demo <ExternalLink size={12} />
-                              </a>
-                            </Magnetic>
-                          )}
-                          {(proj.githubUrl || (proj.link && proj.link.includes("github.com"))) && (
-                            <Magnetic strength={0.2}>
-                              <a 
-                                href={proj.githubUrl || proj.link} 
-                                target="_blank" 
-                                rel="noopener noreferrer" 
-                                onClick={() => soundManager.playClick()}
-                                className="anime-badge bg-muted text-muted-foreground hover:bg-muted/80 font-semibold inline-flex items-center gap-1.5 w-fit cursor-pointer border border-border/40"
-                              >
-                                Source Code <Github size={12} className="w-3.5 h-3.5" />
-                              </a>
-                            </Magnetic>
-                          )}
-                        </div>
-                      </DepthLayer>
-                    </div>
-
-                    {/* Right: Visual representation on elevated 3D plane */}
-                    <DepthLayer z={25} className="w-full md:w-80 h-48 md:h-auto rounded-2xl bg-muted border border-border/30 overflow-hidden relative flex items-center justify-center shrink-0">
-                      {proj.image ? (
-                        <img src={proj.image} alt={proj.title} className="w-full h-full object-cover" />
-                      ) : (
-                        <div className="absolute inset-0 flex flex-col justify-center items-center text-center p-6 bg-gradient-to-br from-card to-muted">
-                          <Code2 className="w-10 h-10 text-primary/30 mb-2" />
-                          <span className="text-xs font-mono text-muted-foreground/50 uppercase tracking-widest font-semibold">{proj.title}</span>
-                        </div>
                       )}
-                    </DepthLayer>
-                  </SpotlightCard>
-                </Depth3DCard>
+                    </div>
+                    
+                    <div className="mt-6 space-y-4">
+                      <div className="flex flex-wrap gap-1.5">
+                        {proj.stack.map((tech) => (
+                          <span key={tech} className="text-[10px] bg-muted text-muted-foreground px-2.5 py-0.5 rounded-full font-medium border border-border/30">
+                            {tech}
+                          </span>
+                        ))}
+                      </div>
+                      
+                      <div className="flex flex-wrap gap-2.5">
+                        {(proj.liveUrl || (proj.link && !proj.link.includes("github.com"))) && (
+                          <Magnetic strength={0.2}>
+                            <a 
+                              href={proj.liveUrl || proj.link} 
+                              target="_blank" 
+                              rel="noopener noreferrer" 
+                              onClick={() => soundManager.playSuccess()}
+                              className="anime-badge bg-primary text-primary-foreground font-semibold hover:opacity-90 inline-flex items-center gap-1.5 w-fit cursor-pointer shadow-sm"
+                            >
+                              Live Demo <ExternalLink size={12} />
+                            </a>
+                          </Magnetic>
+                        )}
+                        {(proj.githubUrl || (proj.link && proj.link.includes("github.com"))) && (
+                          <Magnetic strength={0.2}>
+                            <a 
+                              href={proj.githubUrl || proj.link} 
+                              target="_blank" 
+                              rel="noopener noreferrer" 
+                              onClick={() => soundManager.playClick()}
+                              className="anime-badge bg-muted text-muted-foreground hover:bg-muted/80 font-semibold inline-flex items-center gap-1.5 w-fit cursor-pointer border border-border/40"
+                            >
+                              Source Code <Github size={12} className="w-3.5 h-3.5" />
+                            </a>
+                          </Magnetic>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Right: Visual representation */}
+                  <div className="w-full md:w-80 h-48 md:h-auto rounded-2xl bg-muted border border-border/30 overflow-hidden relative flex items-center justify-center shrink-0">
+                    {proj.image ? (
+                      <img src={proj.image} alt={proj.title} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="absolute inset-0 flex flex-col justify-center items-center text-center p-6 bg-gradient-to-br from-card to-muted">
+                        <Code2 className="w-10 h-10 text-primary/30 mb-2" />
+                        <span className="text-xs font-mono text-muted-foreground/50 uppercase tracking-widest font-semibold">{proj.title}</span>
+                      </div>
+                    )}
+                  </div>
+                </SpotlightCard>
               </ScrollReveal>
             ))}
           </div>
@@ -699,17 +688,9 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── 8. Contact / CTA Section with 3D AI Neural Core ── */}
+      {/* ── 8. Contact / CTA Section ── */}
       <section id="contact" className="py-24 border-t border-border/40 relative z-10 px-4 sm:px-6 scroll-mt-20 bg-card/10">
         <div className="max-w-4xl mx-auto text-center space-y-8 flex flex-col items-center">
-          
-          {/* Interactive 3D Neural AI Core */}
-          <ScrollReveal>
-            <div className="flex justify-center -mb-4">
-              <AiCore3D size={200} />
-            </div>
-          </ScrollReveal>
-
           <ScrollReveal>
             <div className="flex items-center gap-2 text-primary font-mono text-sm uppercase tracking-wider justify-center">
               <Mail size={14} />

@@ -52,8 +52,8 @@ export default function ExperiencePage() {
             animate={{ opacity: 1, y: 0 }}
             className="text-center"
           >
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-[family-name:var(--font-heading)] text-foreground">
-              Work <span className="gradient-text">Experience</span>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-[family-name:var(--font-heading)] text-foreground tracking-tight">
+              Work <span className="text-primary">Experience</span>
             </h1>
             <p className="mt-4 text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
               My professional journey and contributions
