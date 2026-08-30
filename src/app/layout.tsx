@@ -8,6 +8,7 @@ import { Toaster } from "sonner";
 import { ScrollNavButton } from "@/components/effects/scroll-nav-button";
 import { CommandPalette } from "@/components/effects/command-palette";
 import { TerminalModal } from "@/components/effects/terminal-modal";
+import { ParticleGalaxyCanvas } from "@/components/effects/particle-galaxy-canvas";
 
 export const metadata: Metadata = {
   title: {
@@ -49,6 +50,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning data-scroll-behavior="smooth">
       <body className="min-h-screen bg-background text-foreground antialiased selection:bg-primary/20 selection:text-primary">
         <ThemeProvider>
+          <ParticleGalaxyCanvas />
           <a href="#main-content" className="skip-link">Skip to content</a>
           <Navbar />
           <main id="main-content" className="min-h-screen pt-20 relative z-10">{children}</main>

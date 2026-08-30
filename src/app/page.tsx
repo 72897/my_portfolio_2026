@@ -40,6 +40,18 @@ import { TypeAnimation } from "react-type-animation";
 import { siteConfig } from "@/lib/constants";
 import { soundManager } from "@/lib/sounds";
 
+const Interactive3DWorkspace = dynamic(
+  () => import("@/components/effects/interactive-3d-workspace").then((mod) => mod.Interactive3DWorkspace),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="w-full h-[380px] rounded-2xl border border-border bg-card/60 flex items-center justify-center">
+        <div className="w-10 h-10 rounded-full border border-dashed border-primary/40 border-t-primary animate-spin" />
+      </div>
+    ),
+  }
+);
+
 export default function HomePage() {
   const { data, loading } = usePortfolio();
   const { profile, experience, projects, education } = data;
@@ -238,59 +250,10 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Clean Senior Engineering Console - Right 5 columns */}
+          {/* Interactive 3D Architecture Workspace - Right 5 columns */}
           <div className="lg:col-span-5 w-full z-20 flex justify-center">
-            <div className="w-full max-w-md rounded-2xl border border-border/80 bg-card shadow-xl overflow-hidden font-mono text-xs">
-              {/* Window Header */}
-              <div className="flex items-center justify-between px-4 py-3 border-b border-border/80 bg-muted/40">
-                <div className="flex items-center gap-2">
-                  <span className="w-3 h-3 rounded-full bg-red-500/80 inline-block" />
-                  <span className="w-3 h-3 rounded-full bg-yellow-500/80 inline-block" />
-                  <span className="w-3 h-3 rounded-full bg-green-500/80 inline-block" />
-                </div>
-                <span className="text-[11px] text-muted-foreground font-medium">kunal@system ~ live-status</span>
-                <span className="flex items-center gap-1.5 text-[10px] text-primary font-semibold">
-                  <span className="w-2 h-2 rounded-full bg-primary animate-pulse" /> LIVE
-                </span>
-              </div>
-
-              {/* Console Body */}
-              <div className="p-5 space-y-4 text-left leading-relaxed">
-                <div>
-                  <span className="text-muted-foreground">$ whoami</span>
-                  <p className="text-foreground font-bold mt-0.5">Kunal Singh · Software Engineer</p>
-                </div>
-
-                <div>
-                  <span className="text-muted-foreground">$ cat experience/current.json</span>
-                  <div className="mt-1 p-2.5 rounded-lg bg-muted/50 border border-border/50 text-[11px] space-y-1">
-                    <p><span className="text-primary font-semibold">company:</span> &quot;Technocratiq Digital&quot;</p>
-                    <p><span className="text-primary font-semibold">role:</span> &quot;Software Engineer&quot; (Jul 2026 - Present)</p>
-                    <p><span className="text-primary font-semibold">impact:</span> &quot;47+ automation workflows across CRM, marketing & operations&quot;</p>
-                  </div>
-                </div>
-
-                <div>
-                  <span className="text-muted-foreground">$ cat stack/active.json</span>
-                  <div className="mt-1 flex flex-wrap gap-1.5 pt-1">
-                    {["Google Gemini", "LangChain", "ChromaDB", "Python", "Next.js", "Node.js", "TypeScript", "MongoDB"].map((tech) => (
-                      <span key={tech} className="px-2 py-0.5 rounded-md bg-muted text-muted-foreground border border-border/60 text-[10px]">
-                        {tech}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="pt-2 border-t border-border/60 flex items-center justify-between text-[11px]">
-                  <span className="text-muted-foreground">p95 Latency: <strong className="text-primary font-bold">140ms</strong></span>
-                  <Link 
-                    href="#projects" 
-                    className="text-primary hover:underline font-semibold flex items-center gap-1"
-                  >
-                    Explore 6 Projects →
-                  </Link>
-                </div>
-              </div>
+            <div className="w-full max-w-md">
+              <Interactive3DWorkspace />
             </div>
           </div>
         </div>
