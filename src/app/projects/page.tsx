@@ -11,6 +11,7 @@ import {
   Filter,
 } from "lucide-react";
 import { Github } from "@/components/shared/brand-icons";
+import { Floating3DCard } from "@/components/effects/floating-3d-card";
 import { projects as fallbackProjects } from "@/lib/constants";
 import type { IProject } from "@/types";
 
@@ -150,132 +151,134 @@ export default function ProjectsPage() {
                     transition={{ delay: i * 0.03 }}
                     className="h-full"
                   >
-                    <Link
-                      href={`/projects/${project.slug}`}
-                      className="group block anime-card project-case-card rounded-2xl p-3.5 h-full cursor-pointer hover:border-primary/50 transition-colors"
-                    >
-                      <div className="project-visual">
-                        {project.image ? (
-                          <Image
-                            src={project.image}
-                            alt={`${project.title} interface preview`}
-                            fill
-                            sizes="(max-width: 768px) 100vw, 50vw"
-                            className="object-cover object-top"
-                          />
-                        ) : (
-                          <div className="project-visual__fallback">
-                            <span>{project.category}</span>
-                            <strong>{project.title}</strong>
-                          </div>
-                        )}
-                        <div className="project-visual__chrome">
-                          <span />
-                          <span />
-                          <span />
-                          <small>kunal.dev / {project.slug}</small>
-                        </div>
-                      </div>
-
-                      <div className="p-3 sm:p-4">
-                        <div className="flex items-center gap-1.5 mb-3">
-                          <span className="anime-badge">
-                            {project.category}
-                          </span>
-                          {project.featured && (
-                            <span className="anime-badge-accent flex items-center gap-1">
-                              <Star size={10} fill="currentColor" />
-                              Featured
-                            </span>
+                    <Floating3DCard depth={10} glareColor="rgba(245, 158, 11, 0.14)" className="h-full">
+                      <Link
+                        href={`/projects/${project.slug}`}
+                        className="group block anime-card project-case-card rounded-2xl p-3.5 h-full cursor-pointer hover:border-amber-500/50 transition-colors"
+                      >
+                        <div className="project-visual">
+                          {project.image ? (
+                            <Image
+                              src={project.image}
+                              alt={`${project.title} interface preview`}
+                              fill
+                              sizes="(max-width: 768px) 100vw, 50vw"
+                              className="object-cover object-top"
+                            />
+                          ) : (
+                            <div className="project-visual__fallback">
+                              <span>{project.category}</span>
+                              <strong>{project.title}</strong>
+                            </div>
                           )}
+                          <div className="project-visual__chrome">
+                            <span />
+                            <span />
+                            <span />
+                            <small>kunal.dev / {project.slug}</small>
+                          </div>
                         </div>
 
-                        <h3 className="text-xl sm:text-2xl font-bold font-[family-name:var(--font-heading)] group-hover:text-primary transition-colors duration-200 text-foreground">
-                          {project.title}
-                        </h3>
-                        <p className="mt-2 text-sm text-muted-foreground line-clamp-3 leading-relaxed">
-                          {project.description}
-                        </p>
+                        <div className="p-3 sm:p-4">
+                          <div className="flex items-center gap-1.5 mb-3">
+                            <span className="anime-badge">
+                              {project.category}
+                            </span>
+                            {project.featured && (
+                              <span className="anime-badge-accent flex items-center gap-1">
+                                <Star size={10} fill="currentColor" />
+                                Featured
+                              </span>
+                            )}
+                          </div>
 
-                        {/* Features preview */}
-                        <ul className="mt-3 space-y-1 list-none pl-0">
-                          {project.features.slice(0, 2).map((f, idx) => (
-                            <li
-                              key={idx}
-                              className="text-xs text-muted-foreground truncate flex items-center gap-1"
-                            >
-                              <span className="text-primary">•</span> {f}
-                            </li>
-                          ))}
-                        </ul>
+                          <h3 className="text-xl sm:text-2xl font-bold font-[family-name:var(--font-heading)] group-hover:text-primary transition-colors duration-200 text-foreground">
+                            {project.title}
+                          </h3>
+                          <p className="mt-2 text-sm text-muted-foreground line-clamp-3 leading-relaxed">
+                            {project.description}
+                          </p>
 
-                        {/* Performance Metrics Preview */}
-                        {project.metrics && (
-                          <div className="mt-4 grid grid-cols-3 gap-1.5 border-t border-border/30 pt-3">
-                            {Object.entries(project.metrics).slice(0, 3).map(([key, val]) => (
-                              <div key={key} className="bg-muted/40 border border-border/20 rounded-lg p-1.5 text-center">
-                                <div className="text-[9px] font-mono text-muted-foreground capitalize truncate" title={key}>{key}</div>
-                                <div className="text-xs font-bold font-mono text-primary mt-0.5 truncate" title={val}>{val}</div>
-                              </div>
+                          {/* Features preview */}
+                          <ul className="mt-3 space-y-1 list-none pl-0">
+                            {project.features.slice(0, 2).map((f, idx) => (
+                              <li
+                                key={idx}
+                                className="text-xs text-muted-foreground truncate flex items-center gap-1"
+                              >
+                                <span className="text-primary">•</span> {f}
+                              </li>
                             ))}
-                          </div>
-                        )}
+                          </ul>
 
-                        {/* Tech */}
-                        <div className="mt-4 flex flex-wrap gap-1">
-                          {project.techStack.slice(0, 4).map((tech) => (
-                            <span
-                              key={tech}
-                              className="text-[10px] bg-muted text-muted-foreground px-2 py-0.5 rounded-full font-medium border border-border"
-                            >
-                              {tech}
-                            </span>
-                          ))}
-                          {project.techStack.length > 4 && (
-                            <span className="text-[10px] bg-muted text-muted-foreground px-2 py-0.5 rounded-full font-medium border border-border">
-                              +{project.techStack.length - 4}
-                            </span>
+                          {/* Performance Metrics Preview */}
+                          {project.metrics && (
+                            <div className="mt-4 grid grid-cols-3 gap-1.5 border-t border-border/30 pt-3">
+                              {Object.entries(project.metrics).slice(0, 3).map(([key, val]) => (
+                                <div key={key} className="bg-muted/40 border border-border/20 rounded-lg p-1.5 text-center">
+                                  <div className="text-[9px] font-mono text-muted-foreground capitalize truncate" title={key}>{key}</div>
+                                  <div className="text-xs font-bold font-mono text-primary mt-0.5 truncate" title={val}>{val}</div>
+                                </div>
+                              ))}
+                            </div>
                           )}
-                        </div>
 
-                        {/* Links */}
-                        <div className="mt-4 pt-3 border-t border-border/40 flex items-center justify-between gap-2">
-                          <span className="text-[11px] font-mono text-primary font-semibold group-hover:underline">
-                            View Case Study →
-                          </span>
-                          <div className="flex items-center gap-2">
-                            {project.liveUrl && (
-                              <a
-                                href={project.liveUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition shadow-sm"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                }}
+                          {/* Tech */}
+                          <div className="mt-4 flex flex-wrap gap-1">
+                            {project.techStack.slice(0, 4).map((tech) => (
+                              <span
+                                key={tech}
+                                className="text-[10px] bg-muted text-muted-foreground px-2 py-0.5 rounded-full font-medium border border-border"
                               >
-                                <ExternalLink className="w-3.5 h-3.5" />
-                                Live Demo
-                              </a>
-                            )}
-                            {project.githubUrl && (
-                              <a
-                                href={project.githubUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-lg bg-muted text-muted-foreground hover:text-foreground hover:bg-muted/80 transition border border-border/40"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                }}
-                              >
-                                <Github className="w-3.5 h-3.5" />
-                                Code
-                              </a>
+                                {tech}
+                              </span>
+                            ))}
+                            {project.techStack.length > 4 && (
+                              <span className="text-[10px] bg-muted text-muted-foreground px-2 py-0.5 rounded-full font-medium border border-border">
+                                +{project.techStack.length - 4}
+                              </span>
                             )}
                           </div>
+
+                          {/* Links */}
+                          <div className="mt-4 pt-3 border-t border-border/40 flex items-center justify-between gap-2">
+                            <span className="text-[11px] font-mono text-primary font-semibold group-hover:underline">
+                              View Case Study →
+                            </span>
+                            <div className="flex items-center gap-2">
+                              {project.liveUrl && (
+                                <a
+                                  href={project.liveUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition shadow-sm"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                  }}
+                                >
+                                  <ExternalLink className="w-3.5 h-3.5" />
+                                  Live Demo
+                                </a>
+                              )}
+                              {project.githubUrl && (
+                                <a
+                                  href={project.githubUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-lg bg-muted text-muted-foreground hover:text-foreground hover:bg-muted/80 transition border border-border/40"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                  }}
+                                >
+                                  <Github className="w-3.5 h-3.5" />
+                                  Code
+                                </a>
+                              )}
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                    </Link>
+                      </Link>
+                    </Floating3DCard>
                   </motion.div>
                 ))}
               </motion.div>

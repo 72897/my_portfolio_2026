@@ -31,6 +31,7 @@ import { usePortfolio } from "@/hooks/usePortfolio";
 import { ScrollReveal } from "@/components/effects/scroll-reveal";
 import { TiltCard } from "@/components/effects/tilt-card";
 import { SpotlightCard } from "@/components/effects/spotlight-card";
+import { Floating3DCard } from "@/components/effects/floating-3d-card";
 import { Magnetic } from "@/components/effects/magnetic";
 import { ScrollRail } from "@/components/effects/scroll-rail";
 import { AiPlayground } from "@/components/effects/ai-playground";
@@ -510,91 +511,97 @@ export default function HomePage() {
             </h2>
           </ScrollReveal>
 
-          {/* Sticky Stack Layout */}
+          {/* Sticky Stack Layout with Floating 3D Geometric Tilt */}
           <div className="relative space-y-12 mt-16">
             {sortedProjects.slice(0, 4).map((proj, idx) => (
               <ScrollReveal key={proj.id} delay={0.05}>
-                <SpotlightCard
-                  spotlightColor="rgba(16, 185, 129, 0.12)"
-                  className="sticky bg-card border border-border rounded-3xl p-6 md:p-8 flex flex-col md:flex-row gap-6 md:gap-8 shadow-xl min-h-[320px] transition-all hover:border-primary/40"
+                <Floating3DCard
+                  depth={8}
+                  glareColor="rgba(245, 158, 11, 0.14)"
+                  className="sticky"
                   style={{ top: `${80 + idx * 24}px` }}
                 >
-                  {/* Left: Details */}
-                  <div className="flex-1 flex flex-col justify-between">
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-mono text-muted-foreground/60">
-                          Project #{String(idx + 1).padStart(2, "0")} {proj.highlight && "★ Pinned"}
-                        </span>
-                        <span className="text-[10px] bg-primary/10 text-primary border border-primary/20 px-2 py-0.5 rounded-full font-semibold">{proj.year}</span>
+                  <SpotlightCard
+                    spotlightColor="rgba(245, 158, 11, 0.12)"
+                    className="bg-card/90 backdrop-blur-md border border-border rounded-3xl p-6 md:p-8 flex flex-col md:flex-row gap-6 md:gap-8 shadow-2xl min-h-[320px] transition-all hover:border-amber-500/50"
+                  >
+                    {/* Left: Details */}
+                    <div className="flex-1 flex flex-col justify-between">
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-mono text-muted-foreground/60">
+                            Project #{String(idx + 1).padStart(2, "0")} {proj.highlight && "★ Pinned"}
+                          </span>
+                          <span className="text-[10px] bg-amber-500/10 text-amber-500 border border-amber-500/20 px-2 py-0.5 rounded-full font-semibold">{proj.year}</span>
+                        </div>
+                        <h3 className="text-xl sm:text-2xl font-bold text-foreground font-[family-name:var(--font-heading)] leading-tight">{proj.title}</h3>
+                        <p className="text-xs text-amber-500 font-semibold tracking-wide uppercase">{proj.subtitle}</p>
+                        <p className="text-muted-foreground text-sm leading-relaxed max-w-xl">{proj.description}</p>
+                        {proj.metrics && (
+                          <div className="flex flex-wrap gap-2 pt-2 border-t border-border/20">
+                            {Object.entries(proj.metrics).slice(0, 3).map(([key, val]) => (
+                              <div key={key} className="bg-muted/40 border border-border/20 rounded-xl px-3 py-1 flex flex-col justify-center min-w-[90px] text-center">
+                                <span className="text-[9px] font-mono text-muted-foreground uppercase tracking-wider">{key}</span>
+                                <span className="text-xs font-mono font-bold text-amber-500 mt-0.5">{val}</span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
                       </div>
-                      <h3 className="text-xl sm:text-2xl font-bold text-foreground font-[family-name:var(--font-heading)] leading-tight">{proj.title}</h3>
-                      <p className="text-xs text-primary font-semibold tracking-wide uppercase">{proj.subtitle}</p>
-                      <p className="text-muted-foreground text-sm leading-relaxed max-w-xl">{proj.description}</p>
-                      {proj.metrics && (
-                        <div className="flex flex-wrap gap-2 pt-2 border-t border-border/20">
-                          {Object.entries(proj.metrics).slice(0, 3).map(([key, val]) => (
-                            <div key={key} className="bg-muted/40 border border-border/20 rounded-xl px-3 py-1 flex flex-col justify-center min-w-[90px] text-center">
-                              <span className="text-[9px] font-mono text-muted-foreground uppercase tracking-wider">{key}</span>
-                              <span className="text-xs font-mono font-bold text-primary mt-0.5">{val}</span>
-                            </div>
+                      
+                      <div className="mt-6 space-y-4">
+                        <div className="flex flex-wrap gap-1.5">
+                          {proj.stack.map((tech) => (
+                            <span key={tech} className="text-[10px] bg-muted text-muted-foreground px-2.5 py-0.5 rounded-full font-medium border border-border/30">
+                              {tech}
+                            </span>
                           ))}
+                        </div>
+                        
+                        <div className="flex flex-wrap gap-2.5">
+                          {(proj.liveUrl || (proj.link && !proj.link.includes("github.com"))) && (
+                            <Magnetic strength={0.2}>
+                              <a 
+                                href={proj.liveUrl || proj.link} 
+                                target="_blank" 
+                                rel="noopener noreferrer" 
+                                onClick={() => soundManager.playSuccess()}
+                                className="anime-badge bg-primary text-primary-foreground font-semibold hover:opacity-90 inline-flex items-center gap-1.5 w-fit cursor-pointer shadow-sm"
+                              >
+                                Live Demo <ExternalLink size={12} />
+                              </a>
+                            </Magnetic>
+                          )}
+                          {(proj.githubUrl || (proj.link && proj.link.includes("github.com"))) && (
+                            <Magnetic strength={0.2}>
+                              <a 
+                                href={proj.githubUrl || proj.link} 
+                                target="_blank" 
+                                rel="noopener noreferrer" 
+                                onClick={() => soundManager.playClick()}
+                                className="anime-badge bg-muted text-muted-foreground hover:bg-muted/80 font-semibold inline-flex items-center gap-1.5 w-fit cursor-pointer border border-border/40"
+                              >
+                                Source Code <Github size={12} className="w-3.5 h-3.5" />
+                              </a>
+                            </Magnetic>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Right: Visual representation */}
+                    <div className="w-full md:w-80 h-48 md:h-auto rounded-2xl bg-muted border border-border/30 overflow-hidden relative flex items-center justify-center shrink-0">
+                      {proj.image ? (
+                        <img src={proj.image} alt={proj.title} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="absolute inset-0 flex flex-col justify-center items-center text-center p-6 bg-gradient-to-br from-card to-muted">
+                          <Code2 className="w-10 h-10 text-primary/30 mb-2" />
+                          <span className="text-xs font-mono text-muted-foreground/50 uppercase tracking-widest font-semibold">{proj.title}</span>
                         </div>
                       )}
                     </div>
-                    
-                    <div className="mt-6 space-y-4">
-                      <div className="flex flex-wrap gap-1.5">
-                        {proj.stack.map((tech) => (
-                          <span key={tech} className="text-[10px] bg-muted text-muted-foreground px-2.5 py-0.5 rounded-full font-medium border border-border/30">
-                            {tech}
-                          </span>
-                        ))}
-                      </div>
-                      
-                      <div className="flex flex-wrap gap-2.5">
-                        {(proj.liveUrl || (proj.link && !proj.link.includes("github.com"))) && (
-                          <Magnetic strength={0.2}>
-                            <a 
-                              href={proj.liveUrl || proj.link} 
-                              target="_blank" 
-                              rel="noopener noreferrer" 
-                              onClick={() => soundManager.playSuccess()}
-                              className="anime-badge bg-primary text-primary-foreground font-semibold hover:opacity-90 inline-flex items-center gap-1.5 w-fit cursor-pointer shadow-sm"
-                            >
-                              Live Demo <ExternalLink size={12} />
-                            </a>
-                          </Magnetic>
-                        )}
-                        {(proj.githubUrl || (proj.link && proj.link.includes("github.com"))) && (
-                          <Magnetic strength={0.2}>
-                            <a 
-                              href={proj.githubUrl || proj.link} 
-                              target="_blank" 
-                              rel="noopener noreferrer" 
-                              onClick={() => soundManager.playClick()}
-                              className="anime-badge bg-muted text-muted-foreground hover:bg-muted/80 font-semibold inline-flex items-center gap-1.5 w-fit cursor-pointer border border-border/40"
-                            >
-                              Source Code <Github size={12} className="w-3.5 h-3.5" />
-                            </a>
-                          </Magnetic>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Right: Visual representation */}
-                  <div className="w-full md:w-80 h-48 md:h-auto rounded-2xl bg-muted border border-border/30 overflow-hidden relative flex items-center justify-center shrink-0">
-                    {proj.image ? (
-                      <img src={proj.image} alt={proj.title} className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="absolute inset-0 flex flex-col justify-center items-center text-center p-6 bg-gradient-to-br from-card to-muted">
-                        <Code2 className="w-10 h-10 text-primary/30 mb-2" />
-                        <span className="text-xs font-mono text-muted-foreground/50 uppercase tracking-widest font-semibold">{proj.title}</span>
-                      </div>
-                    )}
-                  </div>
-                </SpotlightCard>
+                  </SpotlightCard>
+                </Floating3DCard>
               </ScrollReveal>
             ))}
           </div>
