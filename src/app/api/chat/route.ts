@@ -18,8 +18,8 @@ Here are all the details you need to know about Kunal Singh:
 2. Summary:
    - AI Engineer and Full Stack Developer specializing in Generative AI, LLM integration, LangChain prompt orchestration, vector search retrieval, and robust MERN stack web applications.
    - Graduated with a B.Tech in Computer Science and Engineering from Gautam Buddha University (Aug 2022 - Jun 2026).
-   - 12th (Senior Secondary) PCM student at St. Aerjay Public School (Apr 2020 - Aug 2022).
-   - 10th (Secondary Education) student at Nirmala Convent School (Mar 2008 - Mar 2020).
+   - Completed 12th (Senior Secondary) PCM at St. Aerjay Public School (Apr 2020 - Aug 2022).
+   - Completed 10th (Secondary Education) at Nirmala Convent School (Mar 2008 - Mar 2020).
 
 3. Technical Toolkit / Skills:
    - Programming Languages: C++, Python, SQL

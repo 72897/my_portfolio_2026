@@ -197,17 +197,17 @@ export function ParticleGalaxyCanvas() {
 
     // 5. Animation Loop with 4-Stage Lighting & Color Morphing
     let animationFrameId: number;
-    let clock = new THREE.Clock();
+    const startTime = performance.now();
 
     // Helper to get active interpolated colors across the 4 stages
     const getStageColors = (progress: number) => {
       // 0.00 - 0.33: Deep Space -> Neon Cyberpunk
       // 0.33 - 0.66: Neon Cyberpunk -> Warm Minimalist
       // 0.66 - 1.00: Warm Minimalist -> Clean Monochrome
-      let cCore = new THREE.Color();
-      let cMid = new THREE.Color();
-      let cOuter = new THREE.Color();
-      let ringCol = new THREE.Color();
+      const cCore = new THREE.Color();
+      const cMid = new THREE.Color();
+      const cOuter = new THREE.Color();
+      const ringCol = new THREE.Color();
 
       if (progress < 0.33) {
         const t = progress / 0.33;
@@ -233,7 +233,7 @@ export function ParticleGalaxyCanvas() {
     };
 
     const animate = () => {
-      const elapsedTime = clock.getElapsedTime();
+      const elapsedTime = (performance.now() - startTime) / 1000;
 
       // Smooth mouse and scroll interpolation
       mouseX += (targetMouseX - mouseX) * 0.05;
@@ -245,7 +245,6 @@ export function ParticleGalaxyCanvas() {
       const colorAttr = geometry.attributes.color;
 
       for (let i = 0; i < particleCount; i++) {
-        const i3 = i * 3;
         const r = particleRadii[i];
         const particleCol = cCore.clone();
 

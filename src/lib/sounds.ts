@@ -4,8 +4,10 @@
  */
 
 let audioCtx: AudioContext | null = null;
+const SOUNDS_DISABLED = true;
 
 function getAudioContext(): AudioContext | null {
+  if (SOUNDS_DISABLED) return null;
   if (typeof window === "undefined") return null;
   if (!audioCtx) {
     const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
@@ -21,17 +23,20 @@ function getAudioContext(): AudioContext | null {
 
 export const soundManager = {
   isEnabled(): boolean {
+    if (SOUNDS_DISABLED) return false;
     if (typeof window === "undefined") return false;
     const stored = localStorage.getItem("portfolio_sound_enabled");
     return stored === null ? true : stored === "true";
   },
 
   setEnabled(enabled: boolean) {
+    if (SOUNDS_DISABLED) return;
     if (typeof window === "undefined") return;
     localStorage.setItem("portfolio_sound_enabled", String(enabled));
   },
 
   toggle(): boolean {
+    if (SOUNDS_DISABLED) return false;
     const nextState = !this.isEnabled();
     this.setEnabled(nextState);
     if (nextState) this.playSuccess();
@@ -40,6 +45,7 @@ export const soundManager = {
 
   // Soft subtle click sound (e.g. for buttons, nav tabs)
   playClick() {
+    if (SOUNDS_DISABLED) return;
     if (!this.isEnabled()) return;
     try {
       const ctx = getAudioContext();
@@ -64,6 +70,7 @@ export const soundManager = {
 
   // Light pop sound (e.g. for hover or open modal)
   playPop() {
+    if (SOUNDS_DISABLED) return;
     if (!this.isEnabled()) return;
     try {
       const ctx = getAudioContext();
@@ -88,6 +95,7 @@ export const soundManager = {
 
   // Happy success chord (e.g. for copied email, form sent, confetti)
   playSuccess() {
+    if (SOUNDS_DISABLED) return;
     if (!this.isEnabled()) return;
     try {
       const ctx = getAudioContext();
@@ -116,6 +124,7 @@ export const soundManager = {
 
   // Soft switch toggle sound
   playToggle() {
+    if (SOUNDS_DISABLED) return;
     if (!this.isEnabled()) return;
     try {
       const ctx = getAudioContext();

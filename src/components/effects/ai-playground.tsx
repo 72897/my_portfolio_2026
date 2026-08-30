@@ -11,21 +11,21 @@ interface UsageStats {
 
 export function AiPlayground() {
   const DEFAULT_SYSTEM_PROMPT = 
-    "You are Kunal's AI Twin. Speak in a concise, technical, yet friendly tone. Always highlight Kunal's graduation in 2026 with a B.Tech CSE, and his specialization in GenAI, RAG, and agentic workflows.";
+    "You are Kunal's AI Twin. Speak in a concise, technical, yet friendly tone. Always state that Kunal has already graduated with a B.Tech CSE from Gautam Buddha University in 2026, and highlight his specialization in GenAI, RAG, and agentic workflows.";
 
   const PRESETS = [
     {
-      name: "🔥 Goku Mode",
+      name: "Goku Mode",
       system: "You are Goku's spirit acting as Kunal's AI twin. Answer technical questions about Kunal but in the enthusiastic, martial arts style of Goku! Use words like 'KA-ME-HA-ME-HA!', 'Power level!', and 'Training!'. Keep it fun and hyped.",
       user: "Explain Kunal's expertise in GenAI and MERN."
     },
     {
-      name: "💼 HR Recruiter Pitch",
+      name: "HR Recruiter Pitch",
       system: "You are an executive talent acquisition partner pitching Kunal for a Senior Full Stack & AI Role. Highlight key business value, his interns at Thales and Manipal Business Solutions, and metrics like reducing latency by 25%.",
       user: "Why should we hire Kunal for our AI engineering team?"
     },
     {
-      name: "👾 Hacker Terminal",
+      name: "Hacker Terminal",
       system: "You are a cybernetic terminal assistant. Format your replies with terminal symbols like [OK], [METRIC], and lines of debug output. Speak like a machine.",
       user: "List Kunal's tech stack and certifications."
     }
@@ -125,14 +125,14 @@ export function AiPlayground() {
   };
 
   return (
-    <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-6 bg-black/40 border border-border/40 rounded-3xl p-6 sm:p-8 backdrop-blur-xl relative overflow-hidden">
+    <div className="ai-playground-shell w-full grid grid-cols-1 lg:grid-cols-[minmax(0,0.88fr)_minmax(0,1.12fr)] gap-5 xl:gap-7 bg-black/40 border border-border/40 rounded-3xl p-5 sm:p-6 xl:p-7 backdrop-blur-xl relative overflow-hidden">
       
       {/* Decorative background grid and glow */}
       <div className="absolute inset-0 opacity-[0.01] pointer-events-none bg-grid-pattern bg-[size:15px_15px]" />
       <div className="absolute -left-20 -bottom-20 w-80 h-80 bg-primary/5 rounded-full filter blur-3xl pointer-events-none" />
 
       {/* ── Left Side: Controls & Sliders (5 cols) ── */}
-      <div className="lg:col-span-5 flex flex-col gap-6 relative z-10 border-b lg:border-b-0 lg:border-r border-border/40 pb-6 lg:pb-0 lg:pr-6">
+      <div className="flex flex-col gap-5 relative z-10 border-b lg:border-b-0 lg:border-r border-border/40 pb-5 lg:pb-0 lg:pr-7">
         <div className="flex items-center gap-2 border-b border-border/20 pb-3">
           <Sliders size={16} className="text-primary" />
           <h3 className="font-bold text-sm uppercase tracking-wider text-foreground">Inference Hyperparameters</h3>
@@ -208,14 +208,14 @@ export function AiPlayground() {
       </div>
 
       {/* ── Right Side: Input & Terminal Output (7 cols) ── */}
-      <div className="lg:col-span-7 flex flex-col gap-5 relative z-10">
+      <div className="flex flex-col gap-5 relative z-10">
         
         {/* User Prompt Input */}
         <div className="flex flex-col gap-2">
           <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
             User Query
           </label>
-          <div className="flex gap-3 items-end">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
             <textarea
               value={userPrompt}
               onChange={(e) => setUserPrompt(e.target.value)}
@@ -234,7 +234,7 @@ export function AiPlayground() {
         </div>
 
         {/* Terminal Staged Output */}
-        <div className="flex-1 flex flex-col border border-border/40 rounded-2xl bg-black/60 overflow-hidden min-h-[220px]">
+        <div className="flex-1 flex flex-col border border-border/40 rounded-2xl bg-black/60 overflow-hidden min-h-[260px]">
           
           {/* Terminal Title Bar */}
           <div className="px-4 py-2 border-b border-border/20 bg-muted/20 flex items-center justify-between text-[10px] font-mono text-muted-foreground">
@@ -253,7 +253,7 @@ export function AiPlayground() {
           </div>
 
           {/* Console Output Area */}
-          <div className="flex-1 p-4 font-mono text-xs leading-relaxed text-foreground select-text overflow-y-auto max-h-[200px] custom-scrollbar">
+          <div className="flex-1 p-4 font-mono text-xs leading-relaxed text-foreground select-text overflow-y-auto max-h-[260px] custom-scrollbar">
             
             {/* Loading state indicator */}
             {isLoading && !displayedResponse && (

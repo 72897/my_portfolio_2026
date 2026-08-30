@@ -10,13 +10,14 @@ interface SectionItem {
 
 const SECTIONS: SectionItem[] = [
   { id: "hero", label: "Top" },
+  { id: "story", label: "Build Path" },
   { id: "about", label: "About" },
   { id: "experience", label: "Journey" },
   { id: "services", label: "Capabilities" },
   { id: "playground", label: "AI Twin" },
   { id: "rag-simulator", label: "RAG Demo" },
   { id: "projects", label: "Projects" },
-  { id: "testimonials", label: "Reviews" },
+  { id: "signal", label: "Signal" },
   { id: "contact", label: "Contact" },
 ];
 

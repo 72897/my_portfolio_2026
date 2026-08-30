@@ -31,9 +31,9 @@ export function Footer() {
               Available for select opportunities
             </span>
             <h2 className="mt-5 text-4xl font-bold tracking-[-0.055em] sm:text-5xl md:text-6xl">
-              Have an ambitious idea?
+              Need an AI/full-stack builder?
               <br />
-              <span className="gradient-text">Let&apos;s make it real.</span>
+              <span className="gradient-text">Hire me to ship it.</span>
             </h2>
           </div>
           <a
@@ -41,7 +41,7 @@ export function Footer() {
             className="anime-btn relative z-10 shrink-0 pointer-events-auto"
             aria-label="Start a conversation on the contact page"
           >
-            Start a conversation <ArrowUpRight size={16} aria-hidden="true" />
+            Hire Kunal <ArrowUpRight size={16} aria-hidden="true" />
           </a>
         </div>
 
@@ -51,8 +51,8 @@ export function Footer() {
               Kunal<span className="text-primary">/</span>Singh
             </Link>
             <p className="mt-4 max-w-sm text-sm leading-6 text-muted-foreground">
-              AI engineer and full-stack developer building intelligent, useful,
-              and scalable digital products.
+              AI engineer and full-stack developer available for freelance
+              builds, AI integrations, automation systems, and product teams.
             </p>
           </div>
 

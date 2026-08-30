@@ -28,7 +28,7 @@ const highlights = [
   },
   {
     title: "Projects",
-    content: "StudyMate, AlphaCare, StudyNotion — AI & full-stack applications",
+    content: "StudyMate, AlphaCare, StudyNotion - AI & full-stack applications",
     icon: Brain,
   },
   {

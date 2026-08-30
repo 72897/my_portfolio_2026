@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import confetti from "canvas-confetti";
-import { Terminal as TerminalIcon, X, Maximize2, Minimize2, Sparkles } from "lucide-react";
+import { Code2, Terminal as TerminalIcon, X, Maximize2, Minimize2 } from "lucide-react";
 import { soundManager } from "@/lib/sounds";
 
 interface CommandLog {
@@ -19,7 +19,7 @@ const WELCOME_BANNER = `
   ██╔═██╗ ██║   ██║██║╚██╗██║██╔══██║██║        ██║   ██║╚════██║
   ██║ ╚██╗╚██████╔╝██║ ╚████║██║  ██║███████╗   ╚██████╔╝███████║
   ╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═══╝╚═╝  ╚═╝╚══════╝    ╚═════╝ ╚══════╝
-  Kunal Singh — AI Engineer & Full Stack Developer (v2.6.0)
+  Kunal Singh - AI Engineer & Full Stack Developer (v2.6.0)
   Type "help" to see available commands or "sudo hire-me" to celebrate!
 `;
 
@@ -115,7 +115,7 @@ export function TerminalModal() {
               <div><span className="text-foreground font-semibold">contact</span> - Email & phone info</div>
               <div><span className="text-foreground font-semibold">socials</span> - GitHub, LinkedIn, LeetCode</div>
               <div><span className="text-foreground font-semibold">clear</span> - Clear terminal output</div>
-              <div className="sm:col-span-2 text-emerald-400 font-semibold"><span className="text-yellow-400 font-bold">sudo hire-me</span> - Hire Kunal & trigger celebration 🎉</div>
+              <div className="sm:col-span-2 text-emerald-400 font-semibold"><span className="text-yellow-400 font-bold">sudo hire-me</span> - Hire Kunal & trigger celebration</div>
             </div>
           </div>
         ),
@@ -126,9 +126,9 @@ export function TerminalModal() {
         type: "output",
         text: (
           <div className="space-y-1">
-            <p className="text-foreground font-semibold">Kunal Singh — AI Engineer & Full Stack Developer</p>
+            <p className="text-foreground font-semibold">Kunal Singh - AI Engineer & Full Stack Developer</p>
             <p className="text-muted-foreground">Specializing in Generative AI, RAG architecture, LLM orchestration, and robust MERN web systems.</p>
-            <p className="text-xs text-primary">📍 Greater Noida, UP, India | 🎓 B.Tech CSE @ Gautam Buddha University (2022–2026)</p>
+            <p className="text-xs text-primary">Greater Noida, UP, India | B.Tech CSE @ Gautam Buddha University (2022-2026)</p>
           </div>
         ),
       });
@@ -173,19 +173,19 @@ export function TerminalModal() {
         text: (
           <div className="space-y-2 text-xs">
             <div>
-              <span className="text-yellow-400 font-bold">★ Software Engineer</span> @ <span className="text-foreground font-semibold">Technocratiq Digital Pvt. Ltd.</span> (Jul 2026 – Present | Delhi)
+              <span className="text-yellow-400 font-bold">★ Software Engineer</span> @ <span className="text-foreground font-semibold">Technocratiq Digital Pvt. Ltd.</span> (Jul 2026 - Present | Delhi)
               <p className="text-muted-foreground">Orchestrated 47+ automation pipelines across marketing, CRM, analytics, and internal workflows.</p>
             </div>
             <div>
-              <span className="text-primary font-bold">• AI Intern</span> @ <span className="text-foreground">Manipal Business Solution</span> (Apr 2026 – Jun 2026 | Noida)
+              <span className="text-primary font-bold">• AI Intern</span> @ <span className="text-foreground">Manipal Business Solution</span> (Apr 2026 - Jun 2026 | Noida)
               <p className="text-muted-foreground">Automated reporting cut manual effort by 90%; refined conversational AI accuracy by 25%.</p>
             </div>
             <div>
-              <span className="text-primary font-bold">• Engineering Intern</span> @ <span className="text-foreground">Thales Group</span> (Jun 2025 – Jul 2025 | Noida)
+              <span className="text-primary font-bold">• Engineering Intern</span> @ <span className="text-foreground">Thales Group</span> (Jun 2025 - Jul 2025 | Noida)
               <p className="text-muted-foreground">Built GenAI platform using Google Gemini & OpenAI; reduced inference latency by 25%.</p>
             </div>
             <div>
-              <span className="text-primary font-bold">• Full Stack Intern</span> @ <span className="text-foreground">MI Matdar</span> (Feb 2025 – Apr 2025 | Maharashtra)
+              <span className="text-primary font-bold">• Full Stack Intern</span> @ <span className="text-foreground">MI Matdar</span> (Feb 2025 - Apr 2025 | Maharashtra)
             </div>
           </div>
         ),
@@ -214,9 +214,9 @@ export function TerminalModal() {
         type: "output",
         text: (
           <div className="text-xs space-y-1">
-            <p>📧 <span className="text-foreground">Email:</span> kunalsingh203001@gmail.com</p>
-            <p>📱 <span className="text-foreground">Phone:</span> +91 9456473642</p>
-            <p>🌐 <span className="text-foreground">Website:</span> https://kunalsingh.dev</p>
+            <p><span className="text-foreground">Email:</span> kunalsingh203001@gmail.com</p>
+            <p><span className="text-foreground">Phone:</span> +91 9456473642</p>
+            <p><span className="text-foreground">Website:</span> https://kunalsingh.dev</p>
           </div>
         ),
       });
@@ -226,9 +226,9 @@ export function TerminalModal() {
         type: "output",
         text: (
           <div className="text-xs space-y-1">
-            <p>🐙 GitHub: github.com/72897</p>
-            <p>💼 LinkedIn: linkedin.com/in/kunal-singh-454368289/</p>
-            <p>⚡ LeetCode: leetcode.com/u/kunal26_7/</p>
+            <p>GitHub: github.com/72897</p>
+            <p>LinkedIn: linkedin.com/in/kunal-singh-454368289/</p>
+            <p>LeetCode: leetcode.com/u/kunal26_7/</p>
           </div>
         ),
       });
@@ -247,7 +247,7 @@ export function TerminalModal() {
         text: (
           <div className="p-3 bg-primary/10 border border-primary/30 rounded-xl space-y-2 my-1">
             <div className="flex items-center gap-2 text-emerald-400 font-bold">
-              <Sparkles size={16} />
+              <Code2 size={16} />
               <span>Permission Granted: OFFER_SUBMITTED_SUCCESSFULLY!</span>
             </div>
             <p className="text-xs text-foreground">
@@ -258,7 +258,7 @@ export function TerminalModal() {
                 href="mailto:kunalsingh203001@gmail.com?subject=Job%20Opportunity%20for%20Kunal%20Singh"
                 className="bg-primary text-primary-foreground font-bold px-3 py-1 rounded text-[11px] hover:opacity-90 transition"
               >
-                Send Email Now ✉️
+                Send Email Now
               </a>
               <a
                 href="https://www.linkedin.com/in/kunal-singh-454368289/"
@@ -266,7 +266,7 @@ export function TerminalModal() {
                 rel="noopener noreferrer"
                 className="bg-muted text-foreground border border-border px-3 py-1 rounded text-[11px] hover:bg-muted/80 transition"
               >
-                Connect on LinkedIn 💼
+                Connect on LinkedIn
               </a>
             </div>
           </div>

@@ -4,7 +4,7 @@
     "shortName": "Kunal",
     "tagline": "AI Engineer & Full Stack Developer",
     "role": "AI Engineer | Full Stack Developer",
-    "specialization": "Generative AI · LLM Orchestration · Full Stack Web",
+    "specialization": "Generative AI - LLM Orchestration - Full Stack Web",
     "location": "Greater Noida, Uttar Pradesh, India",
     "yearsOfExperience": "1+",
     "bio": "AI Engineer and Full Stack Developer specializing in Generative AI, LLM integration, and scalable web applications. Graduated with a B.Tech in Computer Science from Gautam Buddha University, with hands-on experience in building automated agentic pipelines.",
@@ -55,7 +55,7 @@
     {
       "company": "Technocratiq Digital Pvt. Ltd.",
       "role": "Software Engineer",
-      "period": "Jul 2026 – Present",
+      "period": "Jul 2026 - Present",
       "location": "Delhi",
       "summary": "Orchestrated 47+ automation workflows across CRM/analytics, architected scalable tracking/reporting systems, and connected multiple business platforms through REST APIs and AI pipelines.",
       "highlights": [
@@ -67,7 +67,7 @@
     {
       "company": "Manipal Business Solution",
       "role": "AI Intern",
-      "period": "Apr 2026 – Jun 2026",
+      "period": "Apr 2026 - Jun 2026",
       "location": "Noida",
       "summary": "Automated business workflows and refined conversational AI workflows through prompt optimization and intent validation.",
       "highlights": [
@@ -80,7 +80,7 @@
     {
       "company": "Thales Group",
       "role": "Engineering Intern",
-      "period": "Jun 2025 – Jul 2025",
+      "period": "Jun 2025 - Jul 2025",
       "location": "Noida",
       "summary": "Designed and deployed a Generative AI platform with Google Gemini and OpenAI APIs, embedding LLM capabilities into NLP pipelines.",
       "highlights": [
@@ -93,7 +93,7 @@
     {
       "company": "MI Matdar",
       "role": "Full Stack Developer Intern",
-      "period": "Feb 2025 – Apr 2025",
+      "period": "Feb 2025 - Apr 2025",
       "location": "Maharashtra",
       "summary": "Constructed a responsive React.js/Tailwind CSS frontend and built scalable Express.js REST APIs with MongoDB.",
       "highlights": [
@@ -262,7 +262,7 @@
       "id": "duliinteriors",
       "title": "Duli Interiors",
       "subtitle": "Interior Design & Project Management Platform",
-      "description": "An end-to-end interior design and project-management platform bringing the entire journey — from AI concept moodboards to 2D floor plans, area-based quotes, and print-ready proposals — into a single collaborative workspace.",
+      "description": "An end-to-end interior design and project-management platform bringing the entire journey - from AI concept moodboards to 2D floor plans, area-based quotes, and print-ready proposals - into a single collaborative workspace.",
       "stack": ["Next.js", "Python", "Google Gemini", "TypeScript", "Node.js", "Tailwind CSS", "Three.js"],
       "role": "Full Stack & AI Engineer",
       "year": "2026",
@@ -294,7 +294,7 @@
       "institution": "Gautam Buddha University",
       "degree": "Bachelor of Technology in Computer Science",
       "location": "Greater Noida, Uttar Pradesh, India",
-      "period": "Aug 2022 – Jun 2026",
+      "period": "Aug 2022 - Jun 2026",
       "coursework": [
         "Data Structures & Algorithms",
         "Object-Oriented Programming",
@@ -308,14 +308,14 @@
       "institution": "St. Aerjay Public School",
       "degree": "12th, Science",
       "location": "",
-      "period": "Mar 2020 – Jun 2022",
+      "period": "Mar 2020 - Jun 2022",
       "grade": "87%"
     },
     {
       "institution": "Nirmala Convent School",
       "degree": "10th",
       "location": "",
-      "period": "Mar 2008 – Mar 2020",
+      "period": "Mar 2008 - Mar 2020",
       "grade": "85%"
     }
   ],

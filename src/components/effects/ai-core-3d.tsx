@@ -126,11 +126,11 @@ export function AiCore3D({
 
     // 9. Render Loop
     let animId: number;
-    const clock = new THREE.Clock();
+    const startTime = performance.now();
 
     const animate = () => {
       animId = requestAnimationFrame(animate);
-      const elapsed = clock.getElapsedTime();
+      const elapsed = (performance.now() - startTime) / 1000;
 
       // Smooth mouse tracking tilt
       targetX += (mouseX * 0.8 - targetX) * 0.05;

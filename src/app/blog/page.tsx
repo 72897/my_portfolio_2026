@@ -214,7 +214,7 @@ export default function BlogPage() {
             ))}
           </div>
           <p className="text-xs font-medium text-muted-foreground">
-            Newest first · managed from Admin
+            Newest first - managed from Admin
           </p>
         </div>
       </section>

@@ -348,7 +348,7 @@ export const projects: IProject[] = [
     title: "Duli Interiors",
     slug: "duliinteriors",
     description: "Interior design and project-management platform bringing concepts, 2D plans, and estimates into one workspace.",
-    longDescription: "An end-to-end interior design and project-management platform bringing the entire journey — from AI concept moodboards to 2D floor plans, area-based quotes, and print-ready proposals — into a single collaborative workspace.",
+    longDescription: "An end-to-end interior design and project-management platform bringing the entire journey - from AI concept moodboards to 2D floor plans, area-based quotes, and print-ready proposals - into a single collaborative workspace.",
     techStack: ["Next.js", "Python", "Google Gemini", "TypeScript", "Node.js", "Tailwind CSS", "Three.js"],
     features: [
       "Explore AI-assisted room concepts and browse a curated product catalog",
@@ -404,7 +404,7 @@ export const education: IEducation[] = [
     institution: "Gautam Buddha University",
     degree: "Bachelor of Technology in Computer Science",
     location: "Greater Noida, Uttar Pradesh, India",
-    period: "Aug 2022 – Jun 2026",
+    period: "Aug 2022 - Jun 2026",
     coursework: [
       "Data Structures & Algorithms",
       "Object-Oriented Programming",
@@ -417,13 +417,13 @@ export const education: IEducation[] = [
   {
     institution: "St. Aerjay Public School",
     degree: "12th, Science",
-    period: "Mar 2020 – Jun 2022",
+    period: "Mar 2020 - Jun 2022",
     grade: "87%",
   },
   {
     institution: "Nirmala Convent School",
     degree: "10th",
-    period: "Mar 2008 – Mar 2020",
+    period: "Mar 2008 - Mar 2020",
     grade: "85%",
   },
 ];
@@ -447,10 +447,10 @@ export const fallbackGitHub = {
 // Fallback LeetCode data
 export const fallbackLeetCode = {
   username: "kunal26_7",
-  totalSolved: 150,
-  easySolved: 70,
-  mediumSolved: 60,
-  hardSolved: 20,
+  totalSolved: 200,
+  easySolved: 90,
+  mediumSolved: 85,
+  hardSolved: 25,
   ranking: 250000,
   totalQuestions: { easy: 800, medium: 1600, hard: 700 },
 };

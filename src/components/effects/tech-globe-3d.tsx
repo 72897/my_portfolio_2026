@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState, useMemo } from "react";
 import { soundManager } from "@/lib/sounds";
-import { Sparkles } from "lucide-react";
+import { Code2 } from "lucide-react";
 
 interface TechTag {
   name: string;
@@ -190,7 +190,7 @@ export function TechGlobe3D({
       {/* Center Core HUD Label */}
       <div className="absolute flex flex-col items-center justify-center pointer-events-none z-0">
         <div className="w-16 h-16 rounded-full border border-dashed border-primary/40 flex items-center justify-center animate-spin" style={{ animationDuration: "25s" }}>
-          <Sparkles className="w-6 h-6 text-primary animate-pulse" />
+          <Code2 className="w-6 h-6 text-primary" />
         </div>
         <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest mt-2">
           {selectedTag ? `Selected: ${selectedTag}` : "Drag 3D Sphere"}

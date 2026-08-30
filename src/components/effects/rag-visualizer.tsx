@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Database, Search, Cpu, FileText, ArrowRight, Layers, HelpCircle, CheckCircle, Terminal as TermIcon } from "lucide-react";
+import { Database, Search, Cpu, FileText, ArrowRight, Layers, CheckCircle, Terminal as TermIcon } from "lucide-react";
 
 interface DocumentPreset {
   title: string;
@@ -14,7 +14,7 @@ interface DocumentPreset {
 export function RagVisualizer() {
   const PRESETS: DocumentPreset[] = [
     {
-      title: "📄 Thales Internship Records",
+      title: "Thales Internship Records",
       text: "Thales Group (Engineering Intern, Jun 2025 - Jul 2025, Noida): Designed and deployed an enterprise Generative AI platform using Google Gemini and OpenAI API endpoints. Tuned LLM inference prompts, boosting output relevance by 30% and cutting latency by 25%. Built robust NLP pipelines.",
       chunks: [
         { 
@@ -44,7 +44,7 @@ export function RagVisualizer() {
       ]
     },
     {
-      title: "📄 StudyMate Project Specs",
+      title: "StudyMate Project Specs",
       text: "StudyMate is a GenAI Study Assistant. It utilizes Retrieval-Augmented Generation (RAG) to enable semantic search, document retrieval, and PDF summarization. Built using Python, LangChain, Groq, Gradio, ChromaDB, and Hugging Face. Saves 40% time in document reviews.",
       chunks: [
         { 
@@ -137,15 +137,15 @@ export function RagVisualizer() {
   ];
 
   return (
-    <div className="w-full flex flex-col bg-black/40 border border-border/40 rounded-3xl p-6 sm:p-8 backdrop-blur-xl relative overflow-hidden">
+    <div className="rag-visualizer-shell w-full flex flex-col bg-black/40 border border-border/40 rounded-3xl p-5 sm:p-6 xl:p-7 backdrop-blur-xl relative overflow-hidden">
       
       {/* Decorative layout grid */}
       <div className="absolute inset-0 opacity-[0.01] pointer-events-none bg-grid-pattern bg-[size:15px_15px]" />
       <div className="absolute -right-20 -top-20 w-80 h-80 bg-emerald-500/5 rounded-full filter blur-3xl pointer-events-none" />
 
       {/* Stepper Header Progress */}
-      <div className="flex flex-col md:flex-row justify-between items-center gap-4 border-b border-border/20 pb-6 mb-6">
-        <div className="flex flex-wrap justify-center gap-2">
+      <div className="flex flex-col xl:flex-row justify-between items-start gap-4 border-b border-border/20 pb-5 mb-5">
+        <div className="flex flex-wrap gap-2">
           {stepTitles.map((title, i) => {
             const num = i + 1;
             const isActive = step === num;
@@ -191,7 +191,7 @@ export function RagVisualizer() {
       </div>
 
       {/* Step Body (Dynamic View) */}
-      <div className="min-h-[300px] flex flex-col justify-between">
+      <div className="min-h-[260px] flex flex-col">
         <AnimatePresence mode="wait">
           
           {/* STEP 1: Ingestion */}
@@ -209,7 +209,7 @@ export function RagVisualizer() {
               </div>
               <h3 className="text-lg font-bold text-foreground font-[family-name:var(--font-heading)]">Select a source document to ingest</h3>
               
-              <div className="flex gap-3">
+              <div className="flex flex-wrap gap-3">
                 {PRESETS.map((p, idx) => (
                   <button
                     key={p.title}
@@ -251,7 +251,7 @@ export function RagVisualizer() {
               </p>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl">
-                {doc.chunks.map((c, i) => (
+                {doc.chunks.map((c) => (
                   <div key={c.id} className="border border-border/40 rounded-2xl p-4 bg-muted/10 flex flex-col justify-between gap-4 group hover:border-primary/20 transition-all">
                     <div>
                       <span className="text-[10px] font-mono font-bold bg-primary/10 text-primary px-2 py-0.5 rounded-md">
@@ -323,7 +323,7 @@ export function RagVisualizer() {
               
               <div className="space-y-2">
                 <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Select a Test Query:</span>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
                   {doc.queries.map((q, idx) => (
                     <button
                       key={q.question}

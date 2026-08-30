@@ -14,7 +14,6 @@ import {
 } from "lucide-react";
 import { Github, Linkedin } from "@/components/shared/brand-icons";
 import { siteConfig } from "@/lib/constants";
-import { SectionHeading } from "@/components/section-heading";
 import { toast } from "sonner";
 
 interface ContactFormData {
@@ -85,10 +84,11 @@ export default function ContactPage() {
             className="text-center"
           >
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-[family-name:var(--font-heading)]">
-              Get In <span className="gradient-text">Touch</span>
+              Hire Kunal <span className="gradient-text">Singh</span>
             </h1>
             <p className="mt-4 text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
-              Have a question or want to work together? Drop me a message!
+              Freelance clients can request an MVP or AI integration. Companies
+              can reach out for AI/full-stack engineering roles.
             </p>
           </motion.div>
         </div>
@@ -193,7 +193,7 @@ export default function ContactPage() {
                       id="subject"
                       type="text"
                       autoComplete="off"
-                      placeholder="What's this about?"
+                      placeholder="Freelance project, AI integration, or full-time role"
                       {...register("subject", {
                         required: "Subject is required",
                         minLength: {
@@ -221,7 +221,7 @@ export default function ContactPage() {
                       id="message"
                       rows={5}
                       autoComplete="off"
-                      placeholder="Your message…"
+                      placeholder="Tell me the goal, timeline, budget/range if relevant, and what kind of help you need…"
                       {...register("message", {
                         required: "Message is required",
                         minLength: {
@@ -251,7 +251,7 @@ export default function ContactPage() {
                     ) : (
                       <>
                         <Send className="w-4 h-4" />
-                        Send Message
+                        Send hiring request
                       </>
                     )}
                   </button>
@@ -346,12 +346,12 @@ export default function ContactPage() {
               {/* CTA */}
               <div className="anime-card rounded-2xl p-8 text-center">
                 <p className="text-lg font-bold font-[family-name:var(--font-heading)]">
-                  Let&apos;s build something{" "}
-                  <span className="gradient-text-anime">amazing</span> together!
+                  Available for{" "}
+                  <span className="gradient-text-anime">freelance and hiring</span>
                 </p>
                 <p className="mt-2 text-sm text-muted-foreground">
-                  I&apos;m currently open to new opportunities and
-                  collaborations.
+                  Best fit: AI products, automation workflows, RAG tools,
+                  admin dashboards, and MERN/Next.js applications.
                 </p>
               </div>
             </motion.div>

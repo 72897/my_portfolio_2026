@@ -2,7 +2,6 @@
 
 import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Search,
@@ -12,6 +11,7 @@ import {
 } from "lucide-react";
 import { Github } from "@/components/shared/brand-icons";
 import { Floating3DCard } from "@/components/effects/floating-3d-card";
+import { ProjectPreviewVisual } from "@/components/shared/project-preview-visual";
 import { projects as fallbackProjects } from "@/lib/constants";
 import type { IProject } from "@/types";
 
@@ -152,32 +152,12 @@ export default function ProjectsPage() {
                     className="h-full"
                   >
                     <Floating3DCard depth={10} glareColor="rgba(245, 158, 11, 0.14)" className="h-full">
-                      <Link
-                        href={`/projects/${project.slug}`}
-                        className="group block anime-card project-case-card rounded-2xl p-3.5 h-full cursor-pointer hover:border-amber-500/50 transition-colors"
-                      >
-                        <div className="project-visual">
-                          {project.image ? (
-                            <Image
-                              src={project.image}
-                              alt={`${project.title} interface preview`}
-                              fill
-                              sizes="(max-width: 768px) 100vw, 50vw"
-                              className="object-cover object-top"
-                            />
-                          ) : (
-                            <div className="project-visual__fallback">
-                              <span>{project.category}</span>
-                              <strong>{project.title}</strong>
-                            </div>
-                          )}
-                          <div className="project-visual__chrome">
-                            <span />
-                            <span />
-                            <span />
-                            <small>kunal.dev / {project.slug}</small>
-                          </div>
-                        </div>
+                      <article className="group block anime-card project-case-card rounded-2xl p-3.5 h-full hover:border-amber-500/50 transition-colors">
+                        <ProjectPreviewVisual
+                          image={project.image}
+                          title={project.title}
+                          label={project.category}
+                        />
 
                         <div className="p-3 sm:p-4">
                           <div className="flex items-center gap-1.5 mb-3">
@@ -242,9 +222,12 @@ export default function ProjectsPage() {
 
                           {/* Links */}
                           <div className="mt-4 pt-3 border-t border-border/40 flex items-center justify-between gap-2">
-                            <span className="text-[11px] font-mono text-primary font-semibold group-hover:underline">
+                            <Link
+                              href={`/projects/${project.slug}`}
+                              className="text-[11px] font-mono text-primary font-semibold group-hover:underline"
+                            >
                               View Case Study →
-                            </span>
+                            </Link>
                             <div className="flex items-center gap-2">
                               {project.liveUrl && (
                                 <a
@@ -277,7 +260,7 @@ export default function ProjectsPage() {
                             </div>
                           </div>
                         </div>
-                      </Link>
+                      </article>
                     </Floating3DCard>
                   </motion.div>
                 ))}

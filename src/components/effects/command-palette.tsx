@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "next-themes";
@@ -13,13 +13,10 @@ import {
   Briefcase,
   User,
   GraduationCap,
-  Sparkles,
   Mail,
   Download,
   Copy,
   Terminal,
-  Volume2,
-  VolumeX,
   Sun,
   Moon,
   ExternalLink,
@@ -47,17 +44,17 @@ export function CommandPalette() {
   const { theme, setTheme } = useTheme();
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const togglePalette = () => {
-    setIsOpen((prev) => {
-      const next = !prev;
-      if (next) {
-        soundManager.playPop();
-      } else {
-        soundManager.playClick();
-      }
-      return next;
-    });
-  };
+  const togglePalette = useCallback(() => {
+    const nextOpen = !isOpen;
+    setIsOpen(nextOpen);
+    if (nextOpen) {
+      setQuery("");
+      setSelectedIndex(0);
+      soundManager.playPop();
+    } else {
+      soundManager.playClick();
+    }
+  }, [isOpen]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -72,13 +69,12 @@ export function CommandPalette() {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen]);
+  }, [isOpen, togglePalette]);
 
   useEffect(() => {
     if (isOpen) {
-      setTimeout(() => inputRef.current?.focus(), 50);
-      setQuery("");
-      setSelectedIndex(0);
+      const timer = window.setTimeout(() => inputRef.current?.focus(), 50);
+      return () => window.clearTimeout(timer);
     }
   }, [isOpen]);
 
@@ -174,9 +170,9 @@ export function CommandPalette() {
     {
       id: "action-confetti",
       category: "Actions",
-      title: "Celebrate & Trigger Confetti",
-      subtitle: "Burst interactive confetti particles 🎉",
-      icon: Sparkles,
+      title: "Run Celebration Effect",
+      subtitle: "Trigger a small interactive confetti burst",
+      icon: Code2,
       action: () => { triggerConfetti(); setIsOpen(false); }
     },
     {
@@ -200,17 +196,6 @@ export function CommandPalette() {
       }
     },
     {
-      id: "action-toggle-sound",
-      category: "Actions",
-      title: soundManager.isEnabled() ? "Mute UI Sound Effects" : "Enable UI Sound Effects",
-      subtitle: "Web Audio synthesized clicks and pops",
-      icon: soundManager.isEnabled() ? VolumeX : Volume2,
-      action: () => {
-        soundManager.toggle();
-        setIsOpen(false);
-      }
-    },
-    {
       id: "action-toggle-theme",
       category: "Actions",
       title: theme === "dark" ? "Switch to Light Theme" : "Switch to Dark Theme",
@@ -227,7 +212,7 @@ export function CommandPalette() {
     {
       id: "proj-studymate",
       category: "Projects",
-      title: "StudyMate — GenAI Study Assistant",
+      title: "StudyMate - GenAI Study Assistant",
       subtitle: "RAG, semantic search, embeddings, ChromaDB, Hugging Face",
       icon: Code2,
       action: () => { router.push("/projects/studymate"); setIsOpen(false); }
@@ -235,7 +220,7 @@ export function CommandPalette() {
     {
       id: "proj-alphacare",
       category: "Projects",
-      title: "AlphaCare — AI Healthcare Voice Bot",
+      title: "AlphaCare - AI Healthcare Voice Bot",
       subtitle: "Next.js, Vapi Voice API, Google Gemini, symptom triage",
       icon: Code2,
       action: () => { router.push("/projects/alphacare"); setIsOpen(false); }
@@ -243,7 +228,7 @@ export function CommandPalette() {
     {
       id: "proj-buddhimaan",
       category: "Projects",
-      title: "Buddhimaan — AI Content Generator",
+      title: "Buddhimaan - AI Content Generator",
       subtitle: "OpenAI GPT-4o, Stable Diffusion, Node.js queue workers",
       icon: Code2,
       action: () => { router.push("/projects/buddhimaan"); setIsOpen(false); }

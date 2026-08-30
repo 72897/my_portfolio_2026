@@ -8,7 +8,7 @@ import type { ISkill } from "@/types";
 import { NeuralVectorCloud } from "@/components/effects/neural-vector-cloud";
 import { TechGlobe3D } from "@/components/effects/tech-globe-3d";
 import { soundManager } from "@/lib/sounds";
-import { Brain, Globe, LayoutGrid, Sparkles } from "lucide-react";
+import { Brain, Code2, Globe, LayoutGrid } from "lucide-react";
 
 // Dynamically resolve lucide icons from string name
 function getIcon(name: string) {
@@ -17,7 +17,8 @@ function getIcon(name: string) {
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join("");
 
-  const IconComponent = (LucideIcons as any)[pascalName];
+  const iconMap = LucideIcons as unknown as Record<string, LucideIcons.LucideIcon>;
+  const IconComponent = iconMap[pascalName];
   return IconComponent || LucideIcons.Code2;
 }
 
@@ -75,7 +76,7 @@ export default function SkillsPage() {
             className="text-center"
           >
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-muted text-muted-foreground text-xs font-mono mb-4 border border-border">
-              <Sparkles className="w-3.5 h-3.5 text-primary" />
+              <Code2 className="w-3.5 h-3.5 text-primary" />
               <span>Technical Stack & Proficiency</span>
             </div>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-[family-name:var(--font-heading)] text-foreground tracking-tight">

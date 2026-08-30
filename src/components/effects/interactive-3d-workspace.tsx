@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { soundManager } from "@/lib/sounds";
-import { Brain, Layers, Cpu, CheckCircle2, Sparkles, ArrowRight } from "lucide-react";
+import { Brain, Layers, Cpu } from "lucide-react";
 
 type ArchitectureMode = "ai" | "fullstack" | "automation";
 
@@ -115,10 +115,10 @@ export function Interactive3DWorkspace() {
 
     // 5. Animation Loop
     let animId: number;
-    let clock = new THREE.Clock();
+    const startTime = performance.now();
 
     const animate = () => {
-      const t = clock.getElapsedTime();
+      const t = (performance.now() - startTime) / 1000;
 
       // Smooth mouse tilt
       mouseX += (targetMouseX - mouseX) * 0.08;
@@ -179,7 +179,7 @@ export function Interactive3DWorkspace() {
     ai: {
       title: "Agentic AI & RAG Pipeline",
       description: "Autonomous LLM agents, ChromaDB vector indexing, and low-latency contextual document retrieval.",
-      stats: "140ms p95 latency · 70% cost reduction",
+      stats: "140ms p95 latency - 70% cost reduction",
       icon: Brain,
       color: "text-emerald-500",
       accent: "border-emerald-500/40 bg-emerald-500/10",
@@ -187,7 +187,7 @@ export function Interactive3DWorkspace() {
     fullstack: {
       title: "Distributed Full-Stack MERN",
       description: "High-concurrency React/Next.js UI, JWT auth middleware, aggregate MongoDB pipelines, and REST APIs.",
-      stats: "1,200 req/sec · 99.9% uptime",
+      stats: "1,200 req/sec - 99.9% uptime",
       icon: Layers,
       color: "text-sky-500",
       accent: "border-sky-500/40 bg-sky-500/10",
@@ -195,7 +195,7 @@ export function Interactive3DWorkspace() {
     automation: {
       title: "Automated Enterprise Workflows",
       description: "47+ automated pipelines syncing CRM, marketing, task reporting, and cross-platform notifications.",
-      stats: "47+ Active Workflows · Technocratiq Digital",
+      stats: "47+ Active Workflows - Technocratiq Digital",
       icon: Cpu,
       color: "text-indigo-500",
       accent: "border-indigo-500/40 bg-indigo-500/10",

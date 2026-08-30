@@ -4,11 +4,10 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowUpRight, Code2, Menu, X, Terminal, Volume2, VolumeX, Search } from "lucide-react";
+import { ArrowUpRight, Code2, Menu, X, Terminal, Search } from "lucide-react";
 import { navLinks } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "./theme-toggle";
-import { soundManager } from "@/lib/sounds";
 import { Magnetic } from "@/components/effects/magnetic";
 
 const primaryLinks = navLinks.filter((link) =>
@@ -19,11 +18,9 @@ export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
-  const [soundEnabled, setSoundEnabled] = useState(true);
   const pathname = usePathname();
 
   useEffect(() => {
-    setSoundEnabled(soundManager.isEnabled());
     let lastScrollY = window.scrollY;
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
@@ -32,13 +29,10 @@ export function Navbar() {
       lastScrollY = currentScrollY;
     };
     window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
   }, []);
-
-  const toggleSound = () => {
-    const next = soundManager.toggle();
-    setSoundEnabled(next);
-  };
 
   const openCommandPalette = () => {
     window.dispatchEvent(
@@ -76,7 +70,6 @@ export function Navbar() {
         >
           <Link 
             href="/" 
-            onClick={() => soundManager.playClick()}
             className="group flex items-center gap-2.5" 
             aria-label="Kunal Singh home"
           >
@@ -95,8 +88,6 @@ export function Navbar() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  onClick={() => soundManager.playClick()}
-                  onMouseEnter={() => soundManager.playPop()}
                   className={cn(
                     "nav-link relative rounded-lg px-3 py-2 text-xs font-semibold",
                     active ? "text-foreground" : "text-muted-foreground hover:text-foreground"
@@ -139,37 +130,20 @@ export function Navbar() {
               <Terminal size={15} className="text-emerald-400" />
             </button>
 
-            {/* Sound Toggle */}
-            <button
-              type="button"
-              onClick={toggleSound}
-              className="grid size-9 place-items-center rounded-xl border border-border/30 bg-card/40 hover:bg-muted text-muted-foreground hover:text-foreground transition cursor-pointer"
-              title={soundEnabled ? "Mute audio" : "Enable audio"}
-              aria-label="Toggle UI sound effects"
-            >
-              {soundEnabled ? (
-                <Volume2 size={15} className="text-primary" />
-              ) : (
-                <VolumeX size={15} className="text-muted-foreground" />
-              )}
-            </button>
-
             <ThemeToggle />
 
             <Magnetic strength={0.2}>
               <Link
                 href="/contact"
-                onClick={() => soundManager.playClick()}
                 className="nav-cta hidden sm:inline-flex"
               >
-                Let&apos;s talk <ArrowUpRight size={14} aria-hidden="true" />
+                Hire me <ArrowUpRight size={14} aria-hidden="true" />
               </Link>
             </Magnetic>
 
             <button
               type="button"
               onClick={() => {
-                soundManager.playClick();
                 setIsMobileOpen((open) => !open);
               }}
               className="grid size-9 sm:size-11 place-items-center rounded-xl transition-colors hover:bg-muted lg:hidden"

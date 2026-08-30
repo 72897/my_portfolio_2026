@@ -66,7 +66,7 @@ export function usePortfolio() {
                 company: exp.company,
                 role: exp.role,
                 type: exp.type || "Internship",
-                period: exp.period || `${startStr} – ${endStr}`,
+                period: exp.period || `${startStr} - ${endStr}`,
                 location: exp.location,
                 summary: exp.bullets ? exp.bullets[0] || "" : "",
                 highlights: exp.bullets || [],

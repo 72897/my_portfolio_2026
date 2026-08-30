@@ -110,7 +110,7 @@ export default function ExperiencePage() {
                           {exp.role}
                         </h3>
                         <span className="text-xs text-muted-foreground font-medium">
-                          {startStr} {endStr ? `– ${endStr}` : ""}
+                          {startStr} {endStr ? `- ${endStr}` : ""}
                         </span>
                       </div>
                       <p className="text-sm font-medium text-primary font-[family-name:var(--font-body)]">

@@ -110,7 +110,7 @@ export default function AboutPage() {
                   I&apos;m <strong className="text-foreground">{siteConfig.name}</strong>, a Software Engineer and AI & Full Stack Developer with a B.Tech in Computer Science from Gautam Buddha University.
                 </p>
                 <p>
-                  My focus is architecting production AI systems—from multi-agent workflows and low-latency RAG pipelines to high-throughput full-stack MERN and Next.js applications.
+                  My focus is architecting production AI systems - from multi-agent workflows and low-latency RAG pipelines to high-throughput full-stack MERN and Next.js applications.
                 </p>
                 <p>
                   Currently at <strong className="text-foreground">Technocratiq Digital</strong>, I orchestrate 47+ automation workflows across CRM, marketing, and operations. Previously at <strong className="text-foreground">Thales Group</strong> and <strong className="text-foreground">MI Matdar</strong>, I engineered generative AI platforms and scalable REST backends.

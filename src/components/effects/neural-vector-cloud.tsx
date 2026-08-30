@@ -150,8 +150,7 @@ export function NeuralVectorCloud({ className = "" }: { className?: string }) {
     let previousMousePosition = { x: 0, y: 0 };
     let targetRotationX = 0;
     let targetRotationY = 0;
-    let rotationVelocityX = 0.0015;
-    let rotationVelocityY = 0.0025;
+    const rotationVelocityY = 0.0025;
 
     const handlePointerDown = (e: MouseEvent | TouchEvent) => {
       isDragging = true;
@@ -203,11 +202,11 @@ export function NeuralVectorCloud({ className = "" }: { className?: string }) {
 
     // 7. Animation Loop
     let animationFrameId: number;
-    let clock = new THREE.Clock();
+    const startTime = performance.now();
 
     const animate = () => {
       animationFrameId = requestAnimationFrame(animate);
-      const elapsedTime = clock.getElapsedTime();
+      const elapsedTime = (performance.now() - startTime) / 1000;
 
       // Continuous slow orbital drift + user interaction damping
       if (!isDragging) {
@@ -300,7 +299,7 @@ export function NeuralVectorCloud({ className = "" }: { className?: string }) {
           <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full">HNSW Graph</span>
         </div>
         <div className="hidden sm:flex items-center gap-2 text-[11px] font-mono text-muted-foreground bg-background/60 backdrop-blur-md px-3 py-1 rounded-full border border-border/40">
-          <span>Drag to rotate · Click node to inspect</span>
+          <span>Drag to rotate - Click node to inspect</span>
         </div>
       </div>
 

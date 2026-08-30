@@ -158,7 +158,7 @@ export default function AdminDashboardPage() {
         {statsConfig.map((item) => {
           const Icon = item.icon;
           const count = loading
-            ? '—'
+            ? '-'
             : stats
             ? stats[item.key]
             : 0;

@@ -457,7 +457,7 @@ export default function AdminResumePage() {
                   value={eduFormData.period || ''}
                   onChange={(e) => setEduFormData({ ...eduFormData, period: e.target.value })}
                   className="w-full px-3.5 py-2 bg-muted border border-border rounded-xl focus:outline-none focus:ring-1 focus:ring-primary text-xs text-foreground"
-                  placeholder="e.g. Mar 2020 – Jun 2022"
+                  placeholder="e.g. Mar 2020 - Jun 2022"
                 />
               </div>
 
