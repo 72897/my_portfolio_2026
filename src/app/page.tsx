@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { type CSSProperties, useMemo, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import {
@@ -127,6 +127,29 @@ const engineeringSignals = [
   },
 ];
 
+const OVERLAP_TONES = [
+  "overlap-tone-a",
+  "overlap-tone-b",
+  "overlap-tone-c",
+  "overlap-tone-d",
+];
+
+/**
+ * Props for one panel in the overlapping scroll stack. `index` drives both the
+ * paint order (higher index rides over lower) and the surface tint rotation.
+ */
+const overlapPanel = (index: number, ...extraClasses: string[]) => ({
+  className: [
+    "overlap-scroll-section",
+    OVERLAP_TONES[(index - 1) % OVERLAP_TONES.length],
+    index === 1 ? "is-lead" : "",
+    ...extraClasses,
+  ]
+    .filter(Boolean)
+    .join(" "),
+  style: { "--overlap-index": index } as CSSProperties,
+});
+
 export default function HomePage() {
   const { data } = usePortfolio();
   const { profile, experience, projects, education } = data;
@@ -200,7 +223,7 @@ Contact:
   };
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-background text-foreground">
+    <div className="relative min-h-screen overflow-x-clip bg-background text-foreground">
       <ScrollRail />
 
       <section id="hero" className="editorial-hero scroll-mt-24">
@@ -290,7 +313,7 @@ Contact:
         </div>
       </section>
 
-      <section className="editorial-section border-y border-border/70">
+      <section {...overlapPanel(1, "editorial-section")}>
         <div className="editorial-container">
           <div className="proof-header">
             <span className="editorial-eyebrow">
@@ -325,7 +348,7 @@ Contact:
         </div>
       </section>
 
-      <section id="story" className="editorial-section scroll-mt-24">
+      <section id="story" {...overlapPanel(2, "editorial-section", "scroll-mt-24")}>
         <div className="editorial-container">
           <div className="grid gap-10 lg:grid-cols-[0.78fr_1.22fr] lg:gap-20">
             <div className="lg:sticky lg:top-28 lg:h-fit">
@@ -374,7 +397,7 @@ Contact:
         </div>
       </section>
 
-      <section id="about" className="editorial-section scroll-mt-24">
+      <section id="about" {...overlapPanel(3, "editorial-section", "scroll-mt-24")}>
         <div className="editorial-container">
           <div className="grid gap-8 lg:grid-cols-2 lg:items-center lg:gap-20">
             <ScrollReveal>
@@ -423,7 +446,7 @@ Contact:
         </div>
       </section>
 
-      <section id="experience" className="editorial-section scroll-mt-24">
+      <section id="experience" {...overlapPanel(4, "editorial-section", "scroll-mt-24")}>
         <div className="editorial-container">
           <div className="mx-auto mb-16 max-w-3xl text-center">
             <span className="editorial-eyebrow mx-auto">
@@ -467,7 +490,7 @@ Contact:
         </div>
       </section>
 
-      <section id="services" className="editorial-section scroll-mt-24">
+      <section id="services" {...overlapPanel(5, "editorial-section", "scroll-mt-24")}>
         <div className="editorial-container">
           <div className="mb-14 flex flex-col justify-between gap-6 md:flex-row md:items-end">
             <div>
@@ -519,7 +542,10 @@ Contact:
         </div>
       </section>
 
-      <section id="playground" className="editorial-section portfolio-demo-section scroll-mt-24">
+      <section
+        id="playground"
+        {...overlapPanel(6, "editorial-section", "portfolio-demo-section", "scroll-mt-24")}
+      >
         <div className="editorial-container">
           <div className="portfolio-demo-stage">
             <div className="portfolio-demo-header">
@@ -548,7 +574,10 @@ Contact:
         </div>
       </section>
 
-      <section id="rag-simulator" className="editorial-section portfolio-demo-section scroll-mt-24">
+      <section
+        id="rag-simulator"
+        {...overlapPanel(7, "editorial-section", "portfolio-demo-section", "scroll-mt-24")}
+      >
         <div className="editorial-container">
           <div className="portfolio-demo-stage portfolio-demo-stage--inverse">
             <div className="portfolio-demo-header">
@@ -577,7 +606,7 @@ Contact:
         </div>
       </section>
 
-      <section id="projects" className="editorial-section scroll-mt-24">
+      <section id="projects" {...overlapPanel(8, "editorial-section", "scroll-mt-24")}>
         <div className="editorial-container">
           <div className="mb-14 flex flex-col justify-between gap-6 md:flex-row md:items-end">
             <div>
@@ -681,7 +710,7 @@ Contact:
         </div>
       </section>
 
-      <section id="signal" className="editorial-section scroll-mt-24">
+      <section id="signal" {...overlapPanel(9, "editorial-section", "scroll-mt-24")}>
         <div className="editorial-container">
           <div className="mx-auto mb-14 max-w-3xl text-center">
             <span className="editorial-eyebrow mx-auto">
@@ -718,7 +747,7 @@ Contact:
         </div>
       </section>
 
-      <section id="agent-brief" className="editorial-section scroll-mt-24">
+      <section id="agent-brief" {...overlapPanel(10, "editorial-section", "scroll-mt-24")}>
         <div className="editorial-container">
           <div className="agent-brief-panel">
             <div className="agent-brief-copy">
@@ -758,7 +787,7 @@ Contact:
         </div>
       </section>
 
-      <section id="contact" className="editorial-final-cta scroll-mt-24">
+      <section id="contact" {...overlapPanel(11, "editorial-final-cta", "scroll-mt-24")}>
         <div className="editorial-container">
           <div className="editorial-final-panel">
             <div className="max-w-3xl">

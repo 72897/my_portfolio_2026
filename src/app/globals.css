@@ -2336,22 +2336,11 @@ main > section:not(:first-child)::after {
   gap: 1rem;
 }
 
-.editorial-timeline-card {
-  position: sticky;
-  top: 6.2rem;
-}
-
-.editorial-timeline-card:nth-child(2) {
-  top: 7.2rem;
-}
-
-.editorial-timeline-card:nth-child(3) {
-  top: 8.2rem;
-}
-
-.editorial-timeline-card:nth-child(4) {
-  top: 9.2rem;
-}
+/* No `top` offset on the cards on purpose. They used to be `position: sticky;
+   top: 6.2rem`, but a later rule in the theme layer sets them to
+   `position: relative`, so the offset stopped pinning anything and just pushed
+   every card 99px down out of its own grid row - which the last card then spent
+   overhanging the bottom of the section. */
 
 .editorial-capability-card {
   min-height: 23rem;
@@ -2841,13 +2830,6 @@ main > section:first-child:not(.home-hero, .editorial-hero)::after {
   border-color: rgba(27, 27, 27, 0.11);
 }
 
-@media (max-width: 1023px) {
-  .editorial-timeline-card {
-    position: relative;
-    top: auto !important;
-  }
-}
-
 @media (max-width: 768px) {
   main#main-content {
     padding-top: 5.75rem;
@@ -2925,11 +2907,6 @@ main > section:first-child:not(.home-hero, .editorial-hero)::after {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .editorial-timeline-card {
-    position: relative;
-    top: auto !important;
-  }
-
   .agent-ticker__track {
     animation: none;
   }
@@ -3557,5 +3534,141 @@ body::after {
     background:
       radial-gradient(circle at 82% 18%, rgba(24, 24, 24, 0.04), transparent 20rem),
       linear-gradient(180deg, #faf9f5, #f4f3ef) !important;
+  }
+}
+
+/* ════════════════════════════════════
+   OVERLAPPING SECTIONS ON SCROLL
+   Every panel rides up over the one before it: opaque surface, rounded top
+   edge, rising z-index, seam shadow, and a scroll-linked settle on the inner
+   container.
+   Intentionally NOT `position: sticky`. Pinning a section that is taller than
+   the viewport parks its lower half off-screen permanently, and an ancestor
+   with `overflow: hidden` silently disables sticky anyway. Panels stay in
+   normal flow, so every line of content remains reachable.
+   ════════════════════════════════════ */
+
+.overlap-scroll-section {
+  --overlap-lift: clamp(2.25rem, 4.6vw, 4.5rem);
+  --overlap-radius: clamp(1.5rem, 3.4vw, 3.25rem);
+  --overlap-pad: clamp(3.25rem, 5.8vw, 5.75rem);
+  position: relative;
+  z-index: calc(10 + var(--overlap-index, 1));
+  isolation: isolate;
+  margin-top: calc(var(--overlap-lift) * -1);
+  /* Pay back the pixels the negative margin ate, top and bottom, so the seam
+     lands one full section-pad below the previous panel's last line instead of
+     crowding it. */
+  padding-block: calc(var(--overlap-pad) + var(--overlap-lift));
+  border-top: 1px solid rgba(27, 27, 27, 0.11);
+  border-radius: var(--overlap-radius) var(--overlap-radius) 0 0;
+  box-shadow:
+    0 -1px 1px rgba(24, 24, 24, 0.05),
+    0 -18px 38px -20px rgba(24, 24, 24, 0.26),
+    inset 0 1px 0 rgba(255, 255, 255, 0.92);
+}
+
+.portfolio-demo-section.overlap-scroll-section {
+  --overlap-pad: clamp(2.75rem, 5.2vw, 5rem);
+}
+
+.editorial-final-cta.overlap-scroll-section {
+  --overlap-pad: clamp(5rem, 8vw, 9rem);
+}
+
+/* First panel meets the hiring ticker instead of swallowing it. */
+.overlap-scroll-section.is-lead {
+  margin-top: 0;
+  padding-top: var(--overlap-pad);
+}
+
+/* Panel-local grid texture, fading out downward. Replaces the page-wide grid
+   that the now-opaque panels cover up. */
+.overlap-scroll-section::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  border-radius: inherit;
+  background-image:
+    linear-gradient(90deg, rgba(27, 27, 27, 0.022) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(27, 27, 27, 0.018) 1px, transparent 1px);
+  background-size: 96px 96px;
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.85), transparent 48%);
+  -webkit-mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.85), transparent 48%);
+}
+
+/* The inherited full-bleed bottom hairline would cut across the rounded top of
+   the next panel, so drop it on stacked panels. */
+.overlap-scroll-section::after {
+  content: none;
+}
+
+.overlap-tone-a {
+  background:
+    radial-gradient(circle at 14% -6%, rgba(24, 24, 24, 0.042), transparent 24rem),
+    linear-gradient(180deg, #fffdf8, #f7f6f1);
+}
+
+.overlap-tone-b {
+  background:
+    radial-gradient(circle at 86% -4%, rgba(97, 94, 88, 0.075), transparent 26rem),
+    linear-gradient(180deg, #faf9f5, #f2f1ec);
+}
+
+.overlap-tone-c {
+  background:
+    radial-gradient(circle at 50% -10%, rgba(24, 24, 24, 0.05), transparent 26rem),
+    linear-gradient(180deg, #f7f6f1, #fffdf8);
+}
+
+.overlap-tone-d {
+  background:
+    radial-gradient(circle at 22% -6%, rgba(37, 99, 235, 0.055), transparent 24rem),
+    linear-gradient(180deg, #fffdf8, #f4f3ef);
+}
+
+.overlap-scroll-section > .editorial-container {
+  position: relative;
+  z-index: 1;
+  transform-origin: top center;
+}
+
+/* Scroll-linked settle. `entry` percentages scale with panel height, which
+   lands the settle at roughly "panel top reaches viewport top" for both short
+   and very tall panels. Kept subtle so a long panel never reads as offset. */
+@supports (animation-timeline: view()) {
+  .overlap-scroll-section > .editorial-container {
+    animation: overlap-panel-settle linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 42%;
+  }
+}
+
+@keyframes overlap-panel-settle {
+  from {
+    opacity: 0.72;
+    transform: translateY(1.75rem) scale(0.988);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (max-width: 767px) {
+  .overlap-scroll-section {
+    --overlap-lift: 1.6rem;
+    --overlap-radius: 1.4rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .overlap-scroll-section > .editorial-container {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
   }
 }
