@@ -3539,9 +3539,9 @@ body::after {
 
 /* ════════════════════════════════════
    OVERLAPPING SECTIONS ON SCROLL
-   Every panel rides up over the one before it: opaque surface, rounded top
-   edge, rising z-index, seam shadow, and a scroll-linked settle on the inner
-   container.
+   Every panel flies up over the one before it: opaque surface, rounded top
+   edge, rising z-index, seam shadow, a scroll-linked rise on the panel itself
+   and a slower settle on its content.
    Intentionally NOT `position: sticky`. Pinning a section that is taller than
    the viewport parks its lower half off-screen permanently, and an ancestor
    with `overflow: hidden` silently disables sticky anyway. Panels stay in
@@ -3552,6 +3552,12 @@ body::after {
   --overlap-lift: clamp(2.25rem, 4.6vw, 4.5rem);
   --overlap-radius: clamp(1.5rem, 3.4vw, 3.25rem);
   --overlap-pad: clamp(3.25rem, 5.8vw, 5.75rem);
+  /* Flight distance is the overlap the negative margin buys, less 3px so
+     subpixel rounding on the scaled box can never open a hairline of page
+     background at the seam. The panel starts covering the previous panel's
+     bottom edge and climbs until it covers the full lift. */
+  --overlap-fly: calc(var(--overlap-lift) - 3px);
+  --overlap-fly-scale: 0.955;
   position: relative;
   z-index: calc(10 + var(--overlap-index, 1));
   isolation: isolate;
@@ -3562,9 +3568,10 @@ body::after {
   padding-block: calc(var(--overlap-pad) + var(--overlap-lift));
   border-top: 1px solid rgba(27, 27, 27, 0.11);
   border-radius: var(--overlap-radius) var(--overlap-radius) 0 0;
+  transform-origin: top center;
   box-shadow:
     0 -1px 1px rgba(24, 24, 24, 0.05),
-    0 -18px 38px -20px rgba(24, 24, 24, 0.26),
+    0 -22px 46px -22px rgba(24, 24, 24, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.92);
 }
 
@@ -3576,10 +3583,12 @@ body::after {
   --overlap-pad: clamp(5rem, 8vw, 9rem);
 }
 
-/* First panel meets the hiring ticker instead of swallowing it. */
+/* First panel meets the hiring ticker instead of swallowing it. It has no
+   negative margin to hide a rise behind, so it only scales in. */
 .overlap-scroll-section.is-lead {
   margin-top: 0;
   padding-top: var(--overlap-pad);
+  --overlap-fly: 0px;
 }
 
 /* Panel-local grid texture, fading out downward. Replaces the page-wide grid
@@ -3635,26 +3644,45 @@ body::after {
   transform-origin: top center;
 }
 
-/* Scroll-linked settle. `entry` percentages scale with panel height, which
-   lands the settle at roughly "panel top reaches viewport top" for both short
-   and very tall panels. Kept subtle so a long panel never reads as offset. */
+/* Scroll-linked flight. `entry` percentages scale with panel height, which
+   lands the motion at roughly "panel top reaches the middle of the viewport"
+   for both short and very tall panels, so it is over before the panel is read.
+   The panel carries the travel; the container trails it by a few pixels for
+   depth. Transform only - nothing here touches layout, so document height and
+   scroll position stay put. */
 @supports (animation-timeline: view()) {
+  .overlap-scroll-section {
+    animation: overlap-panel-fly linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 58%;
+  }
+
   .overlap-scroll-section > .editorial-container {
     animation: overlap-panel-settle linear both;
     animation-timeline: view();
-    animation-range: entry 0% entry 42%;
+    animation-range: entry 0% entry 72%;
+  }
+}
+
+@keyframes overlap-panel-fly {
+  from {
+    transform: translateY(var(--overlap-fly)) scale(var(--overlap-fly-scale));
+  }
+
+  to {
+    transform: translateY(0) scale(1);
   }
 }
 
 @keyframes overlap-panel-settle {
   from {
-    opacity: 0.72;
-    transform: translateY(1.75rem) scale(0.988);
+    opacity: 0.55;
+    transform: translateY(2.25rem);
   }
 
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translateY(0);
   }
 }
 
@@ -3662,10 +3690,12 @@ body::after {
   .overlap-scroll-section {
     --overlap-lift: 1.6rem;
     --overlap-radius: 1.4rem;
+    --overlap-fly-scale: 0.972;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .overlap-scroll-section,
   .overlap-scroll-section > .editorial-container {
     animation: none !important;
     opacity: 1 !important;
