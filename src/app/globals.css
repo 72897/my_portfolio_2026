@@ -3672,3 +3672,99 @@ body::after {
     transform: none !important;
   }
 }
+
+/* ════════════════════════════════════
+   TERMINAL OS SURFACE
+   Every semantic token on this site resolves to dark ink on warm paper
+   (`--color-foreground: #181818`, `--color-primary: #181818`). The terminal
+   window is the one permanently dark surface, so `text-foreground` and
+   `text-primary` inside it painted black on near-black - the banner, the echoed
+   prompt lines and the command names were all invisible.
+   Re-point the tokens for this subtree rather than rewriting every utility, and
+   restore the palette hues that the global monochrome clamp flattens to ink.
+   ════════════════════════════════════ */
+
+.terminal-shell {
+  --color-foreground: #e9eef8;
+  --color-primary: #7dd3fc;
+  --color-primary-foreground: #06121f;
+  --color-secondary: #cbd5e1;
+  --color-secondary-foreground: #06121f;
+  --color-muted: rgba(148, 163, 184, 0.16);
+  --color-muted-foreground: #9aa8bd;
+  --color-card: #0f1626;
+  --color-card-foreground: #e9eef8;
+  --color-accent: #60a5fa;
+  --color-accent-foreground: #06121f;
+  --color-border: rgba(148, 163, 184, 0.26);
+  --color-ring: #7dd3fc;
+  color-scheme: dark;
+}
+
+/* `[class*="text-emerald"] { color: #181818 !important }` and its siblings keep
+   the editorial theme monochrome site-wide. A dark terminal is the one place
+   those hues belong, so they are re-asserted here at higher specificity. */
+.terminal-shell [class*="text-emerald"] {
+  color: #34d399 !important;
+}
+
+.terminal-shell [class*="text-teal"] {
+  color: #5eead4 !important;
+}
+
+.terminal-shell [class*="text-cyan"] {
+  color: #67e8f9 !important;
+}
+
+.terminal-shell [class*="text-sky"] {
+  color: #7dd3fc !important;
+}
+
+.terminal-shell [class*="text-amber"] {
+  color: #fbbf24 !important;
+}
+.terminal-shell [class*="bg-emerald"],
+.terminal-shell [class*="bg-teal"],
+.terminal-shell [class*="bg-cyan"],
+.terminal-shell [class*="bg-sky"],
+.terminal-shell [class*="bg-amber"] {
+  background-color: rgba(52, 211, 153, 0.16) !important;
+}
+
+.terminal-shell [class*="border-emerald"],
+.terminal-shell [class*="border-teal"],
+.terminal-shell [class*="border-cyan"],
+.terminal-shell [class*="border-sky"],
+.terminal-shell [class*="border-amber"] {
+  border-color: rgba(52, 211, 153, 0.3) !important;
+}
+
+/* `custom-scrollbar` is referenced by five components but has never been
+   defined, so the terminal body scrolled with the browser's default light
+   thumb - a bright slab against the dark panel. */
+.terminal-shell .custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.34) transparent;
+}
+
+.terminal-shell .custom-scrollbar::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+.terminal-shell .custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.terminal-shell .custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.3);
+  border: 3px solid transparent;
+  border-radius: 999px;
+  background-clip: padding-box;
+}
+
+.terminal-shell .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.5);
+  background-clip: padding-box;
+}
+

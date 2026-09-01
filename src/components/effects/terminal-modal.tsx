@@ -328,7 +328,7 @@ export function TerminalModal() {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.92, y: 15 }}
             transition={{ type: "spring", damping: 24, stiffness: 300 }}
-            className={`relative flex flex-col bg-[#0b0f19] border border-border/80 rounded-2xl shadow-2xl overflow-hidden z-10 font-mono transition-all duration-200 ${
+            className={`terminal-shell relative flex flex-col bg-[#0b0f19] border border-border/80 rounded-2xl shadow-2xl overflow-hidden z-10 font-mono transition-all duration-200 ${
               isMaximized
                 ? "w-full h-full max-w-none max-h-none rounded-none"
                 : "w-full max-w-3xl h-[480px] sm:h-[520px]"
@@ -416,7 +416,7 @@ export function TerminalModal() {
                 onChange={(e) => setInputVal(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="type a command (try: help, skills, sudo hire-me)..."
-                className="w-full bg-transparent text-slate-100 placeholder:text-slate-600 focus:outline-none font-mono text-xs"
+                className="w-full bg-transparent text-slate-100 placeholder:text-slate-500 focus:outline-none font-mono text-xs"
               />
               <span className="w-2 h-4 bg-primary animate-pulse shrink-0" />
             </div>
