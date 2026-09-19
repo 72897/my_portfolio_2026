@@ -1,13 +1,14 @@
 import { MetadataRoute } from "next";
+import { siteConfig } from "@/lib/constants";
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = "https://kunalsingh.dev";
   return {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: ["/admin/", "/api/"],
+      disallow: ["/admin", "/api/"],
     },
-    sitemap: `${baseUrl}/sitemap.xml`,
+    sitemap: `${siteConfig.url}/sitemap.xml`,
+    host: siteConfig.url,
   };
 }

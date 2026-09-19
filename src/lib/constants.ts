@@ -5,7 +5,7 @@ export const siteConfig = {
   title: "AI Engineer | Full Stack Developer",
   description:
     "AI Engineer and Full Stack Developer specializing in Generative AI, LLM integration, and scalable web applications. B.Tech CSE Graduate from Gautam Buddha University with hands-on experience in Python, React.js, Node.js, and modern AI/ML frameworks.",
-  url: "https://kunalsingh.dev",
+  url: "https://www.kunaltechie.me",
   email: "kunalsingh203001@gmail.com",
   phone: "9456473642",
   location: "Greater Noida, Uttar Pradesh, India",

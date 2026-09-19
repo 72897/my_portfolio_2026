@@ -7,14 +7,24 @@ import { Chatbot } from "@/components/layout/chatbot";
 import { Toaster } from "sonner";
 import { CommandPalette } from "@/components/effects/command-palette";
 import { TerminalModal } from "@/components/effects/terminal-modal";
+import { siteConfig } from "@/lib/constants";
+import {
+  defaultDescription,
+  defaultOgImage,
+  defaultTitle,
+  jsonLdScript,
+  personJsonLd,
+  siteName,
+  websiteJsonLd,
+} from "@/lib/seo";
 
 export const metadata: Metadata = {
+  metadataBase: new URL(siteConfig.url),
   title: {
-    default: "Kunal Singh | AI Engineer & Full Stack Developer",
+    default: defaultTitle,
     template: "%s | Kunal Singh",
   },
-  description:
-    "AI Engineer and Full Stack Developer specializing in Generative AI, LLM integration, and scalable web applications. Explore my portfolio, projects, and experience.",
+  description: defaultDescription,
   keywords: [
     "Kunal Singh",
     "AI Engineer",
@@ -27,17 +37,29 @@ export const metadata: Metadata = {
     "LangChain",
     "GenAI",
   ],
-  authors: [{ name: "Kunal Singh" }],
+  authors: [{ name: "Kunal Singh", url: siteConfig.url }],
   creator: "Kunal Singh",
+  // "./" resolves to each route's own path, so every page self-canonicalizes.
+  alternates: { canonical: "./" },
   openGraph: {
     type: "website",
     locale: "en_US",
-    title: "Kunal Singh | AI Engineer & Full Stack Developer",
+    url: "./",
+    title: defaultTitle,
     description:
       "AI Engineer and Full Stack Developer specializing in Generative AI, LLM integration, and scalable web applications.",
-    siteName: "Kunal Singh Portfolio",
+    siteName,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: defaultTitle,
+    description:
+      "AI Engineer and Full Stack Developer specializing in Generative AI, LLM integration, and scalable web applications.",
+    images: [defaultOgImage.url],
   },
 };
+
+const siteJsonLd = jsonLdScript({ "@graph": [personJsonLd, websiteJsonLd] });
 
 export default function RootLayout({
   children,
@@ -48,6 +70,10 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning data-scroll-behavior="smooth">
       <body className="min-h-screen bg-background text-foreground antialiased selection:bg-primary/20 selection:text-primary">
         <ThemeProvider>
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: siteJsonLd }}
+          />
           <a href="#main-content" className="skip-link">Skip to content</a>
           <Navbar />
           <main id="main-content" className="min-h-screen pt-20 relative z-10">{children}</main>

@@ -18,7 +18,9 @@ export function AnimatedCounter({
   prefix = "",
   className = "",
 }: AnimatedCounterProps) {
-  const [count, setCount] = useState(0);
+  // Start at the real value so the server HTML (and crawlers) see it; the
+  // count-up only replays once the counter scrolls into view.
+  const [count, setCount] = useState(target);
   const ref = useRef<HTMLSpanElement>(null);
   const isInView = useInView(ref, { once: true });
 

@@ -216,7 +216,7 @@ export function TerminalModal() {
           <div className="text-xs space-y-1">
             <p><span className="text-foreground">Email:</span> kunalsingh203001@gmail.com</p>
             <p><span className="text-foreground">Phone:</span> +91 9456473642</p>
-            <p><span className="text-foreground">Website:</span> https://kunalsingh.dev</p>
+            <p><span className="text-foreground">Website:</span> https://www.kunaltechie.me</p>
           </div>
         ),
       });
