@@ -2333,8 +2333,104 @@ main > section:not(:first-child)::after {
 }
 
 .editorial-timeline {
+  position: relative;
   display: grid;
-  gap: 1rem;
+  gap: 2.25rem;
+}
+
+/* A spine down the middle with the roles alternating either side of it. */
+.editorial-timeline::before {
+  content: "";
+  position: absolute;
+  top: 1rem;
+  bottom: 1rem;
+  left: 50%;
+  width: 2px;
+  transform: translateX(-50%);
+  border-radius: 999px;
+  background: linear-gradient(
+    180deg,
+    transparent,
+    color-mix(in srgb, var(--color-foreground) 24%, transparent) 8%,
+    color-mix(in srgb, var(--color-foreground) 24%, transparent) 92%,
+    transparent
+  );
+}
+
+.editorial-timeline-item {
+  position: relative;
+  width: calc(50% - 2.75rem);
+}
+
+.editorial-timeline-item:nth-child(even) {
+  margin-left: auto;
+}
+
+/* Connector from the card to the spine. */
+.editorial-timeline-item::before {
+  content: "";
+  position: absolute;
+  top: 3rem;
+  width: 2.75rem;
+  height: 2px;
+  background: color-mix(in srgb, var(--color-foreground) 18%, transparent);
+}
+
+/* Node sitting on the spine. */
+.editorial-timeline-item::after {
+  content: "";
+  position: absolute;
+  top: 2.6rem;
+  width: 0.85rem;
+  height: 0.85rem;
+  border-radius: 999px;
+  background: var(--color-foreground);
+  border: 3px solid var(--color-background);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-foreground) 18%, transparent);
+}
+
+.editorial-timeline-item:nth-child(odd)::before {
+  right: -2.75rem;
+}
+
+.editorial-timeline-item:nth-child(odd)::after {
+  right: -3.175rem;
+}
+
+.editorial-timeline-item:nth-child(even)::before {
+  left: -2.75rem;
+}
+
+.editorial-timeline-item:nth-child(even)::after {
+  left: -3.175rem;
+}
+
+/* Below this width two columns get too narrow: fall back to one column with
+   the spine on the left. */
+@media (max-width: 900px) {
+  .editorial-timeline::before {
+    left: 0.9rem;
+  }
+
+  .editorial-timeline-item,
+  .editorial-timeline-item:nth-child(even) {
+    width: 100%;
+    margin-left: 0;
+    padding-left: 3rem;
+  }
+
+  .editorial-timeline-item:nth-child(odd)::before,
+  .editorial-timeline-item:nth-child(even)::before {
+    left: 0.9rem;
+    right: auto;
+    width: 2.1rem;
+  }
+
+  .editorial-timeline-item:nth-child(odd)::after,
+  .editorial-timeline-item:nth-child(even)::after {
+    left: 0.475rem;
+    right: auto;
+  }
 }
 
 /* No `top` offset on the cards on purpose. They used to be `position: sticky;

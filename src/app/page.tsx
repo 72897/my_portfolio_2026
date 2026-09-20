@@ -460,7 +460,12 @@ Contact:
 
           <div className="editorial-timeline">
             {experience.map((exp, index) => (
-              <ScrollReveal key={`${exp.company}-${exp.role}`} delay={index * 0.04}>
+              <ScrollReveal
+                key={`${exp.company}-${exp.role}`}
+                delay={index * 0.04}
+                direction={index % 2 === 0 ? "left" : "right"}
+                className="editorial-timeline-item"
+              >
                 <article className="editorial-timeline-card">
                   <div className="flex flex-wrap items-start justify-between gap-4">
                     <div>
