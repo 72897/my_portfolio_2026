@@ -16,7 +16,7 @@ export function ProjectDetailView({ project }: { project: IProject }) {
     <>
       {/* Header */}
       <section className="py-20 bg-muted/30 grid-pattern">
-        <div className="max-w-4xl mx-auto px-4">
+        <div className="w-full max-w-6xl mx-auto px-4 sm:px-6">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -78,7 +78,7 @@ export function ProjectDetailView({ project }: { project: IProject }) {
 
       {/* Details */}
       <section className="py-16">
-        <div className="max-w-4xl mx-auto px-4 space-y-16">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 space-y-12">
           {/* Long description */}
           {project.longDescription && (
             <motion.div
@@ -113,11 +113,11 @@ export function ProjectDetailView({ project }: { project: IProject }) {
                 </div>
               </div>
               
-              <div className="relative aspect-video w-full overflow-hidden bg-muted/30">
+              <div className="relative w-full overflow-hidden bg-muted/30">
                 <img 
                   src={project.image} 
                   alt={`${project.title} Interface`}
-                  className="w-full h-full object-cover object-top hover:scale-[1.01] transition-transform duration-500" 
+                  className="block h-auto w-full hover:scale-[1.01] transition-transform duration-500" 
                 />
               </div>
             </motion.div>

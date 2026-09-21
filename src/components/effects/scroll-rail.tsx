@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { soundManager } from "@/lib/sounds";
 
 interface SectionItem {
@@ -23,32 +23,61 @@ const SECTIONS: SectionItem[] = [
 
 export function ScrollRail() {
   const [activeSection, setActiveSection] = useState<string>("hero");
-  const [scrollProgress, setScrollProgress] = useState<number>(0);
+  const progressRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const handleScroll = () => {
-      const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
-      const currentScroll = window.scrollY;
-      const progress = totalHeight > 0 ? (currentScroll / totalHeight) * 100 : 0;
-      setScrollProgress(progress);
+    let frame = 0;
+    let sectionTops: { id: string; top: number }[] = [];
 
-      // Determine active section
+    // Section offsets only change on resize/content changes, so measure them
+    // once here instead of forcing layout on every scroll event.
+    const measure = () => {
+      sectionTops = SECTIONS.flatMap(({ id }) => {
+        const el = document.getElementById(id);
+        return el ? [{ id, top: el.getBoundingClientRect().top + window.scrollY }] : [];
+      });
+    };
+
+    const update = () => {
+      frame = 0;
+      const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = totalHeight > 0 ? window.scrollY / totalHeight : 0;
+      // Written straight to the DOM: a React re-render per scroll frame is
+      // what made the page stutter.
+      if (progressRef.current) {
+        progressRef.current.style.transform = `scaleY(${progress})`;
+      }
+
       const scrollPos = window.scrollY + 300;
-      for (let i = SECTIONS.length - 1; i >= 0; i--) {
-        const el = document.getElementById(SECTIONS[i].id);
-        if (el) {
-          const top = el.offsetTop;
-          if (scrollPos >= top) {
-            setActiveSection(SECTIONS[i].id);
-            break;
-          }
+      for (let i = sectionTops.length - 1; i >= 0; i--) {
+        if (scrollPos >= sectionTops[i].top) {
+          setActiveSection(sectionTops[i].id);
+          break;
         }
       }
     };
 
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll();
-    return () => window.removeEventListener("scroll", handleScroll);
+    const onScroll = () => {
+      if (!frame) frame = window.requestAnimationFrame(update);
+    };
+    const onResize = () => {
+      measure();
+      onScroll();
+    };
+
+    measure();
+    update();
+    // Late-loading content (images, data) shifts section offsets.
+    const resizeObserver = new ResizeObserver(onResize);
+    resizeObserver.observe(document.body);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onResize);
+    return () => {
+      if (frame) window.cancelAnimationFrame(frame);
+      resizeObserver.disconnect();
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onResize);
+    };
   }, []);
 
   const scrollToSection = (id: string) => {
@@ -62,13 +91,14 @@ export function ScrollRail() {
   return (
     <aside
       aria-label="Section Navigation Rail"
-      className="fixed right-4 top-1/2 -translate-y-1/2 z-40 hidden xl:flex flex-col items-center gap-3 p-2 rounded-full bg-card/40 border border-border/40 backdrop-blur-md shadow-lg"
+      className="fixed right-4 top-1/2 -translate-y-1/2 z-40 hidden xl:flex flex-col items-center gap-3 p-2 rounded-full bg-card/90 border border-border/40 shadow-lg"
     >
       {/* Scroll track fill bar */}
       <div className="absolute left-1/2 -translate-x-1/2 top-3 bottom-3 w-[1.5px] bg-border/40 -z-10">
         <div
-          className="w-full bg-primary transition-all duration-150 rounded-full"
-          style={{ height: `${scrollProgress}%` }}
+          ref={progressRef}
+          className="h-full w-full origin-top bg-primary rounded-full"
+          style={{ transform: "scaleY(0)" }}
         />
       </div>
 

@@ -150,7 +150,7 @@ export default function AboutPage() {
 
       {/* Education */}
       <section className="py-20 border-t border-border bg-card/5">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <SectionHeading
             title="Education"
             subtitle="My academic background and foundations"

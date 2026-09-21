@@ -1956,13 +1956,17 @@ main > section:not(:first-child)::after {
   background: rgba(255, 253, 248, 0.88);
   color: #181818;
   box-shadow: 0 18px 52px rgba(24, 24, 24, 0.1);
-  backdrop-filter: blur(22px);
+  /* The fixed navbar re-blurs the content under it on every scroll frame, and
+     the cost grows with the radius. At 88-94% opacity a light blur looks the
+     same as 22px. */
+  backdrop-filter: blur(8px);
 }
 
 .nav-shell--scrolled {
   border-color: rgba(27, 27, 27, 0.16);
   background: rgba(255, 253, 248, 0.94);
   box-shadow: 0 22px 58px rgba(24, 24, 24, 0.12);
+  backdrop-filter: blur(8px);
 }
 
 .brand-mark {
@@ -2701,9 +2705,18 @@ footer {
 }
 
 main > section:first-child:not(.home-hero, .editorial-hero) {
-  min-height: 18rem;
-  padding-block: clamp(3rem, 5vw, 5rem) !important;
+  /* Sized by its content: the old 18rem floor plus 5rem padding left ~300px
+     of empty band above every page's first real content. */
+  min-height: 0;
+  padding-block: clamp(2.25rem, 3.5vw, 3.25rem) !important;
   background: transparent !important;
+}
+
+/* The header band is a flex row, so its max-width container shrank to its
+   content and `mx-auto` centred it - left-aligned headers (project and blog
+   detail pages) ended up indented from the content below. */
+main > section:first-child:not(.home-hero, .editorial-hero) > * {
+  width: 100%;
 }
 
 main > section:first-child:not(.home-hero, .editorial-hero)::before {
@@ -2719,7 +2732,7 @@ main > section:first-child:not(.home-hero, .editorial-hero)::before {
 
 main > section.py-20,
 main > section.py-16 {
-  padding-block: clamp(3rem, 5vw, 5.5rem) !important;
+  padding-block: clamp(2.25rem, 3.5vw, 3.5rem) !important;
 }
 
 main > section.py-8,
@@ -3648,13 +3661,12 @@ body::after {
 .overlap-scroll-section {
   --overlap-lift: clamp(2.25rem, 4.6vw, 4.5rem);
   --overlap-radius: clamp(1.5rem, 3.4vw, 3.25rem);
-  --overlap-pad: clamp(3.25rem, 5.8vw, 5.75rem);
+  --overlap-pad: clamp(2.5rem, 4.5vw, 4.25rem);
   /* Flight distance is the overlap the negative margin buys, less 3px so
      subpixel rounding on the scaled box can never open a hairline of page
      background at the seam. The panel starts covering the previous panel's
      bottom edge and climbs until it covers the full lift. */
   --overlap-fly: calc(var(--overlap-lift) - 3px);
-  --overlap-fly-scale: 0.955;
   position: relative;
   z-index: calc(10 + var(--overlap-index, 1));
   isolation: isolate;
@@ -3681,7 +3693,7 @@ body::after {
 }
 
 /* First panel meets the hiring ticker instead of swallowing it. It has no
-   negative margin to hide a rise behind, so it only scales in. */
+   negative margin to hide a rise behind, so it doesn't move. */
 .overlap-scroll-section.is-lead {
   margin-top: 0;
   padding-top: var(--overlap-pad);
@@ -3761,33 +3773,43 @@ body::after {
   }
 }
 
+/* Translate only. Scaling re-rasterized panels up to ~4000px tall on every
+   scroll frame, which dropped frames and left text soft mid-flight, and the
+   old opacity ramp made fresh content look washed out while scrolling. */
 @keyframes overlap-panel-fly {
   from {
-    transform: translateY(var(--overlap-fly)) scale(var(--overlap-fly-scale));
+    transform: translateY(var(--overlap-fly));
   }
 
   to {
-    transform: translateY(0) scale(1);
+    transform: translateY(0);
   }
 }
 
 @keyframes overlap-panel-settle {
   from {
-    opacity: 0.55;
-    transform: translateY(2.25rem);
+    transform: translateY(1.25rem);
   }
 
   to {
-    opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* Everything inside a panel sits on an opaque surface, so backdrop blur there
+   has nothing to blur - yet each blurred card, button and eyebrow cost its own
+   offscreen render pass on every scrolled frame (about 6 per frame measured,
+   and the bulk of the GPU time). */
+.overlap-scroll-section *,
+.overlap-scroll-section *::before,
+.overlap-scroll-section *::after {
+  backdrop-filter: none;
 }
 
 @media (max-width: 767px) {
   .overlap-scroll-section {
     --overlap-lift: 1.6rem;
     --overlap-radius: 1.4rem;
-    --overlap-fly-scale: 0.972;
   }
 }
 

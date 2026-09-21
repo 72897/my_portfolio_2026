@@ -76,7 +76,7 @@ export default function RootLayout({
           />
           <a href="#main-content" className="skip-link">Skip to content</a>
           <Navbar />
-          <main id="main-content" className="min-h-screen pt-20 relative z-10">{children}</main>
+          <main id="main-content" className="min-h-[50vh] pt-20 relative z-10">{children}</main>
           <CommandPalette />
           <TerminalModal />
           <Chatbot />

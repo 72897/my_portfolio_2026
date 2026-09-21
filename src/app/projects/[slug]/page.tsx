@@ -70,8 +70,9 @@ export default async function ProjectDetailPage({ params }: PageProps) {
 
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: projectJsonLd }} />
       <ProjectDetailView project={project} />
+      {/* After the view: shared styles target `main > section:first-child`. */}
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: projectJsonLd }} />
     </>
   );
 }

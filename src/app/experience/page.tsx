@@ -64,7 +64,7 @@ export default function ExperiencePage() {
 
       {/* Timeline */}
       <section className="py-20 border-t border-border">
-        <div ref={containerRef} className="max-w-3xl mx-auto px-4 sm:px-6">
+        <div ref={containerRef} className="max-w-6xl mx-auto px-4 sm:px-6">
           {loading ? (
             <div className="space-y-8">
               {[1, 2].map((n) => (

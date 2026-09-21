@@ -86,8 +86,9 @@ export default async function BlogDetailPage({ params }: PageProps) {
 
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: articleJsonLd }} />
       <BlogPostView post={post} />
+      {/* After the view: shared styles target `main > section:first-child`. */}
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: articleJsonLd }} />
     </>
   );
 }
