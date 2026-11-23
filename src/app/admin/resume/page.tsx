@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { toast } from 'sonner';
 import { 
@@ -17,6 +17,8 @@ import {
   MapPin 
 } from 'lucide-react';
 import type { IEducation } from '@/types';
+import { apiRequest, errorMessage, useAdminList } from '../_lib/api';
+import { LoadError } from '../_components/load-error';
 
 interface IResumeHighlights {
   experience: string;
@@ -51,7 +53,7 @@ export default function AdminResumePage() {
   const [saving, setSaving] = useState(false);
   const [resume, setResume] = useState<Partial<IResumeData>>({
     summary: '',
-    pdfUrl: 'https://drive.google.com/file/d/1t7Ws-Be5RBMl-QMIKngor6LCMr2gpBQ-/view?usp=sharing',
+    pdfUrl: '/resume/Resume_Kunal_Singh.pdf',
     highlights: {
       experience: '',
       skills: '',
@@ -63,70 +65,51 @@ export default function AdminResumePage() {
   });
 
   // Education state
-  const [educations, setEducations] = useState<IEducation[]>([]);
-  const [eduLoading, setEduLoading] = useState(true);
+  const {
+    items: educations,
+    loading: eduLoading,
+    error: eduError,
+    reload: fetchEducations,
+  } = useAdminList<IEducation>('/api/education', Boolean(session));
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [showEduForm, setShowEduForm] = useState(false);
   const [editingEduId, setEditingEduId] = useState<string | null>(null);
   const [eduFormData, setEduFormData] = useState<Partial<IEducation>>(emptyEducation);
   const [courseworkInput, setCourseworkInput] = useState('');
   const [eduSaving, setEduSaving] = useState(false);
 
-  const fetchResume = useCallback(async () => {
-    try {
-      const res = await fetch('/api/resume');
-      if (res.ok) {
-        const data = await res.json();
-        setResume(data);
-      }
-    } catch (error) {
-      console.error('Failed to fetch resume settings:', error);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  const fetchEducations = useCallback(async () => {
-    try {
-      const res = await fetch('/api/education');
-      if (res.ok) {
-        const data = await res.json();
-        setEducations(data);
-      }
-    } catch (error) {
-      console.error('Failed to fetch educations:', error);
-    } finally {
-      setEduLoading(false);
-    }
-  }, []);
-
   useEffect(() => {
-    if (session) {
-      fetchResume();
-      fetchEducations();
-    }
-  }, [session, fetchResume, fetchEducations]);
+    if (!session) return;
+    let cancelled = false;
+    apiRequest<Partial<IResumeData>>('/api/resume?source=db')
+      .then((data) => {
+        if (!cancelled) setResume(data);
+      })
+      .catch((err) => {
+        if (!cancelled) setLoadError(errorMessage(err, 'Could not load resume settings.'));
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [session]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
 
     try {
-      const res = await fetch('/api/resume', {
+      const saved = await apiRequest<Partial<IResumeData>>('/api/resume', {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(resume),
       });
-
-      if (res.ok) {
-        const data = await res.json();
-        setResume(data);
-        toast.success('Resume metadata updated successfully!');
-      } else {
-        const data = await res.json();
-        toast.error(data.error || 'Failed to update resume details');
-      }
-    } catch {
-      toast.error('Something went wrong');
+      setResume(saved);
+      setLoadError(null);
+      toast.success('Resume details saved');
+    } catch (err) {
+      toast.error(errorMessage(err, 'Failed to save resume details'));
     } finally {
       setSaving(false);
     }
@@ -160,25 +143,15 @@ export default function AdminResumePage() {
     };
 
     try {
-      const url = editingEduId ? `/api/education/${editingEduId}` : '/api/education';
-      const method = editingEduId ? 'PUT' : 'POST';
-
-      const res = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
+      await apiRequest(editingEduId ? `/api/education/${editingEduId}` : '/api/education', {
+        method: editingEduId ? 'PUT' : 'POST',
         body: JSON.stringify(payload),
       });
-
-      if (res.ok) {
-        toast.success(editingEduId ? 'Education updated!' : 'Education created!');
-        resetEduForm();
-        fetchEducations();
-      } else {
-        const data = await res.json();
-        toast.error(data.error || 'Failed to save education record');
-      }
-    } catch {
-      toast.error('Something went wrong');
+      toast.success(editingEduId ? 'Education updated' : 'Education created');
+      resetEduForm();
+      fetchEducations();
+    } catch (err) {
+      toast.error(errorMessage(err, 'Failed to save education record'));
     } finally {
       setEduSaving(false);
     }
@@ -188,15 +161,11 @@ export default function AdminResumePage() {
     if (!confirm('Are you sure you want to delete this education record?')) return;
 
     try {
-      const res = await fetch(`/api/education/${id}`, { method: 'DELETE' });
-      if (res.ok) {
-        toast.success('Education record deleted!');
-        fetchEducations();
-      } else {
-        toast.error('Failed to delete education record');
-      }
-    } catch {
-      toast.error('Something went wrong');
+      await apiRequest(`/api/education/${id}`, { method: 'DELETE' });
+      toast.success('Education record deleted');
+      fetchEducations();
+    } catch (err) {
+      toast.error(errorMessage(err, 'Failed to delete education record'));
     }
   };
 
@@ -240,6 +209,8 @@ export default function AdminResumePage() {
           </div>
         </div>
       </div>
+
+      {loadError && <LoadError message={loadError} onRetry={() => window.location.reload()} />}
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Document Settings */}
@@ -525,11 +496,13 @@ export default function AdminResumePage() {
         )}
 
         {/* Education items list */}
+        {eduError && <LoadError message={eduError} onRetry={fetchEducations} />}
+
         {eduLoading ? (
           <div className="text-center py-6 text-xs text-muted-foreground">Loading education history...</div>
-        ) : educations.length === 0 ? (
+        ) : eduError && educations.length === 0 ? null : educations.length === 0 ? (
           <div className="text-center py-8 text-xs text-muted-foreground bg-muted/20 border border-dashed border-border rounded-2xl">
-            No education history records found. Click "Add School" to create one.
+            No education records in the database. Use Add School to create one.
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-3.5">

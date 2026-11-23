@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { toast } from 'sonner';
 import {
@@ -12,6 +12,8 @@ import {
   Eye,
   X,
 } from 'lucide-react';
+import { apiRequest, errorMessage, useAdminList } from '../_lib/api';
+import { LoadError } from '../_components/load-error';
 
 interface IMessage {
   _id: string;
@@ -25,50 +27,24 @@ interface IMessage {
 
 export default function AdminMessagesPage() {
   const { data: session } = useSession();
-  const [messages, setMessages] = useState<IMessage[]>([]);
-  const [loading, setLoading] = useState(true);
+  const {
+    items: messages,
+    setItems: setMessages,
+    loading,
+    error,
+    reload,
+  } = useAdminList<IMessage>('/api/messages', Boolean(session));
   const [selectedMessage, setSelectedMessage] = useState<IMessage | null>(null);
 
-  const fetchMessages = useCallback(async () => {
+  const handleMarkRead = async (id: string, read: boolean, silent = false) => {
     try {
-      const res = await fetch('/api/messages');
-      if (res.ok) {
-        const data = await res.json();
-        setMessages(data);
-      }
-    } catch (error) {
-      console.error('Failed to fetch messages:', error);
-      toast.error('Failed to fetch messages');
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (session) fetchMessages();
-  }, [session, fetchMessages]);
-
-  const handleMarkRead = async (id: string, read: boolean) => {
-    try {
-      const res = await fetch(`/api/messages/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ read }),
-      });
-
-      if (res.ok) {
-        setMessages((prev) =>
-          prev.map((msg) => (msg._id === id ? { ...msg, read } : msg))
-        );
-        if (selectedMessage?._id === id) {
-          setSelectedMessage((prev) => prev ? { ...prev, read } : null);
-        }
-        toast.success(read ? 'Marked as read' : 'Marked as unread');
-      } else {
-        toast.error('Failed to update message status');
-      }
-    } catch {
-      toast.error('Something went wrong');
+      await apiRequest(`/api/messages/${id}`, { method: 'PUT', body: JSON.stringify({ read }) });
+      setMessages((prev) => prev.map((msg) => (msg._id === id ? { ...msg, read } : msg)));
+      setSelectedMessage((prev) => (prev?._id === id ? { ...prev, read } : prev));
+      // Opening a message marks it read; only an explicit toggle needs a toast.
+      if (!silent) toast.success(read ? 'Marked as read' : 'Marked as unread');
+    } catch (err) {
+      toast.error(errorMessage(err, 'Failed to update message'));
     }
   };
 
@@ -76,25 +52,19 @@ export default function AdminMessagesPage() {
     if (!confirm('Are you sure you want to delete this message?')) return;
 
     try {
-      const res = await fetch(`/api/messages/${id}`, { method: 'DELETE' });
-      if (res.ok) {
-        toast.success('Message deleted!');
-        setMessages((prev) => prev.filter((msg) => msg._id !== id));
-        if (selectedMessage?._id === id) {
-          setSelectedMessage(null);
-        }
-      } else {
-        toast.error('Failed to delete message');
-      }
-    } catch {
-      toast.error('Something went wrong');
+      await apiRequest(`/api/messages/${id}`, { method: 'DELETE' });
+      toast.success('Message deleted');
+      setMessages((prev) => prev.filter((msg) => msg._id !== id));
+      setSelectedMessage((prev) => (prev?._id === id ? null : prev));
+    } catch (err) {
+      toast.error(errorMessage(err, 'Failed to delete message'));
     }
   };
 
   const handleView = (msg: IMessage) => {
     setSelectedMessage(msg);
     if (!msg.read) {
-      handleMarkRead(msg._id, true);
+      handleMarkRead(msg._id, true, true);
     }
   };
 
@@ -113,6 +83,8 @@ export default function AdminMessagesPage() {
       </div>
 
       {/* Main Grid */}
+      {error && <LoadError message={error} onRetry={reload} />}
+
       {loading ? (
         <div className="space-y-4">
           {[...Array(3)].map((_, i) => (
@@ -122,7 +94,7 @@ export default function AdminMessagesPage() {
             />
           ))}
         </div>
-      ) : messages.length === 0 ? (
+      ) : error && messages.length === 0 ? null : messages.length === 0 ? (
         <div className="anime-card rounded-2xl p-12 text-center">
           <MessageSquare className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
           <p className="text-muted-foreground">Your inbox is empty. No messages yet!</p>

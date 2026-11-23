@@ -46,11 +46,6 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
     }
   }, [status, router, pathname]);
 
-  // Close sidebar on route change (mobile)
-  useEffect(() => {
-    setSidebarOpen(false);
-  }, [pathname]);
-
   if (pathname === '/admin/login') {
     return <>{children}</>;
   }
@@ -106,6 +101,7 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
           </Link>
           <button
             onClick={() => setSidebarOpen(false)}
+            aria-label="Close menu"
             className="lg:hidden text-muted-foreground hover:text-foreground transition cursor-pointer"
           >
             <X className="w-5 h-5" />
@@ -121,6 +117,7 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
               <Link
                 key={link.href}
                 href={link.href}
+                onClick={() => setSidebarOpen(false)}
                 className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 cursor-pointer group ${
                   active
                     ? 'bg-primary/10 text-primary'
@@ -157,6 +154,7 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
             <div className="flex items-center gap-4">
               <button
                 onClick={() => setSidebarOpen(true)}
+                aria-label="Open menu"
                 className="lg:hidden text-muted-foreground hover:text-foreground transition cursor-pointer"
               >
                 <Menu className="w-5 h-5" />

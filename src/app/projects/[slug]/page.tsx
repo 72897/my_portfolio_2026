@@ -8,7 +8,7 @@ import { absoluteUrl, jsonLdScript, pageMetadata } from "@/lib/seo";
 import type { IProject } from "@/types";
 import { ProjectDetailView } from "./project-detail-view";
 
-// Render on the server so crawlers get the case study, then refresh hourly.
+// Render on the server so crawlers get the project page, then refresh hourly.
 export const revalidate = 3600;
 
 type PageProps = { params: Promise<{ slug: string }> };
@@ -16,7 +16,9 @@ type PageProps = { params: Promise<{ slug: string }> };
 const getProject = cache(async (slug: string): Promise<IProject | null> => {
   try {
     await dbConnect();
-    const project = await Project.findOne({ slug }).lean();
+    const project = await Project.findOne({ slug })
+      .select("-metrics -challenges -solutions -architectureSteps")
+      .lean();
     // Round-trip through JSON so ObjectIds and Dates become plain props.
     if (project) return JSON.parse(JSON.stringify(project)) as IProject;
   } catch (error) {
@@ -54,6 +56,7 @@ export default async function ProjectDetailPage({ params }: PageProps) {
   if (!project) notFound();
 
   const url = absoluteUrl(`/projects/${project.slug}`);
+  const externalLinks = [project.liveUrl, project.githubUrl].filter(Boolean);
   const projectJsonLd = jsonLdScript({
     "@type": "SoftwareApplication",
     "@id": `${url}#project`,
@@ -64,7 +67,7 @@ export default async function ProjectDetailPage({ params }: PageProps) {
     operatingSystem: "Web",
     keywords: project.techStack?.join(", "),
     ...(project.image ? { image: absoluteUrl(project.image) } : {}),
-    ...(project.liveUrl ? { sameAs: [project.liveUrl, project.githubUrl].filter(Boolean) } : {}),
+    ...(externalLinks.length > 0 ? { sameAs: externalLinks } : {}),
     author: { "@id": `${siteConfig.url}/#person`, "@type": "Person", name: siteConfig.name, url: siteConfig.url },
   });
 

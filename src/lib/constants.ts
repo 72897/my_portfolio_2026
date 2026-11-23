@@ -1,19 +1,32 @@
-import type { IProject, ICertificate, IExperience } from "@/types";
+import type {
+  GitHubStats,
+  ICertificate,
+  IEducation,
+  IExperience,
+  ILanguage,
+  IProject,
+  LeetCodeStats,
+} from "@/types";
+
+/*
+ * Site content. This file is the source of truth: pages fall back to it when
+ * MongoDB is unreachable, and scripts/seed.ts writes it into the database.
+ */
 
 export const siteConfig = {
   name: "Kunal Singh",
-  title: "AI Engineer | Full Stack Developer",
+  title: "Software Engineer: AI automation and full-stack web",
   description:
-    "AI Engineer and Full Stack Developer specializing in Generative AI, LLM integration, and scalable web applications. B.Tech CSE Graduate from Gautam Buddha University with hands-on experience in Python, React.js, Node.js, and modern AI/ML frameworks.",
+    "Software engineer at Technocratiq Digital, where I build the company's internal operations platform and the automations that run on it. I work across Python and TypeScript: REST integrations, scheduled jobs, LLM features and the dashboards people use every day. B.Tech in Computer Science, Gautam Buddha University (2026).",
   url: "https://www.kunaltechie.me",
   email: "kunalsingh203001@gmail.com",
-  phone: "9456473642",
+  phone: "+91 9456473642",
   location: "Greater Noida, Uttar Pradesh, India",
   links: {
     github: "https://github.com/72897",
     linkedin: "https://www.linkedin.com/in/kunal-singh-454368289/",
     leetcode: "https://leetcode.com/u/kunal26_7/",
-    resume: "https://drive.google.com/file/d/1t7Ws-Be5RBMl-QMIKngor6LCMr2gpBQ-/view?usp=sharing",
+    resume: "/resume/Resume_Kunal_Singh.pdf",
   },
   githubUsername: "72897",
   leetcodeUsername: "kunal26_7",
@@ -34,10 +47,12 @@ export const navLinks = [
 
 export const skillCategories = [
   {
-    category: "Programming Languages",
+    category: "Languages",
     skills: [
-      { name: "C++", icon: "code-2" },
       { name: "Python", icon: "terminal" },
+      { name: "TypeScript", icon: "file-type" },
+      { name: "JavaScript", icon: "file-code" },
+      { name: "C++", icon: "code-2" },
       { name: "SQL", icon: "database" },
     ],
   },
@@ -46,10 +61,9 @@ export const skillCategories = [
     skills: [
       { name: "React.js", icon: "atom" },
       { name: "Next.js", icon: "layout" },
+      { name: "Tailwind CSS", icon: "wind" },
       { name: "HTML", icon: "file-code" },
       { name: "CSS", icon: "palette" },
-      { name: "Tailwind CSS", icon: "wind" },
-      { name: "TypeScript", icon: "file-type" },
     ],
   },
   {
@@ -57,11 +71,11 @@ export const skillCategories = [
     skills: [
       { name: "Node.js", icon: "server" },
       { name: "Express.js", icon: "route" },
-      { name: "REST API Design", icon: "network" },
+      { name: "REST API design", icon: "network" },
     ],
   },
   {
-    category: "Database & Cloud",
+    category: "Data",
     skills: [
       { name: "MongoDB", icon: "database" },
       { name: "SQL", icon: "table" },
@@ -70,46 +84,47 @@ export const skillCategories = [
     ],
   },
   {
-    category: "AI/ML & Frameworks",
+    category: "AI/ML",
     skills: [
+      { name: "LangChain", icon: "link" },
+      { name: "Hugging Face Transformers", icon: "smile" },
       { name: "TensorFlow", icon: "brain" },
       { name: "PyTorch", icon: "cpu" },
-      { name: "LangChain", icon: "link" },
-      { name: "Hugging Face", icon: "smile" },
-      { name: "Large Language Models (LLMs)", icon: "bot" },
-      { name: "Generative AI", icon: "zap" },
       { name: "NumPy", icon: "calculator" },
       { name: "Pandas", icon: "bar-chart-3" },
       { name: "Streamlit", icon: "monitor" },
-    ],
-  },
-  {
-    category: "AI/ML Techniques",
-    skills: [
-      { name: "Prompt Engineering", icon: "terminal" },
-      { name: "Retrieval Augmented Generation (RAG)", icon: "search" },
-      { name: "Vector Search & Embeddings", icon: "scatter-chart" },
+      { name: "RAG", icon: "search" },
+      { name: "Vector embeddings", icon: "scatter-chart" },
+      { name: "Prompt engineering", icon: "terminal" },
       { name: "Fine-tuning", icon: "settings" },
       { name: "NLP", icon: "message-square" },
-      { name: "Neural Networks", icon: "git-branch" },
-      { name: "Workflow Automation", icon: "workflow" },
     ],
   },
   {
-    category: "Tools & Platforms",
+    category: "Automation and integrations",
+    skills: [
+      { name: "n8n", icon: "workflow" },
+      { name: "Dify", icon: "bot" },
+      { name: "MCP servers", icon: "server" },
+      { name: "Workflow automation", icon: "workflow" },
+      { name: "GA4 and Search Console APIs", icon: "bar-chart-3" },
+    ],
+  },
+  {
+    category: "Tools",
     skills: [
       { name: "Git", icon: "git-merge" },
       { name: "GitHub", icon: "github" },
       { name: "Postman", icon: "send" },
       { name: "Google Sheets", icon: "sheet" },
-      { name: "Codex", icon: "code-2" },
+      { name: "Vercel", icon: "zap" },
     ],
   },
 ];
 
 export const experiences: IExperience[] = [
   {
-    company: "Technocratiq Digital Pvt. Ltd.",
+    company: "Technocratiq Digital Pvt. Ltd. (TIQ)",
     role: "Software Engineer",
     type: "Full-time",
     location: "Delhi",
@@ -117,11 +132,26 @@ export const experiences: IExperience[] = [
     endDate: "Present",
     current: true,
     bullets: [
-      "Orchestrated 47+ automation workflows across marketing, CRM, analytics, lead generation, and internal operations, improving efficiency and reducing manual effort.",
-      "Architected scalable systems for task tracking, reporting, notifications, and workflow execution, supporting reliable cross-functional operations.",
-      "Connected multiple business platforms through REST APIs and AI-driven automation pipelines, enabling seamless data exchange and process automation.",
+      "Build and maintain TIQ, the agency's internal operations platform: one dashboard for clients and projects, analytics, SEO, leads, sales, HR and task automation, with per-page role-based access.",
+      "Shipped 47+ automations across marketing, CRM, analytics, lead generation and internal operations, running as Python jobs, n8n and Dify workflows and an event outbox, each with run history and failure logs.",
+      "Integrated Google Analytics 4, Google Search Console, SE Ranking, Publer, Flowlu (tasks and CRM) and Zoho Cliq through their REST APIs, with scheduled sync jobs and job locking to keep reporting data current.",
+      "Built scheduled reporting on top of Flowlu tasks: morning and evening digests, a weekly workload report, reminders and sales pipeline snapshots delivered to the team.",
+      "Built lead-generation tools: Google Maps and LinkedIn lead finders with batch jobs, enrichment, an approval step before each run and consent tracking, plus influencer discovery for social campaigns.",
+      "Exposed the platform to AI assistants through an MCP server, so staff can query analytics and manage tasks in plain language; every write goes through a preview and an explicit approval, under the user's own permissions.",
+      "Built the HR module: employee records, onboarding and offboarding checklists, access requests with approvals and an audit log.",
     ],
-    technologies: ["Python", "Node.js", "REST APIs", "Workflow Automation", "AI Integration"],
+    technologies: [
+      "Python",
+      "TypeScript",
+      "Node.js",
+      "Next.js",
+      "REST APIs",
+      "n8n",
+      "Dify",
+      "MCP",
+      "GA4 API",
+      "Search Console API",
+    ],
   },
   {
     company: "Manipal Business Solution",
@@ -132,12 +162,12 @@ export const experiences: IExperience[] = [
     endDate: "Jun 2026",
     current: false,
     bullets: [
-      "Automated business workflows with Python, APIs, and Google Sheets, cutting manual reporting effort by 90%.",
-      "Analyzed operational datasets and developed KPI reports to generate insights for leadership and process optimization.",
-      "Refined conversational AI workflows through prompt optimization, intent validation, and response evaluation, increasing answer accuracy by 25%.",
-      "Trained task-specific models on labeled datasets, error diagnostics, and performance benchmarking to strengthen output quality.",
+      "Automated business workflows with Python, APIs and Google Sheets, cutting manual reporting effort by 90%.",
+      "Analysed operational datasets and built KPI reports for leadership.",
+      "Improved conversational AI flows through prompt changes, intent validation and response evaluation, raising answer accuracy by 25%.",
+      "Trained task-specific models on labelled datasets and benchmarked them to find and fix error patterns.",
     ],
-    technologies: ["Python", "APIs", "Google Sheets", "AI/ML", "Prompt Engineering"],
+    technologies: ["Python", "REST APIs", "Google Sheets", "Prompt Engineering"],
   },
   {
     company: "Thales Group",
@@ -148,12 +178,12 @@ export const experiences: IExperience[] = [
     endDate: "Jul 2025",
     current: false,
     bullets: [
-      "Designed and deployed a Generative AI platform with Google Gemini and OpenAI APIs, embedding LLM capabilities into enterprise NLP pipelines.",
-      "Formulated prompt templates and tuned inference processes to increase LLM output relevance by 30%.",
-      "Produced a demo-ready capstone with technical documentation and cross-functional feedback integration.",
-      "Conducted data analysis and model fine-tuning with Python and TensorFlow, reducing processing latency by 25%.",
+      "Built and deployed a generative AI platform on Google Gemini and OpenAI APIs, adding LLM features to enterprise NLP pipelines.",
+      "Wrote prompt templates and tuned inference settings, improving output relevance by 30%.",
+      "Fine-tuned models and analysed data with Python and TensorFlow, reducing processing latency by 25%.",
+      "Delivered a demo-ready capstone with technical documentation.",
     ],
-    technologies: ["Python", "TensorFlow", "Google Gemini", "OpenAI", "NLP", "LLM"],
+    technologies: ["Python", "TensorFlow", "Google Gemini", "OpenAI API", "NLP"],
   },
   {
     company: "MI Matdar",
@@ -164,10 +194,10 @@ export const experiences: IExperience[] = [
     endDate: "Apr 2025",
     current: false,
     bullets: [
-      "Constructed a responsive frontend using React.js and Tailwind CSS, resolving UI/UX bugs and implementing lazy loading to optimize page load times.",
-      "Built scalable backend REST APIs with Node.js and Express.js, boosting response time by 40%.",
-      "Collaborated in an Agile 7-member team to deploy builds with Vercel and Netlify, maintaining 95% test coverage.",
-      "Integrated MongoDB database with schema design and query optimization, handling user records while improving data retrieval efficiency by 35%.",
+      "Built a responsive frontend in React.js and Tailwind CSS, fixed UI bugs and added lazy loading to cut page load times.",
+      "Built REST APIs with Node.js and Express.js, improving response time by 40%.",
+      "Designed MongoDB schemas and optimised queries, improving data retrieval by 35%.",
+      "Worked in a 7-person Agile team, deploying to Vercel and Netlify with 95% test coverage.",
     ],
     technologies: ["React.js", "Tailwind CSS", "Node.js", "Express.js", "MongoDB", "Vercel"],
   },
@@ -175,235 +205,209 @@ export const experiences: IExperience[] = [
 
 export const projects: IProject[] = [
   {
+    title: "TIQ Platform",
+    slug: "tiq-platform",
+    description: "Internal operations platform for a digital marketing agency.",
+    longDescription:
+      "The internal operations platform of a digital marketing agency. It puts client records, analytics, SEO tracking, tasks, sales, leads, social scheduling and HR behind one dashboard, and includes an MCP server that exposes the platform to AI assistants with per-user permissions.",
+    techStack: ["Next.js", "TypeScript", "Node.js", "Python", "n8n", "Dify", "MCP", "REST APIs"],
+    features: [
+      "Client Hub: client profiles, connected accounts, onboarding and saved analyses",
+      "Analytics: GA4 and Search Console reporting with scheduled AI-written reports",
+      "SE Ranking keyword tracking",
+      "Flowlu tasks and scheduled reports",
+      "Sales pipeline",
+      "Leads, with Google Maps and LinkedIn finders",
+      "Publer social scheduling",
+      "Trend Intelligence and Influencer Discovery",
+      "Employees/HR module",
+      "Automations catalog",
+      "MCP server that exposes the platform to AI assistants with per-user permissions",
+    ],
+    category: "FullStack",
+    featured: true,
+    role: "Software Engineer",
+    year: "2026",
+    status: "Internal",
+  },
+  {
     title: "StudyMate",
     slug: "studymate",
-    description: "GenAI Powered Study Assistant with RAG, semantic search, and contextual PDF summarization.",
-    longDescription: "A document intelligence application that leverages Retrieval Augmented Generation (RAG), semantic search, embeddings, and ChromaDB for contextual PDF summarization and question answering. Tuned retrieval pipelines with LLM and Hugging Face models enable 40% faster document review and 70% reduced review effort.",
+    description: "GenAI study assistant that summarises PDFs and answers questions about them.",
+    longDescription:
+      "A study assistant for PDF summarisation and question answering. It uses retrieval-augmented generation: documents are embedded, stored in ChromaDB and retrieved by semantic search before the LLM answers. It made document review 40% faster and cut review effort by 70%.",
     techStack: ["Python", "LangChain", "Groq", "Gradio", "ChromaDB", "Hugging Face"],
     features: [
-      "Document intelligence with RAG and semantic search",
-      "Embeddings and ChromaDB for contextual PDF Q&A",
-      "40% faster document review with tuned retrieval pipelines",
-      "70% reduced document review effort",
+      "PDF summarisation and Q&A with RAG",
+      "Embeddings and ChromaDB semantic search",
+      "40% faster document review",
+      "70% less review effort",
     ],
     githubUrl: "https://github.com/72897/study-mate",
-    liveUrl: "https://study-mate-ai.vercel.app",
     category: "AI",
     featured: true,
     image: "/studymate_dashboard.png",
-    metrics: {
-      latency: "140ms",
-      costReduction: "70%",
-      accuracy: "94.2%",
-      throughput: "50 docs/min",
-      guardrails: "LlamaGuard v2",
-      tokensProcessed: "4.2M/mo"
-    },
-    challenges: "Processing dense, multi-format PDFs introduced noise, high LLM token costs, and slow response times due to unoptimized chunking strategies.",
-    solutions: "Built a custom chunking pipeline using LangChain's recursive character text splitter. Cached semantic embeddings in ChromaDB to reduce LLM API roundtrips, and added a context routing mechanism to choose the best retriever.",
-    architectureSteps: [
-      { title: "PDF Ingestion", description: "Parser extracts raw text and elements from document upload." },
-      { title: "Semantic Chunking", description: "Recursively chunks document text with dynamic overlap size." },
-      { title: "Embedding Generation", description: "Hugging Face embeddings map text chunks into vector coordinates." },
-      { title: "ChromaDB Storage", description: "Saves high-dimensional vectors for fast semantic query retrieval." },
-      { title: "RAG Context Retrieval", description: "Filters relevant context chunks using cosine similarity." },
-      { title: "LLM Orchestration & Guardrails", description: "Injects context and query into Groq/Gemini, validated via LlamaGuard." }
-    ]
+    year: "2025",
   },
   {
     title: "AlphaCare",
     slug: "alphacare",
-    description: "AI-Powered Healthcare Chatbot with real-time symptom screening and voice interaction.",
-    longDescription: "A real-time healthcare assistant powered by Google Gemini, Vapi API, Firebase, and TypeScript for symptom screening and voice interaction. Features a voice-first interface and personalized feedback system.",
-    techStack: ["Next.js", "React.js", "Node.js", "Firebase", "Tailwind CSS", "Vapi API", "Google Gemini", "TypeScript"],
-    features: [
-      "Real-time healthcare assistant powered by Gemini",
-      "Voice-first interface using Vapi API",
-      "Personalized feedback system",
-      "45% better voice-based interaction flow",
+    description: "AI healthcare assistant with real-time symptom screening and a voice-first interface.",
+    longDescription:
+      "A healthcare assistant that screens symptoms in real time through a voice-first interface and gives personalised feedback. I led the backend and the AI integration with Google Gemini and the Vapi API. The voice interaction flow improved by 45% and engagement rose by 35%.",
+    techStack: [
+      "Next.js",
+      "React.js",
+      "Node.js",
+      "Firebase",
+      "Tailwind CSS",
+      "Vapi API",
+      "Google Gemini",
+      "TypeScript",
     ],
-    githubUrl: "https://github.com/72897/alphacare",
-    liveUrl: "https://alphacare-ai.vercel.app",
+    features: [
+      "Real-time symptom screening",
+      "Voice-first interface built on the Vapi API",
+      "Personalised feedback",
+      "Voice interaction flow improved by 45%",
+      "Engagement up 35%",
+    ],
+    githubUrl: "https://github.com/72897/alpha-care",
+    liveUrl: "https://alpha-care.vercel.app",
     category: "AI",
     featured: true,
     image: "/alphacare_dashboard.png",
-    metrics: {
-      latency: "280ms (Voice RT)",
-      accuracy: "96.5% Screening",
-      costReduction: "35% Support Cost",
-      throughput: "120 active calls/min",
-      guardrails: "NeMo Guardrails & Custom Regex",
-      tokensProcessed: "12M/mo"
-    },
-    challenges: "Voice-based screening suffered from high audio latency, transcription errors for complex medical terms, and state synchronization across Gemini and Vapi APIs.",
-    solutions: "Optimized speech-to-text configurations, integrated Vapi API for sub-second streaming audio loopback, built a structured fallback state machine in Node.js, and implemented a custom LLM symptom validation layer.",
-    architectureSteps: [
-      { title: "Voice Input (WebRTC/SIP)", description: "Captures user speech audio streaming through browser client." },
-      { title: "Speech-To-Text (Vapi API)", description: "Performs low-latency acoustic transcription to text input." },
-      { title: "Gemini Orchestrator", description: "Processes user dialogue, performs clinical intent matching and screening." },
-      { title: "Firebase State Store", description: "Updates patient session, symptoms log, and screening progress." },
-      { title: "Text-To-Speech Output", description: "Synthesizes low-latency natural human-sounding voice response." }
-    ]
+    role: "Backend and AI integration lead",
+    year: "2025",
+    status: "Live",
   },
   {
-    title: "Notion - Course Selling Application",
+    title: "StudyNotion",
     slug: "notion-course-selling",
-    description: "Course Selling Application with role-based dashboards, admin tools, and JWT authentication.",
-    longDescription: "A secure course-selling platform with role-based dashboards and admin tools. Supports 50+ instructors to monetize learning content and reach students in underserved areas.",
+    description: "Course-selling platform with role-based dashboards, admin tools and JWT auth.",
+    longDescription:
+      "A course-selling platform with role-based dashboards, admin tools and JWT authentication that supports 50+ instructors. I built 70% of the core backend APIs and frontend modules, brought API response time down by 20% and reached a 98% test-case success rate across the auth flows.",
     techStack: ["React.js", "Node.js", "MongoDB", "Express.js", "Tailwind CSS"],
     features: [
-      "Secure course-selling platform with role-based access",
-      "50+ instructors supported",
-      "JWT-authenticated sessions with 98% test success",
-      "20% faster API response time",
+      "Role-based dashboards and admin tools",
+      "JWT authentication",
+      "50+ instructors",
+      "API response time down 20%",
+      "98% test-case success across auth flows",
     ],
     githubUrl: "https://github.com/72897/Studynotion_course",
-    liveUrl: "https://studynotion-edtech.vercel.app",
+    liveUrl: "https://studynotion-course.vercel.app",
     category: "FullStack",
     featured: true,
     image: "/studynotion_preview.png",
-    metrics: {
-      latency: "65ms (API)",
-      accuracy: "98.2% JWT Auth Flow",
-      costReduction: "40% Server Cost",
-      throughput: "1,200 req/sec",
-      guardrails: "Express Rate Limit & CORS Control",
-      tokensProcessed: "N/A"
-    },
-    challenges: "Securing role-based course monetization while maintaining fast loading of media assets. Slow API routes due to deep MongoDB population queries.",
-    solutions: "Created strict JSON Web Token (JWT) auth middleware, optimized MongoDB aggregate pipelines with indexed search, and integrated lazy loading/assets compression to maximize rendering speeds.",
-    architectureSteps: [
-      { title: "Client Application", description: "React.js client captures student requests and handles global state." },
-      { title: "Express.js Router", description: "Routes incoming API calls, validated by JWT security middleware." },
-      { title: "Aggregate Controller", description: "Fetches optimized courses data using MongoDB aggregate lookup pipelines." },
-      { title: "MongoDB Database", description: "Persists transactional profiles, enrollment records, and course info." }
-    ]
-  },
-  {
-    title: "Travel Planner",
-    slug: "travel-planner",
-    description: "Smart travel planning application for organizing trips and itineraries.",
-    longDescription: "Smart travel planning application for organizing trips and itineraries with interactive user interfaces and full-stack MERN capabilities.",
-    techStack: ["React.js", "Node.js", "MongoDB", "Express.js"],
-    features: [
-      "Intelligent trip planning and itinerary management",
-      "Interactive UI with modern design",
-      "Full-stack MERN application",
-    ],
-    githubUrl: "https://github.com/72897/travel-planner",
-    liveUrl: "https://travel-planner-mern.vercel.app",
-    category: "FullStack",
-    featured: false,
-    metrics: {
-      latency: "110ms (Map/API)",
-      accuracy: "92% Recommendation",
-      costReduction: "N/A",
-      throughput: "350 plans/hr",
-      guardrails: "Sanitize HTML & Query Limits",
-      tokensProcessed: "N/A"
-    },
-    challenges: "Consolidating dynamic routes, weather data, and location markers into an unified itinerary structure without rate-limiting frontend performance.",
-    solutions: "Utilized a MERN routing layout, implemented backend caching of external API responses to avoid rate limits, and created dynamic state managers for map display update hooks.",
-    architectureSteps: [
-      { title: "Itinerary Builder UI", description: "Accepts travel constraints, duration, and preferences." },
-      { title: "API Gateway Cache", description: "Retrieves external travel guides, weather forecasts, cached in memory." },
-      { title: "MERN Engine Controller", description: "Generates optimal travel day timelines and maps geolocation coordinates." },
-    ]
-  },
-  {
-    title: "Buddhimaan",
-    slug: "buddhimaan",
-    description: "AI-Powered Content Creation Platform with advanced article layout and image synthesis.",
-    longDescription: "A premium AI content generation suite enabling users to write articles, generate high-fidelity images, and optimize editorial workflows. Leverages advanced LLMs and text-to-image models.",
-    techStack: ["Next.js", "React.js", "Node.js", "MongoDB", "Express.js", "OpenAI API", "Tailwind CSS", "TypeScript"],
-    features: [
-      "AI-powered content generation suite",
-      "Write articles, generate high-fidelity images",
-      "Optimize editorial workflows",
-      "Advanced LLMs and text-to-image models orchestration"
-    ],
-    githubUrl: "https://github.com/72897/buddhimaan",
-    liveUrl: "https://buddhimaan.vercel.app",
-    category: "AI",
-    featured: true,
-    image: "/buddhimaan_preview.png",
-    metrics: {
-      latency: "180ms",
-      accuracy: "95% Relevance",
-      costReduction: "50% Time",
-      throughput: "200 generations/min",
-      guardrails: "Content Moderation Filters",
-      tokensProcessed: "8M/mo"
-    },
-    challenges: "Generating structured articles and realistic images simultaneously required orchestrating multiple API latency streams and rate-limiting limits.",
-    solutions: "Built an asynchronous queue manager in Node.js, optimized prompt chaining to reduce model hallucination, and designed a responsive bento-grid UI for dynamic asset layout.",
-    architectureSteps: [
-      { title: "Prompt Input & Routing", description: "Routing queries to text-generation or image-generation nodes." },
-      { title: "LLM Article Writer", description: "Orchestrating OpenAI GPT-4o for structured blog templates." },
-      { title: "Image Gen Engine", description: "Calling Stable Diffusion/DALL-E for context-matching images." },
-      { title: "MongoDB Storage", description: "Saving generated articles and media assets metadata." }
-    ]
+    year: "2025",
+    status: "Live",
   },
   {
     title: "Duli Interiors",
     slug: "duliinteriors",
-    description: "Interior design and project-management platform bringing concepts, 2D plans, and estimates into one workspace.",
-    longDescription: "An end-to-end interior design and project-management platform bringing the entire journey - from AI concept moodboards to 2D floor plans, area-based quotes, and print-ready proposals - into a single collaborative workspace.",
-    techStack: ["Next.js", "Python", "Google Gemini", "TypeScript", "Node.js", "Tailwind CSS", "Three.js"],
+    description: "Interior design and project management platform.",
+    longDescription:
+      "An interior design and project management platform. Clients explore AI concept moodboards, sketch rooms on a 2D floor planner with live area calculation, get area-based estimates and print-ready proposals, and book consultations.",
+    techStack: [
+      "Next.js",
+      "Python",
+      "Google Gemini",
+      "TypeScript",
+      "Node.js",
+      "Tailwind CSS",
+      "Three.js",
+    ],
     features: [
-      "Explore AI-assisted room concepts and browse a curated product catalog",
-      "Sketch rooms on a 2D floor planner with live carpet area calculation",
-      "Build itemized, area-based estimates seeded directly from drawn rooms",
-      "Receive a branded, print-ready proposal with product schedule and quote",
-      "Book consultations and track project status in a single workspace"
+      "AI concept moodboards",
+      "2D floor planner with live area calculation",
+      "Area-based estimates",
+      "Print-ready proposals",
+      "Consultation booking",
     ],
     githubUrl: "https://github.com/72897/duli-interiors",
-    liveUrl: "https://duli-interiors.vercel.app/",
+    liveUrl: "https://duli-interiors.vercel.app",
     category: "FullStack",
     featured: true,
-    image: "/duli_preview.png",
-    metrics: {
-      latency: "120ms (Planner)",
-      accuracy: "99% Area Calc",
-      costReduction: "45% Estimation Time",
-      throughput: "500 designs/mo",
-      guardrails: "Strict Geometry Sanitization",
-      tokensProcessed: "2.5M/mo"
-    },
-    challenges: "Synchronizing real-time 2D floor geometry drawing coordinates with dynamic price estimation models and Gemini room styling suggestions without UI lag.",
-    solutions: "Implemented optimized canvas vector geometry calculations, cached catalog pricing structures in client-side state, and streamed AI room descriptions with Next.js edge functions.",
-    architectureSteps: [
-      { title: "2D Planner Canvas", description: "Interactive vector coordinate floor planner with automatic square footage calculation." },
-      { title: "Gemini Concept AI", description: "Generates theme palettes and room moodboards based on client preferences." },
-      { title: "Estimation Aggregator", description: "Computes line-item costing based on area measurements and product catalog." },
-      { title: "Proposal Pipeline", description: "Renders branded exportable client proposals and consultation booking." }
-    ]
-  }
+    year: "2026",
+    status: "Live",
+  },
+  {
+    title: "Buddhimaan",
+    slug: "buddhimaan",
+    description: "AI content creation platform for article writing and image generation.",
+    longDescription:
+      "An AI content creation platform for writing articles and generating images. Built with Next.js, Node.js, Express.js, MongoDB and the OpenAI API.",
+    techStack: [
+      "Next.js",
+      "React.js",
+      "Node.js",
+      "MongoDB",
+      "Express.js",
+      "OpenAI API",
+      "Tailwind CSS",
+      "TypeScript",
+    ],
+    features: ["Article writing", "Image generation"],
+    githubUrl: "https://github.com/72897/Bhuddhimaan",
+    liveUrl: "https://bhuddhimaan-tpfp.vercel.app",
+    category: "AI",
+    featured: true,
+    image: "/buddhimaan_preview.png",
+    year: "2025",
+    status: "Live",
+  },
+  {
+    title: "BillFlow",
+    slug: "billflow",
+    description:
+      "Invoicing app: build an invoice, send a link the client can pay without signing in, and track what is paid, outstanding and overdue.",
+    longDescription:
+      "An invoicing app that covers the full cycle from drafting an invoice to getting paid. Clients open a shareable link and pay without creating an account, and the dashboard shows earnings, outstanding amounts and overdue invoices.",
+    techStack: ["Next.js", "Node.js", "PostgreSQL", "Gemini API", "Groq API"],
+    features: [
+      "Automated invoice numbering and server-side calculations",
+      "Shareable invoices with payment and overdue tracking",
+      "PDF generation and email reminders",
+      "Dashboard analytics",
+      "AI-assisted invoice composer",
+    ],
+    githubUrl: "https://github.com/72897/billflow-assessment",
+    liveUrl: "https://billflow-assessment.vercel.app/",
+    category: "Automation",
+    featured: false,
+    year: "2026",
+    status: "Live",
+  },
+  {
+    title: "Travel Planner",
+    slug: "travel-planner",
+    description: "Chatbot that generates personalised travel itineraries.",
+    longDescription:
+      "A chatbot that generates personalised travel itineraries, built with Python, LangChain and Groq behind a Gradio interface.",
+    techStack: ["Python", "LangChain", "Groq", "Gradio"],
+    features: ["Personalised itinerary generation", "Chat interface"],
+    githubUrl: "https://github.com/72897/travel-planner",
+    category: "AI",
+    featured: false,
+    year: "2025",
+  },
 ];
 
 export const certificates: ICertificate[] = [
-  { title: "Google Cloud GenAI", organization: "Google Cloud", issueDate: "2024" },
-  { title: "Advanced Software Engineering", organization: "Walmart USA - Forage", issueDate: "2024" },
-  { title: "Deloitte Australia Technology", organization: "Deloitte - Forage", issueDate: "2024" },
-  { title: "AWS Cloud Practitioner Essentials", organization: "Amazon Web Services", issueDate: "2024" },
-  { title: "Generative AI", organization: "HP Life", issueDate: "2024" },
-  { title: "API Certification", organization: "Postman", issueDate: "2024" },
+  { title: "Google Cloud GenAI", organization: "Google Cloud" },
+  { title: "Advanced Software Engineering", organization: "Walmart USA (Forage)" },
+  { title: "Technology Job Simulation", organization: "Deloitte Australia (Forage)" },
+  { title: "AWS Cloud Practitioner Essentials", organization: "AWS" },
+  { title: "Generative AI", organization: "HP LIFE" },
+  { title: "Postman API certification", organization: "Postman" },
 ];
-
-export interface IEducation {
-  institution: string;
-  degree: string;
-  location?: string;
-  period: string;
-  grade?: string;
-  coursework?: string[];
-}
 
 export const education: IEducation[] = [
   {
     institution: "Gautam Buddha University",
-    degree: "Bachelor of Technology in Computer Science",
-    location: "Greater Noida, Uttar Pradesh, India",
+    degree: "B.Tech, Computer Science",
+    location: "Greater Noida",
     period: "Aug 2022 - Jun 2026",
     coursework: [
       "Data Structures & Algorithms",
@@ -416,41 +420,50 @@ export const education: IEducation[] = [
   },
   {
     institution: "St. Aerjay Public School",
-    degree: "12th, Science",
-    period: "Mar 2020 - Jun 2022",
+    degree: "Class 12 (Science)",
+    period: "2022",
     grade: "87%",
   },
   {
     institution: "Nirmala Convent School",
-    degree: "10th",
-    period: "Mar 2008 - Mar 2020",
+    degree: "Class 10",
+    period: "2020",
     grade: "85%",
   },
 ];
 
-// Fallback GitHub data
-export const fallbackGitHub = {
-  username: "72897",
-  name: "Kunal Singh",
-  bio: "AI Engineer | Full Stack Developer",
-  publicRepos: 15,
-  followers: 10,
-  following: 5,
-  topRepos: [
-    { name: "study-mate", description: "GenAI Powered Study Assistant", language: "Python", stars: 2 },
-    { name: "travel-planner", description: "Smart Travel Planner", language: "JavaScript", stars: 1 },
-    { name: "Studynotion_course", description: "Course Selling Platform", language: "JavaScript", stars: 3 },
-  ],
-  languages: { Python: 35, JavaScript: 30, TypeScript: 20, "C++": 10, HTML: 5 },
+export const languages: ILanguage[] = [
+  { name: "English", level: "Fluent" },
+  { name: "Hindi", level: "Native" },
+];
+
+export const achievements: string[] = [
+  "Led a team to the finals in 3+ hackathons",
+  "Solved 150+ problems on LeetCode and GeeksforGeeks",
+  "Volunteered at MotoGP Bharat 2023 (event and logistics coordination)",
+];
+
+/*
+ * Returned by /api/github and /api/leetcode when the upstream API fails.
+ * They carry no numbers on purpose: an empty state is better than a made-up one.
+ */
+export const fallbackGitHub: GitHubStats = {
+  username: siteConfig.githubUsername,
+  name: siteConfig.name,
+  bio: "",
+  publicRepos: 0,
+  followers: 0,
+  following: 0,
+  topRepos: [],
+  languages: {},
 };
 
-// Fallback LeetCode data
-export const fallbackLeetCode = {
-  username: "kunal26_7",
-  totalSolved: 200,
-  easySolved: 90,
-  mediumSolved: 85,
-  hardSolved: 25,
-  ranking: 250000,
-  totalQuestions: { easy: 800, medium: 1600, hard: 700 },
+export const fallbackLeetCode: LeetCodeStats = {
+  username: siteConfig.leetcodeUsername,
+  totalSolved: 0,
+  easySolved: 0,
+  mediumSolved: 0,
+  hardSolved: 0,
+  ranking: 0,
+  totalQuestions: { easy: 0, medium: 0, hard: 0 },
 };

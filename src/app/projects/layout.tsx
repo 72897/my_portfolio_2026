@@ -3,7 +3,7 @@ import { pageMetadata } from "@/lib/seo";
 export const metadata = pageMetadata({
   title: "Projects",
   description:
-    "AI and full-stack projects by Kunal Singh, including StudyMate, AlphaCare, Duli Interiors, and a course-selling platform, with live demos and source code.",
+    "Projects by Kunal Singh: the TIQ internal operations platform, StudyMate, AlphaCare, StudyNotion, Duli Interiors, Buddhimaan and Travel Planner, with stack and links.",
   path: "/projects",
 });
 

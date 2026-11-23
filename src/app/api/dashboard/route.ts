@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
 import dbConnect from '@/lib/db';
 import Project from '@/models/Project';
 import Certificate from '@/models/Certificate';
@@ -9,27 +8,24 @@ import Blog from '@/models/Blog';
 import ContactMessage from '@/models/ContactMessage';
 import JobPost from '@/models/JobPost';
 import Education from '@/models/Education';
+import { errorResponse, requireSession } from '@/app/api/_lib/http';
 
 export async function GET() {
   try {
-    const session = await auth();
-    if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
+    await requireSession();
     await dbConnect();
 
     const [
-      projectCount,
-      certificateCount,
-      experienceCount,
-      skillCount,
-      blogCount,
-      publishedBlogCount,
-      messageCount,
-      unreadMessageCount,
-      jobCount,
-      educationCount,
+      projects,
+      certificates,
+      experiences,
+      skills,
+      blogs,
+      publishedBlogs,
+      messages,
+      unreadMessages,
+      jobs,
+      education,
     ] = await Promise.all([
       Project.countDocuments(),
       Certificate.countDocuments(),
@@ -44,22 +40,18 @@ export async function GET() {
     ]);
 
     return NextResponse.json({
-      projects: projectCount,
-      certificates: certificateCount,
-      experiences: experienceCount,
-      skills: skillCount,
-      blogs: blogCount,
-      publishedBlogs: publishedBlogCount,
-      messages: messageCount,
-      unreadMessages: unreadMessageCount,
-      jobs: jobCount,
-      education: educationCount,
+      projects,
+      certificates,
+      experiences,
+      skills,
+      blogs,
+      publishedBlogs,
+      messages,
+      unreadMessages,
+      jobs,
+      education,
     });
   } catch (error) {
-    console.error('Dashboard API error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return errorResponse(error, 'Dashboard');
   }
 }

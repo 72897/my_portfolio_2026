@@ -3,7 +3,7 @@ import { pageMetadata } from "@/lib/seo";
 export const metadata = pageMetadata({
   title: "Skills",
   description:
-    "Kunal Singh's technical skills: Python, LangChain, LLM integration and RAG, React, Next.js, Node.js, MongoDB, and the cloud and tooling used to ship AI products.",
+    "The languages, frameworks and tools Kunal Singh works with: Python, TypeScript, React, Next.js, Node.js, LangChain, n8n, Dify and MCP servers.",
   path: "/skills",
 });
 

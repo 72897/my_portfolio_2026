@@ -1,148 +1,97 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
-import { motion, useScroll } from "framer-motion";
-import {
-  Briefcase,
-  MapPin,
-  Calendar,
-} from "lucide-react";
-import { experiences as fallbackExp } from "@/lib/constants";
+import { experiences as fallbackExperiences } from "@/lib/constants";
+import { PageHeader } from "@/components/shared/page-header";
+import { useRemoteList } from "@/components/shared/use-remote-list";
+import { cn } from "@/lib/utils";
 import type { IExperience } from "@/types";
 
-export default function ExperiencePage() {
-  const [exps, setExps] = useState<IExperience[]>([]);
-  const [loading, setLoading] = useState(true);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start center", "end center"],
+/** Accepts "Jul 2026" from the static data and ISO dates from the API. */
+function formatMonth(value: string | undefined) {
+  if (!value) return "";
+  if (!/^\d{4}-\d{2}/.test(value)) return value;
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return value;
+  return parsed.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    timeZone: "UTC",
   });
+}
 
-  useEffect(() => {
-    async function fetchExps() {
-      try {
-        const res = await fetch("/api/experience");
-        if (res.ok) {
-          const data = await res.json();
-          const array = Array.isArray(data) ? data : (data.experiences || data);
-          
-          // Sort by order ascending if provided
-          const sorted = [...array].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
-          setExps(sorted);
-        } else {
-          setExps(fallbackExp as IExperience[]);
-        }
-      } catch {
-        setExps(fallbackExp as IExperience[]);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchExps();
-  }, []);
+export default function ExperiencePage() {
+  const experiences = useRemoteList<IExperience>("/api/experience", fallbackExperiences);
 
   return (
     <>
-      {/* Hero */}
-      <section className="py-20 bg-card/5 grid-pattern">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center"
-          >
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-[family-name:var(--font-heading)] text-foreground tracking-tight">
-              Work <span className="text-primary">Experience</span>
-            </h1>
-            <p className="mt-4 text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
-              My professional journey and contributions
-            </p>
-          </motion.div>
-        </div>
-      </section>
+      <PageHeader
+        title="Experience"
+        description="Where I have worked and what I built there, most recent first."
+      />
 
-      {/* Timeline */}
-      <section className="py-20 border-t border-border">
-        <div ref={containerRef} className="max-w-6xl mx-auto px-4 sm:px-6">
-          {loading ? (
-            <div className="space-y-8">
-              {[1, 2].map((n) => (
-                <div key={n} className="h-40 rounded-xl bg-card border border-border animate-shimmer" />
-              ))}
-            </div>
-          ) : (
-            <div className="relative pl-6 space-y-12 ml-2">
-              {/* Background timeline line */}
-              <div className="absolute left-0 top-0 bottom-0 w-[1px] bg-border" />
-              {/* Animated scroll progress timeline line */}
-              <motion.div
-                className="absolute left-0 top-0 w-[1px] bg-primary origin-top"
-                style={{ scaleY: scrollYProgress }}
-              />
-              {exps.map((exp, i) => {
-                // Format display dates safely
-                const formatDate = (dateVal: string | undefined) => {
-                  if (!dateVal) return "";
-                  const parsed = new Date(dateVal);
-                  if (isNaN(parsed.getTime())) return dateVal;
-                  return parsed.toLocaleDateString(undefined, { year: 'numeric', month: 'short' });
-                };
+      <section className="py-16">
+        <div className="mx-auto max-w-4xl px-4 sm:px-6">
+          <ol className="relative space-y-12 border-l border-border pl-6 sm:pl-8">
+            {experiences.map((exp) => {
+              const start = formatMonth(exp.startDate);
+              const end = exp.current ? "Present" : formatMonth(exp.endDate);
 
-                const startStr = formatDate(exp.startDate);
-                const endStr = exp.current ? 'Present' : formatDate(exp.endDate);
+              return (
+                <li key={exp._id || `${exp.company}-${exp.role}`} className="relative">
+                  <span
+                    aria-hidden="true"
+                    className={cn(
+                      "absolute top-1.5 size-3 rounded-full border-2 border-background -left-[31px] sm:-left-[39px]",
+                      exp.current ? "bg-primary ring-4 ring-primary/25" : "bg-muted-foreground"
+                    )}
+                  />
 
-                return (
-                  <motion.div
-                    key={exp._id || `${exp.company}-${exp.role}`}
-                    initial={{ opacity: 0, y: 15 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.05 }}
-                    className="relative"
-                  >
-                    {/* Timeline dot */}
-                    <div className="absolute -left-[30px] top-1.5 w-3 h-3 rounded-full bg-primary border-4 border-background" />
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                    <h2 className="text-xl font-bold font-[family-name:var(--font-heading)] text-foreground">
+                      {exp.role}
+                    </h2>
+                    {exp.current ? (
+                      <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">
+                        Current
+                      </span>
+                    ) : null}
+                  </div>
 
-                    <div className="flex flex-col gap-1">
-                      <div className="flex flex-wrap items-baseline justify-between gap-x-4">
-                        <h3 className="text-xl font-bold font-[family-name:var(--font-heading)] text-foreground flex items-center gap-2">
-                          {exp.role}
-                        </h3>
-                        <span className="text-xs text-muted-foreground font-medium">
-                          {startStr} {endStr ? `- ${endStr}` : ""}
-                        </span>
-                      </div>
-                      <p className="text-sm font-medium text-primary font-[family-name:var(--font-body)]">
-                        {exp.company} <span className="text-muted-foreground/30">•</span> {exp.location}
-                      </p>
+                  <p className="mt-1 text-sm font-medium text-primary">{exp.company}</p>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {[
+                      [start, end].filter(Boolean).join(" to "),
+                      exp.type,
+                      exp.location,
+                    ]
+                      .filter(Boolean)
+                      .join(" · ")}
+                  </p>
 
-                      {/* Bullets */}
-                      <ul className="mt-3 space-y-2 list-disc pl-4 text-sm text-muted-foreground leading-relaxed">
-                        {exp.bullets?.map((bullet, idx) => (
-                          <li key={idx}>
-                            <span>{bullet}</span>
-                          </li>
-                        ))}
-                      </ul>
+                  {exp.bullets?.length ? (
+                    <ul className="mt-4 list-disc space-y-2.5 pl-5 text-sm leading-relaxed text-muted-foreground">
+                      {exp.bullets.map((bullet) => (
+                        <li key={bullet}>{bullet}</li>
+                      ))}
+                    </ul>
+                  ) : null}
 
-                      {/* Tech badges */}
-                      <div className="mt-4 flex flex-wrap gap-1.5">
-                        {exp.technologies?.map((tech) => (
-                          <span
-                            key={tech}
-                            className="text-[10px] bg-muted text-muted-foreground px-2.5 py-0.5 rounded-full font-medium border border-border"
-                          >
-                            {tech}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  </motion.div>
-                );
-              })}
-            </div>
-          )}
+                  {exp.technologies?.length ? (
+                    <ul aria-label="Technologies" className="mt-4 flex flex-wrap gap-1.5">
+                      {exp.technologies.map((tech) => (
+                        <li
+                          key={tech}
+                          className="rounded-full border border-border bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground"
+                        >
+                          {tech}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : null}
+                </li>
+              );
+            })}
+          </ol>
         </div>
       </section>
     </>

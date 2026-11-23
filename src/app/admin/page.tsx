@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
   FolderKanban,
@@ -12,10 +11,12 @@ import {
   BookOpen,
   MessageSquare,
   Mail,
-  TrendingUp,
+  Settings,
   Plus,
   ArrowRight,
 } from 'lucide-react';
+import { apiRequest, errorMessage } from './_lib/api';
+import { LoadError } from './_components/load-error';
 
 interface DashboardStats {
   projects: number;
@@ -91,33 +92,36 @@ const quickActions = [
   { label: 'Add Project', href: '/admin/projects', icon: Plus },
   { label: 'Add Certificate', href: '/admin/certificates', icon: Plus },
   { label: 'View Messages', href: '/admin/messages', icon: Mail },
-  { label: 'Edit Profile', href: '/admin/settings', icon: TrendingUp },
+  { label: 'Edit Profile', href: '/admin/settings', icon: Settings },
 ];
 
 export default function AdminDashboardPage() {
   const { data: session } = useSession();
-  const router = useRouter();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [attempt, setAttempt] = useState(0);
+  const signedIn = Boolean(session);
 
   useEffect(() => {
-    if (!session) return;
-    fetchStats();
-  }, [session]);
-
-  const fetchStats = async () => {
-    try {
-      const res = await fetch('/api/dashboard');
-      if (res.ok) {
-        const data = await res.json();
+    if (!signedIn) return;
+    let cancelled = false;
+    apiRequest<DashboardStats>('/api/dashboard')
+      .then((data) => {
+        if (cancelled) return;
         setStats(data);
-      }
-    } catch (error) {
-      console.error('Failed to fetch dashboard stats:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+        setError(null);
+      })
+      .catch((err) => {
+        if (!cancelled) setError(errorMessage(err, 'Could not load the counts.'));
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [signedIn, attempt]);
 
   if (!session) return null;
 
@@ -129,9 +133,11 @@ export default function AdminDashboardPage() {
           Dashboard
         </h1>
         <p className="text-muted-foreground mt-1">
-          Overview of your portfolio content
+          What is stored in the database
         </p>
       </div>
+
+      {error && <LoadError message={error} onRetry={() => setAttempt((n) => n + 1)} />}
 
       {/* Unread Messages Banner */}
       {stats && stats.unreadMessages > 0 && (
@@ -157,11 +163,7 @@ export default function AdminDashboardPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {statsConfig.map((item) => {
           const Icon = item.icon;
-          const count = loading
-            ? '-'
-            : stats
-            ? stats[item.key]
-            : 0;
+          const count = stats ? stats[item.key] : '–';
           return (
             <Link
               key={item.key}

@@ -1,62 +1,41 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { toast } from 'sonner';
-import {
-  Plus,
-  Pencil,
-  Trash2,
-  X,
-  Zap,
-  Star,
-} from 'lucide-react';
+import { Plus, Pencil, Trash2, X, Zap } from 'lucide-react';
 import type { ISkill } from '@/types';
+import { apiRequest, errorMessage, useAdminList } from '../_lib/api';
+import { LoadError } from '../_components/load-error';
 
-const SKILL_CATEGORIES = [
-  'Programming Languages',
+// Suggestions only: a skill can use any category name.
+const SUGGESTED_CATEGORIES = [
+  'Languages',
   'Frontend',
   'Backend',
-  'Database & Cloud',
-  'AI/ML & Frameworks',
-  'Tools & Platforms',
-] as const;
+  'Data',
+  'AI/ML',
+  'Automation and integrations',
+  'Tools',
+];
 
 const emptySkill: Partial<ISkill> = {
   name: '',
-  category: 'Programming Languages',
-  icon: 'code-2',
-  proficiency: 80,
+  category: 'Languages',
+  icon: '',
   order: 1,
 };
 
 export default function AdminSkillsPage() {
   const { data: session } = useSession();
-  const [skills, setSkills] = useState<ISkill[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { items: skills, loading, error, reload } = useAdminList<ISkill>(
+    '/api/skills',
+    Boolean(session)
+  );
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState<Partial<ISkill>>(emptySkill);
   const [saving, setSaving] = useState(false);
-
-  const fetchSkills = useCallback(async () => {
-    try {
-      const res = await fetch('/api/skills');
-      if (res.ok) {
-        const data = await res.json();
-        setSkills(data);
-      }
-    } catch (error) {
-      console.error('Failed to fetch skills:', error);
-      toast.error('Failed to fetch skills');
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (session) fetchSkills();
-  }, [session, fetchSkills]);
 
   const resetForm = () => {
     setFormData(emptySkill);
@@ -75,25 +54,15 @@ export default function AdminSkillsPage() {
     setSaving(true);
 
     try {
-      const url = editingId ? `/api/skills/${editingId}` : '/api/skills';
-      const method = editingId ? 'PUT' : 'POST';
-
-      const res = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
+      await apiRequest(editingId ? `/api/skills/${editingId}` : '/api/skills', {
+        method: editingId ? 'PUT' : 'POST',
         body: JSON.stringify(formData),
       });
-
-      if (res.ok) {
-        toast.success(editingId ? 'Skill updated!' : 'Skill created!');
-        resetForm();
-        fetchSkills();
-      } else {
-        const data = await res.json();
-        toast.error(data.error || 'Failed to save skill');
-      }
-    } catch {
-      toast.error('Something went wrong');
+      toast.success(editingId ? 'Skill updated' : 'Skill created');
+      resetForm();
+      reload();
+    } catch (err) {
+      toast.error(errorMessage(err, 'Failed to save'));
     } finally {
       setSaving(false);
     }
@@ -103,25 +72,19 @@ export default function AdminSkillsPage() {
     if (!confirm('Are you sure you want to delete this skill?')) return;
 
     try {
-      const res = await fetch(`/api/skills/${id}`, { method: 'DELETE' });
-      if (res.ok) {
-        toast.success('Skill deleted!');
-        fetchSkills();
-      } else {
-        toast.error('Failed to delete skill');
-      }
-    } catch {
-      toast.error('Something went wrong');
+      await apiRequest(`/api/skills/${id}`, { method: 'DELETE' });
+      toast.success('Skill deleted');
+      reload();
+    } catch (err) {
+      toast.error(errorMessage(err, 'Failed to delete'));
     }
   };
 
   if (!session) return null;
 
-  // Group skills by category for organized display
-  const groupedSkills = SKILL_CATEGORIES.reduce((acc, cat) => {
-    acc[cat] = skills.filter((s) => s.category === cat);
-    return acc;
-  }, {} as Record<string, ISkill[]>);
+  // Every category present in the data is listed, in first-seen order.
+  const categories = Array.from(new Set(skills.map((skill) => skill.category)));
+  const categoryOptions = Array.from(new Set([...categories, ...SUGGESTED_CATEGORIES]));
 
   return (
     <div className="space-y-6">
@@ -132,7 +95,7 @@ export default function AdminSkillsPage() {
             Skills
           </h1>
           <p className="text-muted-foreground mt-1">
-            Manage your technical skills and proficiencies
+            Skills shown on the site, grouped by category
           </p>
         </div>
         <button
@@ -177,40 +140,33 @@ export default function AdminSkillsPage() {
               </div>
               <div className="space-y-2">
                 <label className="block text-sm font-medium text-foreground">Category</label>
-                <select
-                  value={formData.category || 'Programming Languages'}
+                <input
+                  type="text"
+                  list="skill-categories"
+                  value={formData.category || ''}
                   onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                  className="w-full px-4 py-2.5 bg-muted border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground cursor-pointer"
-                >
-                  {SKILL_CATEGORIES.map((cat) => (
-                    <option key={cat} value={cat}>
-                      {cat}
-                    </option>
+                  required
+                  maxLength={80}
+                  className="w-full px-4 py-2.5 bg-muted border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground"
+                  placeholder="Pick or type a category"
+                />
+                <datalist id="skill-categories">
+                  {categoryOptions.map((cat) => (
+                    <option key={cat} value={cat} />
                   ))}
-                </select>
+                </datalist>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="block text-sm font-medium text-foreground">Proficiency (1-100)</label>
-                <input
-                  type="number"
-                  min="1"
-                  max="100"
-                  value={formData.proficiency || 80}
-                  onChange={(e) => setFormData({ ...formData, proficiency: parseInt(e.target.value) || 80 })}
-                  required
-                  className="w-full px-4 py-2.5 bg-muted border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground"
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-foreground">Icon Name</label>
+                <label className="block text-sm font-medium text-foreground">
+                  Icon name <span className="text-muted-foreground font-normal">(optional)</span>
+                </label>
                 <input
                   type="text"
-                  value={formData.icon || 'code-2'}
+                  value={formData.icon || ''}
                   onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
-                  required
                   className="w-full px-4 py-2.5 bg-muted border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground"
                   placeholder="e.g. terminal, atom, server"
                 />
@@ -219,8 +175,11 @@ export default function AdminSkillsPage() {
                 <label className="block text-sm font-medium text-foreground">Display Order</label>
                 <input
                   type="number"
-                  value={formData.order || 1}
-                  onChange={(e) => setFormData({ ...formData, order: parseInt(e.target.value) || 1 })}
+                  min={0}
+                  value={formData.order ?? 0}
+                  onChange={(e) =>
+                    setFormData({ ...formData, order: Math.max(0, parseInt(e.target.value, 10) || 0) })
+                  }
                   required
                   className="w-full px-4 py-2.5 bg-muted border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground"
                 />
@@ -247,6 +206,8 @@ export default function AdminSkillsPage() {
         </div>
       )}
 
+      {error && <LoadError message={error} onRetry={reload} />}
+
       {/* Skills Grouped Grid */}
       {loading ? (
         <div className="space-y-8">
@@ -261,16 +222,15 @@ export default function AdminSkillsPage() {
             </div>
           ))}
         </div>
-      ) : skills.length === 0 ? (
+      ) : error && skills.length === 0 ? null : skills.length === 0 ? (
         <div className="anime-card rounded-2xl p-12 text-center">
           <Zap className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-          <p className="text-muted-foreground">No skills yet. Add your first skill!</p>
+          <p className="text-muted-foreground">No skills in the database. The site shows its built-in list until you add one.</p>
         </div>
       ) : (
         <div className="space-y-8">
-          {SKILL_CATEGORIES.map((category) => {
-            const catSkills = groupedSkills[category];
-            if (catSkills.length === 0) return null;
+          {categories.map((category) => {
+            const catSkills = skills.filter((skill) => skill.category === category);
 
             return (
               <div key={category} className="space-y-3">
@@ -278,31 +238,18 @@ export default function AdminSkillsPage() {
                   {category}
                 </h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                  {catSkills
+                  {[...catSkills]
                     .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
                     .map((skill) => (
                       <div
                         key={skill._id}
                         className="anime-card rounded-xl p-4 flex items-center justify-between group"
                       >
-                        <div className="flex-1 min-w-0 mr-3">
-                          <div className="flex items-center justify-between mb-1.5">
-                            <span className="font-medium text-foreground truncate text-sm">
-                              {skill.name}
-                            </span>
-                            <span className="text-xs text-muted-foreground shrink-0 font-medium">
-                              {skill.proficiency}%
-                            </span>
-                          </div>
-                          <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden">
-                            <div
-                              className="h-full bg-primary rounded-full transition-all duration-500"
-                              style={{ width: `${skill.proficiency}%` }}
-                            />
-                          </div>
-                        </div>
+                        <span className="flex-1 min-w-0 mr-3 font-medium text-foreground truncate text-sm">
+                          {skill.name}
+                        </span>
 
-                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition shrink-0">
+                        <div className="flex items-center gap-1 shrink-0">
                           <button
                             onClick={() => handleEdit(skill)}
                             className="p-1 text-muted-foreground hover:text-primary transition cursor-pointer"

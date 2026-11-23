@@ -1,81 +1,69 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
-import { auth } from '@/lib/auth';
 import JobPost from '@/models/JobPost';
+import {
+  assertObjectId,
+  errorResponse,
+  jsonError,
+  optionalSession,
+  parseBody,
+  requireSession,
+} from '@/app/api/_lib/http';
+import { jobSchema } from '@/app/api/_lib/schemas';
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+type RouteContext = { params: Promise<{ id: string }> };
+
+const notFound = () => jsonError(404, 'Job not found');
+
+export async function GET(_req: Request, { params }: RouteContext) {
   try {
     const { id } = await params;
+    assertObjectId(id, 'Job');
     await dbConnect();
-    const session = await auth();
 
     const job = await JobPost.findById(id).lean();
-    if (!job) {
-      return NextResponse.json({ error: 'Job not found' }, { status: 404 });
-    }
-
-    // Protect private jobs from unauthenticated clients
-    if (!job.isPublic && !session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
+    // A private entry answers 404 to visitors so its existence is not revealed.
+    if (!job || (!job.isPublic && !(await optionalSession()))) return notFound();
     return NextResponse.json(job);
   } catch (error) {
-    console.error('Job GET error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return errorResponse(error, 'Job read');
   }
 }
 
-export async function PUT(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PUT(req: Request, { params }: RouteContext) {
   try {
-    const session = await auth();
-    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-
+    await requireSession();
     const { id } = await params;
-    await dbConnect();
+    assertObjectId(id, 'Job');
+    const { appliedDate, ...fields } = await parseBody(req, jobSchema.partial());
 
-    const body = await req.json();
-    const job = await JobPost.findByIdAndUpdate(id, body, {
-      new: true,
+    // The form sends "" for an empty date, which arrives here as null and
+    // removes the stored date.
+    const update: Record<string, unknown> = {
+      $set: appliedDate ? { ...fields, appliedDate } : fields,
+    };
+    if (appliedDate === null) update.$unset = { appliedDate: 1 };
+
+    await dbConnect();
+    const job = await JobPost.findByIdAndUpdate(id, update, {
+      returnDocument: 'after',
       runValidators: true,
     }).lean();
-
-    if (!job) {
-      return NextResponse.json({ error: 'Job not found' }, { status: 404 });
-    }
-
-    return NextResponse.json(job);
+    return job ? NextResponse.json(job) : notFound();
   } catch (error) {
-    console.error('Job PUT error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return errorResponse(error, 'Job update');
   }
 }
 
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function DELETE(_req: Request, { params }: RouteContext) {
   try {
-    const session = await auth();
-    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-
+    await requireSession();
     const { id } = await params;
+    assertObjectId(id, 'Job');
     await dbConnect();
-
-    const job = await JobPost.findByIdAndDelete(id);
-    if (!job) {
-      return NextResponse.json({ error: 'Job not found' }, { status: 404 });
-    }
-
-    return NextResponse.json({ message: 'Job deleted successfully' });
+    const job = await JobPost.findByIdAndDelete(id).lean();
+    return job ? NextResponse.json({ message: 'Job deleted successfully' }) : notFound();
   } catch (error) {
-    console.error('Job DELETE error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return errorResponse(error, 'Job delete');
   }
 }

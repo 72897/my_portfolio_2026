@@ -2,16 +2,9 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
-import {
-  ArrowUpRight,
-  BookOpen,
-  Calendar,
-  Clock3,
-  FileText,
-  Layers3,
-} from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import { Linkedin } from "@/components/shared/brand-icons";
+import { PageHeader } from "@/components/shared/page-header";
 import { siteConfig } from "@/lib/constants";
 import type { IBlog } from "@/types";
 
@@ -23,94 +16,54 @@ const dateFormatter = new Intl.DateTimeFormat("en-US", {
   year: "numeric",
 });
 
-function PostCard({ post, index }: { post: IBlog; index: number }) {
+function PostCard({ post }: { post: IBlog }) {
   const isLinkedIn = post.source === "linkedin";
-  const publishedAt = post.publishedAt
-    ? dateFormatter.format(new Date(post.publishedAt))
-    : null;
+  const publishedAt = post.publishedAt ? dateFormatter.format(new Date(post.publishedAt)) : null;
+  const meta = [
+    isLinkedIn ? "LinkedIn post" : "Article",
+    publishedAt,
+    !isLinkedIn && post.readingTime ? `${post.readingTime} min read` : null,
+  ]
+    .filter(Boolean)
+    .join(" · ");
 
-  const card = (
-    <motion.article
-      initial={{ opacity: 0, y: 28, rotateX: 4 }}
-      whileInView={{ opacity: 1, y: 0, rotateX: 0 }}
-      viewport={{ once: true, amount: 0.15 }}
-      transition={{ delay: Math.min(index * 0.05, 0.25), duration: 0.45 }}
-      className="anime-card blog-orbit-card group h-full overflow-hidden rounded-3xl"
-    >
-      <div className={`blog-orbit-card__visual ${isLinkedIn ? "is-linkedin" : ""}`}>
-        <div className="blog-orbit-card__rings" aria-hidden="true">
-          <span />
-          <span />
-          <span />
-        </div>
-        <div className="blog-orbit-card__source">
-          {isLinkedIn ? <Linkedin size={24} /> : <BookOpen size={24} />}
-        </div>
-        <span className="blog-orbit-card__index">
-          {String(index + 1).padStart(2, "0")}
-        </span>
-      </div>
+  const titleClass = "hover:text-primary hover:underline";
 
-      <div className="flex h-full flex-col p-6 sm:p-7">
-        <div className="mb-4 flex flex-wrap items-center gap-2">
-          <span className={isLinkedIn ? "linkedin-badge" : "anime-badge"}>
-            {isLinkedIn ? "LinkedIn Post" : "Portfolio Article"}
-          </span>
-          {post.tags?.slice(0, 2).map((tag) => (
-            <span key={tag} className="mono-pill">
+  return (
+    <article className="anime-card flex h-full flex-col rounded-2xl p-6">
+      <p className="text-xs font-medium text-muted-foreground">{meta}</p>
+      <h2 className="mt-2 text-xl font-bold font-[family-name:var(--font-heading)] leading-tight text-foreground">
+        {isLinkedIn ? (
+          <a
+            href={post.externalUrl || siteConfig.links.linkedin}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={titleClass}
+          >
+            {post.title}
+            <ArrowUpRight className="ml-1 inline size-4" aria-hidden="true" />
+            <span className="sr-only"> (opens LinkedIn)</span>
+          </a>
+        ) : (
+          <Link href={`/blog/${post.slug}`} className={titleClass}>
+            {post.title}
+          </Link>
+        )}
+      </h2>
+      <p className="mt-3 line-clamp-3 text-sm leading-6 text-muted-foreground">{post.description}</p>
+      {post.tags?.length ? (
+        <ul aria-label="Tags" className="mt-4 flex flex-wrap gap-1.5">
+          {post.tags.slice(0, 4).map((tag) => (
+            <li
+              key={tag}
+              className="rounded-full border border-border bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground"
+            >
               {tag}
-            </span>
+            </li>
           ))}
-        </div>
-
-        <h2 className="text-2xl font-bold leading-tight tracking-[-0.04em] text-foreground transition-colors group-hover:text-primary">
-          {post.title}
-        </h2>
-        <p className="mt-3 line-clamp-3 text-sm leading-6 text-muted-foreground">
-          {post.description}
-        </p>
-
-        <div className="mt-auto flex flex-wrap items-center justify-between gap-3 border-t border-border/50 pt-5">
-          <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
-            {publishedAt ? (
-              <span className="flex items-center gap-1.5">
-                <Calendar size={13} aria-hidden="true" />
-                {publishedAt}
-              </span>
-            ) : null}
-            {!isLinkedIn && post.readingTime ? (
-              <span className="flex items-center gap-1.5">
-                <Clock3 size={13} aria-hidden="true" />
-                {post.readingTime} min
-              </span>
-            ) : null}
-          </div>
-          <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary">
-            {isLinkedIn ? "View on LinkedIn" : "Read article"}
-            <ArrowUpRight
-              size={15}
-              aria-hidden="true"
-              className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
-            />
-          </span>
-        </div>
-      </div>
-    </motion.article>
-  );
-
-  return isLinkedIn ? (
-    <a
-      href={post.externalUrl || siteConfig.links.linkedin}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="block h-full"
-    >
-      {card}
-    </a>
-  ) : (
-    <Link href={`/blog/${post.slug}`} className="block h-full">
-      {card}
-    </Link>
+        </ul>
+      ) : null}
+    </article>
   );
 }
 
@@ -120,150 +73,98 @@ export default function BlogPage() {
   const [activeFilter, setActiveFilter] = useState<FeedFilter>("all");
 
   useEffect(() => {
-    async function fetchPosts() {
-      try {
-        const res = await fetch("/api/blog");
-        if (res.ok) {
-          const data = await res.json();
-          setPosts(data.posts || data);
-        } else {
-          setPosts([]);
-        }
-      } catch {
-        setPosts([]);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchPosts();
+    let cancelled = false;
+
+    fetch("/api/blog")
+      .then((res) => (res.ok ? res.json() : []))
+      .then((data: unknown) => {
+        if (!cancelled && Array.isArray(data)) setPosts(data as IBlog[]);
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
-  const filteredPosts = useMemo(
-    () =>
-      activeFilter === "all"
-        ? posts
-        : posts.filter((post) =>
-            activeFilter === "linkedin"
-              ? post.source === "linkedin"
-              : post.source !== "linkedin"
-          ),
-    [activeFilter, posts]
-  );
-
   const linkedinCount = posts.filter((post) => post.source === "linkedin").length;
-  const articleCount = posts.length - linkedinCount;
+  const filters: { value: FeedFilter; label: string; count: number }[] = [
+    { value: "all", label: "All", count: posts.length },
+    { value: "article", label: "Articles", count: posts.length - linkedinCount },
+    { value: "linkedin", label: "LinkedIn", count: linkedinCount },
+  ];
+
+  const filteredPosts = useMemo(() => {
+    if (activeFilter === "all") return posts;
+    return posts.filter((post) => (post.source === "linkedin") === (activeFilter === "linkedin"));
+  }, [activeFilter, posts]);
 
   return (
     <>
-      <section className="py-20 grid-pattern">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center"
-          >
-            <span className="eyebrow mx-auto">
-              <Layers3 size={13} aria-hidden="true" />
-              Ideas across platforms
-            </span>
-            <h1 className="mt-5 text-5xl font-bold tracking-[-0.06em] md:text-6xl lg:text-7xl">
-              Notes, builds &amp;
-              <br />
-              <span className="gradient-text">LinkedIn insights.</span>
-            </h1>
-            <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-muted-foreground md:text-lg">
-              Long-form engineering articles and professional updates from one
-              continuously evolving feed.
-            </p>
-            <a
-              href={siteConfig.links.linkedin}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="anime-btn-outline mt-7"
-            >
-              <Linkedin size={16} />
-              Follow on LinkedIn
-              <ArrowUpRight size={15} aria-hidden="true" />
-            </a>
-          </motion.div>
-        </div>
-      </section>
+      <PageHeader title="Blog" description="Articles and LinkedIn posts, newest first." />
 
-      <section className="border-b border-border/50 py-7">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-4 sm:px-6">
-          <div className="flex flex-wrap gap-2" role="tablist" aria-label="Filter posts">
-            {[
-              { value: "all", label: "All", count: posts.length },
-              { value: "article", label: "Articles", count: articleCount },
-              { value: "linkedin", label: "LinkedIn", count: linkedinCount },
-            ].map((filter) => (
-              <button
-                key={filter.value}
-                type="button"
-                role="tab"
-                aria-selected={activeFilter === filter.value}
-                onClick={() => setActiveFilter(filter.value as FeedFilter)}
-                className={`min-h-11 rounded-xl border px-4 text-xs font-semibold transition-colors ${
-                  activeFilter === filter.value
-                    ? "border-primary bg-primary text-primary-foreground"
-                    : "border-border bg-card/60 text-muted-foreground hover:border-primary/40 hover:text-foreground"
-                }`}
-              >
-                {filter.label} <span className="ml-1 opacity-70">{filter.count}</span>
-              </button>
-            ))}
-          </div>
-          <p className="text-xs font-medium text-muted-foreground">
-            Newest first - managed from Admin
-          </p>
-        </div>
-      </section>
-
-      <section className="py-16 sm:py-20">
+      <section className="py-16">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           {loading ? (
-            <div className="grid gap-7 md:grid-cols-2">
-              {[1, 2, 3, 4].map((item) => (
-                <div
-                  key={item}
-                  className="anime-card h-[420px] animate-shimmer rounded-3xl"
-                />
-              ))}
-            </div>
-          ) : filteredPosts.length === 0 ? (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="anime-card mx-auto max-w-2xl rounded-3xl p-10 text-center sm:p-14"
-            >
-              <div className="mx-auto grid size-20 place-items-center rounded-2xl bg-primary/10 text-primary">
-                {activeFilter === "linkedin" ? (
-                  <Linkedin size={34} />
-                ) : (
-                  <FileText size={34} />
-                )}
-              </div>
-              <h2 className="mt-6 text-2xl font-bold tracking-[-0.04em]">
-                {activeFilter === "linkedin"
-                  ? "LinkedIn sync is ready"
-                  : "The next article is taking shape"}
+            <p role="status" className="py-16 text-center text-sm text-muted-foreground">
+              Loading posts
+            </p>
+          ) : posts.length === 0 ? (
+            <div className="anime-card mx-auto max-w-xl rounded-2xl p-8 text-center">
+              <h2 className="text-xl font-bold font-[family-name:var(--font-heading)] text-foreground">
+                No posts yet
               </h2>
-              <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-muted-foreground">
-                {activeFilter === "linkedin"
-                  ? "Add a LinkedIn post from Admin, or configure approved LinkedIn API credentials and use Sync LinkedIn."
-                  : "Publish from the admin panel and it will appear here automatically."}
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                Nothing has been published here so far. Posts will show up on this
+                page when there are some.
               </p>
-            </motion.div>
-          ) : (
-            <div className="grid items-stretch gap-7 md:grid-cols-2">
-              {filteredPosts.map((post, index) => (
-                <PostCard
-                  key={post._id || post.slug}
-                  post={post}
-                  index={index}
-                />
-              ))}
+              <a
+                href={siteConfig.links.linkedin}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="anime-btn-outline mt-6 inline-flex items-center gap-2"
+              >
+                <Linkedin size={16} aria-hidden="true" />
+                LinkedIn profile
+              </a>
             </div>
+          ) : (
+            <>
+              <div className="mb-8 flex flex-wrap gap-2" role="group" aria-label="Filter posts">
+                {filters.map((filter) => (
+                  <button
+                    key={filter.value}
+                    type="button"
+                    aria-pressed={activeFilter === filter.value}
+                    onClick={() => setActiveFilter(filter.value)}
+                    className={`min-h-11 cursor-pointer rounded-xl border px-4 text-xs font-semibold transition-colors ${
+                      activeFilter === filter.value
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "border-border bg-card/60 text-muted-foreground hover:border-primary/40 hover:text-foreground"
+                    }`}
+                  >
+                    {filter.label} <span className="ml-1 opacity-70">{filter.count}</span>
+                  </button>
+                ))}
+              </div>
+
+              {filteredPosts.length === 0 ? (
+                <p className="py-10 text-center text-sm text-muted-foreground">
+                  No posts in this category.
+                </p>
+              ) : (
+                <ul className="grid items-stretch gap-7 md:grid-cols-2">
+                  {filteredPosts.map((post) => (
+                    <li key={post._id || post.slug}>
+                      <PostCard post={post} />
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </>
           )}
         </div>
       </section>

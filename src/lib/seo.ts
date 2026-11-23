@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { siteConfig } from "@/lib/constants";
+import { languages, siteConfig } from "@/lib/constants";
 
 export const siteName = "Kunal Singh Portfolio";
-export const defaultTitle = "Kunal Singh | AI Engineer & Full Stack Developer";
+export const defaultTitle = `${siteConfig.name} | ${siteConfig.title}`;
 export const defaultDescription =
-  "AI Engineer and Full Stack Developer specializing in Generative AI, LLM integration, and scalable web applications. Explore my portfolio, projects, and experience.";
+  "Software engineer at Technocratiq Digital. I build the company's internal operations platform and its automations in Python and TypeScript.";
 
 // Explicit because a route that sets its own `openGraph` drops the
 // file-based image from app/opengraph-image.tsx.
@@ -12,7 +12,7 @@ export const defaultOgImage = {
   url: "/opengraph-image",
   width: 1200,
   height: 630,
-  alt: "Kunal Singh, AI Engineer & Full Stack Developer",
+  alt: "Kunal Singh, Software Engineer: AI automation and full-stack web",
 };
 
 export function absoluteUrl(path = "") {
@@ -65,8 +65,12 @@ export const personJsonLd = {
   "@id": `${siteConfig.url}/#person`,
   name: siteConfig.name,
   url: siteConfig.url,
-  jobTitle: "AI Engineer & Full Stack Developer",
+  jobTitle: "Software Engineer",
   description: siteConfig.description,
+  worksFor: {
+    "@type": "Organization",
+    name: "Technocratiq Digital Pvt. Ltd.",
+  },
   email: `mailto:${siteConfig.email}`,
   address: {
     "@type": "PostalAddress",
@@ -79,16 +83,21 @@ export const personJsonLd = {
     name: "Gautam Buddha University",
   },
   knowsAbout: [
-    "Generative AI",
+    "Python",
+    "TypeScript",
+    "Next.js",
+    "React",
+    "Node.js",
+    "REST APIs",
+    "Workflow automation",
+    "n8n",
+    "Model Context Protocol",
     "Large Language Models",
     "Retrieval-Augmented Generation",
     "LangChain",
-    "Python",
-    "React",
-    "Next.js",
-    "Node.js",
     "MongoDB",
   ],
+  knowsLanguage: languages.map((language) => language.name),
   sameAs: [
     siteConfig.links.github,
     siteConfig.links.linkedin,

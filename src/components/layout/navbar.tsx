@@ -1,48 +1,64 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowUpRight, Code2, Menu, X, Terminal, Search } from "lucide-react";
-import { navLinks } from "@/lib/constants";
+import { ChevronDown, Code2, Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "./theme-toggle";
-import { Magnetic } from "@/components/effects/magnetic";
 
-const primaryLinks = navLinks.filter((link) =>
-  ["/about", "/skills", "/experience", "/projects", "/github", "/leetcode", "/certificates", "/blog"].includes(link.href)
-);
+const primaryLinks = [
+  { name: "About", href: "/about" },
+  { name: "Experience", href: "/experience" },
+  { name: "Projects", href: "/projects" },
+  { name: "Skills", href: "/skills" },
+  { name: "Resume", href: "/resume" },
+];
+
+const moreLinks = [
+  { name: "Certificates", href: "/certificates" },
+  { name: "GitHub", href: "/github" },
+  { name: "LeetCode", href: "/leetcode" },
+  { name: "Blog", href: "/blog" },
+];
+
+const contactLink = { name: "Contact", href: "/contact" };
+
+// The nav pill and the mobile panel are cream in both themes (globals.css),
+// so the menus inside them use fixed dark-on-cream colours, not theme tokens.
+const mobileLinks = [
+  { name: "Home", href: "/" },
+  ...primaryLinks,
+  ...moreLinks,
+  contactLink,
+];
+
+function isActive(pathname: string, href: string) {
+  return href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`);
+}
 
 export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [isMoreOpen, setIsMoreOpen] = useState(false);
+  const moreRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
 
   useEffect(() => {
     let lastScrollY = window.scrollY;
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
+      const visible = currentScrollY < lastScrollY || currentScrollY < 96;
       setIsScrolled(currentScrollY > 24);
-      setIsVisible(currentScrollY < lastScrollY || currentScrollY < 96);
+      setIsVisible(visible);
+      if (!visible) setIsMoreOpen(false);
       lastScrollY = currentScrollY;
     };
     window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
-  const openCommandPalette = () => {
-    window.dispatchEvent(
-      new KeyboardEvent("keydown", { key: "k", metaKey: true, bubbles: true })
-    );
-  };
-
-  const openTerminal = () => {
-    window.dispatchEvent(new CustomEvent("open-terminal-modal"));
-  };
 
   useEffect(() => {
     document.body.style.overflow = isMobileOpen ? "hidden" : "";
@@ -51,28 +67,46 @@ export function Navbar() {
     };
   }, [isMobileOpen]);
 
+  useEffect(() => {
+    if (!isMoreOpen && !isMobileOpen) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setIsMoreOpen(false);
+        setIsMobileOpen(false);
+      }
+    };
+    const handlePointerDown = (event: PointerEvent) => {
+      if (!moreRef.current?.contains(event.target as Node)) setIsMoreOpen(false);
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    document.addEventListener("pointerdown", handlePointerDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("pointerdown", handlePointerDown);
+    };
+  }, [isMoreOpen, isMobileOpen]);
+
   if (pathname.startsWith("/admin")) return null;
+
+  const moreActive = moreLinks.some((link) => isActive(pathname, link.href));
 
   return (
     <>
       <motion.header
-        initial={{ y: -96 }}
+        initial={false}
         animate={{ y: isVisible ? 0 : -96 }}
         transition={{ duration: 0.28, ease: "easeOut" }}
-        className="fixed inset-x-0 top-0 z-50 px-3 pt-3 sm:px-5 pointer-events-none"
+        className="pointer-events-none fixed inset-x-0 top-0 z-50 px-3 pt-3 sm:px-5 print:hidden"
       >
         <nav
-          aria-label="Primary navigation"
+          aria-label="Primary"
           className={cn(
-            "nav-shell mx-auto flex h-16 max-w-7xl items-center justify-between px-3 sm:px-4 pointer-events-auto",
+            "nav-shell pointer-events-auto mx-auto flex h-16 max-w-7xl items-center justify-between px-3 sm:px-4",
             isScrolled && "nav-shell--scrolled"
           )}
         >
-          <Link 
-            href="/" 
-            className="group flex items-center gap-2.5" 
-            aria-label="Kunal Singh home"
-          >
+          <Link href="/" className="group flex items-center gap-2.5" aria-label="Kunal Singh, home">
             <span className="brand-mark">
               <Code2 size={17} aria-hidden="true" />
             </span>
@@ -83,11 +117,12 @@ export function Navbar() {
 
           <div className="hidden items-center gap-1 lg:flex">
             {primaryLinks.map((link) => {
-              const active = pathname === link.href;
+              const active = isActive(pathname, link.href);
               return (
                 <Link
                   key={link.href}
                   href={link.href}
+                  aria-current={active ? "page" : undefined}
                   className={cn(
                     "nav-link relative rounded-lg px-3 py-2 text-xs font-semibold",
                     active ? "text-foreground" : "text-muted-foreground hover:text-foreground"
@@ -95,62 +130,77 @@ export function Navbar() {
                 >
                   {link.name}
                   {active ? (
-                    <motion.span
-                      layoutId="navbar-indicator"
-                      className="absolute inset-x-3 -bottom-1 h-px rounded-full bg-primary shadow-[0_0_10px_var(--color-primary)]"
-                    />
+                    <span className="absolute inset-x-3 -bottom-1 h-px rounded-full bg-primary" />
                   ) : null}
                 </Link>
               );
             })}
+
+            <div ref={moreRef} className="relative">
+              <button
+                type="button"
+                onClick={() => setIsMoreOpen((open) => !open)}
+                aria-expanded={isMoreOpen}
+                aria-controls="nav-more-menu"
+                className={cn(
+                  "nav-link relative inline-flex cursor-pointer items-center gap-1 rounded-lg px-3 py-2 text-xs font-semibold",
+                  moreActive ? "text-foreground" : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                More
+                <ChevronDown
+                  size={13}
+                  aria-hidden="true"
+                  className={cn("transition-transform", isMoreOpen && "rotate-180")}
+                />
+                {moreActive ? (
+                  <span className="absolute inset-x-3 -bottom-1 h-px rounded-full bg-primary" />
+                ) : null}
+              </button>
+              {isMoreOpen ? (
+                <ul
+                  id="nav-more-menu"
+                  className="absolute right-0 top-full mt-3 w-44 rounded-2xl border border-black/10 bg-[#fffdf8] p-1.5 shadow-xl"
+                >
+                  {moreLinks.map((link) => {
+                    const active = isActive(pathname, link.href);
+                    return (
+                      <li key={link.href}>
+                        <Link
+                          href={link.href}
+                          onClick={() => setIsMoreOpen(false)}
+                          aria-current={active ? "page" : undefined}
+                          className={cn(
+                            "nav-link block rounded-lg px-3 py-2 text-xs font-semibold",
+                            active && "bg-black/5 text-foreground"
+                          )}
+                        >
+                          {link.name}
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
+              ) : null}
+            </div>
           </div>
 
           <div className="flex items-center gap-1.5 sm:gap-2">
-            {/* Search Command Palette Trigger */}
-            <button
-              type="button"
-              onClick={openCommandPalette}
-              className="hidden md:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-muted/40 hover:bg-muted/70 border border-border/40 text-xs text-muted-foreground hover:text-foreground transition cursor-pointer"
-              title="Search & Commands (⌘K)"
-              aria-label="Search & Commands (⌘K)"
-            >
-              <Search size={13} className="text-primary" />
-              <span className="text-[11px] font-medium">Search</span>
-              <kbd className="text-[9px] font-mono bg-background px-1.5 py-0.2 rounded border border-border/60">⌘K</kbd>
-            </button>
-
-            {/* Interactive Terminal Trigger */}
-            <button
-              type="button"
-              onClick={openTerminal}
-              className="grid size-9 place-items-center rounded-xl border border-border/30 bg-card/40 hover:bg-muted text-muted-foreground hover:text-foreground transition cursor-pointer"
-              title="Developer Terminal (~)"
-              aria-label="Developer Terminal (~)"
-            >
-              <Terminal size={15} className="text-emerald-400" />
-            </button>
-
             <ThemeToggle />
 
-            <Magnetic strength={0.2}>
-              <Link
-                href="/contact"
-                className="nav-cta hidden sm:inline-flex"
-              >
-                Hire me <ArrowUpRight size={14} aria-hidden="true" />
-              </Link>
-            </Magnetic>
+            <Link href={contactLink.href} className="nav-cta hidden sm:inline-flex">
+              {contactLink.name}
+            </Link>
 
             <button
               type="button"
-              onClick={() => {
-                setIsMobileOpen((open) => !open);
-              }}
-              className="grid size-9 sm:size-11 place-items-center rounded-xl transition-colors hover:bg-muted lg:hidden"
+              onClick={() => setIsMobileOpen((open) => !open)}
+              className="grid size-11 cursor-pointer place-items-center rounded-xl transition-colors hover:bg-black/5 lg:hidden"
               aria-label={isMobileOpen ? "Close navigation menu" : "Open navigation menu"}
               aria-expanded={isMobileOpen}
+              aria-controls="mobile-nav"
             >
-              {isMobileOpen ? <X size={20} /> : <Menu size={20} />}
+              {isMobileOpen ? <X size={20} aria-hidden="true" /> : <Menu size={20} aria-hidden="true" />}
             </button>
           </div>
         </nav>
@@ -159,58 +209,58 @@ export function Navbar() {
       <AnimatePresence>
         {isMobileOpen ? (
           <>
-            <motion.button
-              type="button"
-              aria-label="Close navigation menu"
+            <motion.div
+              aria-hidden="true"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="fixed inset-0 z-40 bg-background/80 backdrop-blur-md lg:hidden"
               onClick={() => setIsMobileOpen(false)}
             />
-            <motion.aside
+            <motion.nav
+              id="mobile-nav"
+              aria-label="Mobile"
               initial={{ x: "100%" }}
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ type: "spring", damping: 28, stiffness: 220 }}
+              data-lenis-prevent
               className="mobile-nav-panel fixed inset-y-0 right-0 z-50 w-[min(88vw,360px)] overflow-y-auto p-6 lg:hidden"
             >
-              <div className="mb-8 flex items-center justify-between">
-                <span className="eyebrow">Explore portfolio</span>
+              <div className="mb-6 flex items-center justify-between">
+                <span className="text-sm font-bold">Menu</span>
                 <button
                   type="button"
                   onClick={() => setIsMobileOpen(false)}
-                  className="grid size-11 place-items-center rounded-xl hover:bg-muted"
+                  className="grid size-11 cursor-pointer place-items-center rounded-xl hover:bg-black/5"
                   aria-label="Close navigation menu"
                 >
-                  <X size={20} />
+                  <X size={20} aria-hidden="true" />
                 </button>
               </div>
-              <div className="flex flex-col gap-1">
-                {navLinks.map((link, index) => (
-                  <motion.div
-                    key={link.href}
-                    initial={{ opacity: 0, x: 18 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.025 }}
-                  >
-                    <Link
-                      href={link.href}
-                      onClick={() => setIsMobileOpen(false)}
-                      className={cn(
-                        "flex min-h-12 items-center justify-between rounded-xl px-4 py-3 text-sm font-semibold",
-                        pathname === link.href
-                          ? "bg-primary/10 text-primary"
-                          : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                      )}
-                    >
-                      {link.name}
-                      <ArrowUpRight size={14} aria-hidden="true" />
-                    </Link>
-                  </motion.div>
-                ))}
-              </div>
-            </motion.aside>
+              <ul className="flex flex-col gap-1">
+                {mobileLinks.map((link) => {
+                  const active = isActive(pathname, link.href);
+                  return (
+                    <li key={link.href}>
+                      <Link
+                        href={link.href}
+                        onClick={() => setIsMobileOpen(false)}
+                        aria-current={active ? "page" : undefined}
+                        className={cn(
+                          "flex min-h-12 items-center rounded-xl px-4 py-3 text-sm font-semibold",
+                          active
+                            ? "bg-black/10 text-[#181818]"
+                            : "text-[#181818]/70 hover:bg-black/5 hover:text-[#181818]"
+                        )}
+                      >
+                        {link.name}
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            </motion.nav>
           </>
         ) : null}
       </AnimatePresence>

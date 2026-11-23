@@ -1,9 +1,9 @@
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata = pageMetadata({
-  title: "LeetCode Stats",
+  title: "LeetCode",
   description:
-    "Kunal Singh's LeetCode progress: problems solved by difficulty, contest rating, and data structures and algorithms practice.",
+    "LeetCode problems solved by Kunal Singh (@kunal26_7), broken down by difficulty.",
   path: "/leetcode",
 });
 

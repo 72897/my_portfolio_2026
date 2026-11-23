@@ -1,53 +1,47 @@
-import { NextRequest, NextResponse } from 'next/server'
-import dbConnect from '@/lib/db'
-import { auth } from '@/lib/auth'
-import ContactMessage from '@/models/ContactMessage'
+import { NextResponse } from 'next/server';
+import dbConnect from '@/lib/db';
+import ContactMessage from '@/models/ContactMessage';
+import {
+  assertObjectId,
+  errorResponse,
+  jsonError,
+  parseBody,
+  requireSession,
+} from '@/app/api/_lib/http';
+import { messageUpdateSchema } from '@/app/api/_lib/schemas';
 
-type RouteContext = { params: Promise<{ id: string }> }
+type RouteContext = { params: Promise<{ id: string }> };
 
-export async function PUT(req: NextRequest, { params }: RouteContext) {
+const notFound = () => jsonError(404, 'Message not found');
+
+export async function PUT(req: Request, { params }: RouteContext) {
   try {
-    const session = await auth()
-    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    await requireSession();
+    const { id } = await params;
+    assertObjectId(id, 'Message');
+    const { read } = await parseBody(req, messageUpdateSchema);
 
-    const { id } = await params
-    await dbConnect()
-
-    const body = await req.json()
+    await dbConnect();
     const message = await ContactMessage.findByIdAndUpdate(
       id,
-      { read: body.read ?? true },
-      { new: true, runValidators: true }
-    ).lean()
-
-    if (!message) {
-      return NextResponse.json({ error: 'Message not found' }, { status: 404 })
-    }
-
-    return NextResponse.json(message)
+      { $set: { read: read ?? true } },
+      { returnDocument: 'after', runValidators: true }
+    ).lean();
+    return message ? NextResponse.json(message) : notFound();
   } catch (error) {
-    console.error('Message PUT error:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    return errorResponse(error, 'Message update');
   }
 }
 
-export async function DELETE(req: NextRequest, { params }: RouteContext) {
+export async function DELETE(_req: Request, { params }: RouteContext) {
   try {
-    const session = await auth()
-    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-
-    const { id } = await params
-    await dbConnect()
-
-    const message = await ContactMessage.findByIdAndDelete(id).lean()
-
-    if (!message) {
-      return NextResponse.json({ error: 'Message not found' }, { status: 404 })
-    }
-
-    return NextResponse.json({ message: 'Message deleted successfully' })
+    await requireSession();
+    const { id } = await params;
+    assertObjectId(id, 'Message');
+    await dbConnect();
+    const message = await ContactMessage.findByIdAndDelete(id).lean();
+    return message ? NextResponse.json({ message: 'Message deleted successfully' }) : notFound();
   } catch (error) {
-    console.error('Message DELETE error:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    return errorResponse(error, 'Message delete');
   }
 }

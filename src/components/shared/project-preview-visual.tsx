@@ -1,47 +1,39 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { Code2 } from "lucide-react";
+import { useState } from "react";
+import { cn } from "@/lib/utils";
 
 interface ProjectPreviewVisualProps {
   image?: string;
   title: string;
-  label?: string;
   className?: string;
 }
 
+/** Project screenshot. Renders nothing when there is no image or it fails to load. */
 export function ProjectPreviewVisual({
   image,
   title,
-  label,
-  className = "",
+  className,
 }: ProjectPreviewVisualProps) {
-  const hasRenderableImage = Boolean(image && !image.includes("duli_preview.png"));
+  const [failed, setFailed] = useState(false);
+
+  if (!image || failed) return null;
 
   return (
-    <div className={`project-visual ${className}`}>
-      {hasRenderableImage ? (
-        <img
-          src={image}
-          alt={`${title} interface preview`}
-          className="absolute inset-0 h-full w-full object-cover object-top"
-          loading="lazy"
-          onError={(event) => {
-            event.currentTarget.remove();
-          }}
-        />
-      ) : null}
-      <div className="project-visual__fallback">
-        <Code2 className="mb-3 h-8 w-8 text-primary/70" aria-hidden="true" />
-        {label ? <span>{label}</span> : null}
-        <strong>{title}</strong>
-      </div>
-      <div className="project-visual__chrome">
-        <span />
-        <span />
-        <span />
-        <small>kunal.dev / {title.toLowerCase().replace(/\s+/g, "-")}</small>
-      </div>
+    <div
+      className={cn(
+        "relative aspect-video overflow-hidden rounded-xl border border-border bg-muted",
+        className
+      )}
+    >
+      <img
+        src={image}
+        alt={`Screenshot of ${title}`}
+        className="absolute inset-0 h-full w-full object-cover object-top"
+        loading="lazy"
+        onError={() => setFailed(true)}
+      />
     </div>
   );
 }

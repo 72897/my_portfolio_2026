@@ -1,9 +1,9 @@
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata = pageMetadata({
-  title: "GitHub Stats",
+  title: "GitHub",
   description:
-    "Kunal Singh's GitHub activity: repositories, languages, and contribution history across AI and full-stack projects.",
+    "Public GitHub repositories and languages for Kunal Singh (@72897), loaded from the GitHub API.",
   path: "/github",
 });
 

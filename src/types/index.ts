@@ -1,3 +1,5 @@
+export type ProjectStatus = "Live" | "Internal" | "Archived";
+
 export interface IProject {
   _id?: string;
   title: string;
@@ -6,19 +8,18 @@ export interface IProject {
   longDescription?: string;
   techStack: string[];
   features: string[];
-  githubUrl: string;
-  liveUrl: string;
+  githubUrl?: string;
+  liveUrl?: string;
   image?: string;
   screenshots?: string[];
   category: "AI" | "FullStack" | "WebApp" | "Backend" | "Automation" | "Resume";
   featured: boolean;
+  role?: string;
+  year?: string;
+  status?: ProjectStatus;
   order?: number;
   createdAt?: Date;
   updatedAt?: Date;
-  metrics?: Record<string, string>;
-  challenges?: string;
-  solutions?: string;
-  architectureSteps?: { title: string; description: string }[];
 }
 
 export interface ICertificate {
@@ -167,6 +168,11 @@ export interface LeetCodeStats {
     medium: number;
     hard: number;
   };
+}
+
+export interface ILanguage {
+  name: string;
+  level: string;
 }
 
 export interface IEducation {

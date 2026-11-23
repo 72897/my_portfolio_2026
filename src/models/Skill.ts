@@ -4,7 +4,7 @@ export interface ISkillDoc extends Document {
   name: string;
   category: string;
   icon?: string;
-  proficiency: number;
+  proficiency?: number;
   order: number;
 }
 
@@ -29,7 +29,6 @@ const SkillSchema = new Schema<ISkillDoc>(
       type: Number,
       min: [1, 'Proficiency must be at least 1'],
       max: [100, 'Proficiency cannot exceed 100'],
-      default: 50,
     },
     order: {
       type: Number,

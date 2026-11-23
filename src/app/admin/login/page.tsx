@@ -1,12 +1,18 @@
 'use client';
 
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import { signIn } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Lock, Mail, Eye, EyeOff, Shield } from 'lucide-react';
 
-export default function AdminLoginPage() {
+const SIGN_IN_ERRORS: Record<string, string> = {
+  too_many_attempts: 'Too many attempts. Wait 15 minutes and try again.',
+  unavailable: 'Sign-in is unavailable: the server could not reach the database.',
+};
+
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -25,10 +31,17 @@ export default function AdminLoginPage() {
         redirect: false,
       });
 
-      if (result?.error) {
-        setError('Invalid email or password');
+      if (!result || result.error) {
+        setError(
+          result?.error === 'CredentialsSignin'
+            ? SIGN_IN_ERRORS[result.code ?? ''] ?? 'Invalid email or password'
+            : 'Sign-in failed because of a server error. Check the server configuration.'
+        );
       } else {
-        router.push('/admin');
+        // Only follow a callback that stays inside the admin area.
+        const callbackUrl = searchParams.get('callbackUrl') ?? '';
+        router.push(/^\/admin(\/[\w\-/]*)?$/.test(callbackUrl) ? callbackUrl : '/admin');
+        router.refresh();
       }
     } catch {
       setError('Something went wrong. Please try again.');
@@ -85,6 +98,7 @@ export default function AdminLoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
+                  autoComplete="username"
                   placeholder="admin@example.com"
                   className="anime-input pl-11"
                 />
@@ -107,12 +121,14 @@ export default function AdminLoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
+                  autoComplete="current-password"
                   placeholder="Enter your password"
                   className="anime-input pl-11 pr-12"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition cursor-pointer"
                 >
                   {showPassword ? (
@@ -147,9 +163,18 @@ export default function AdminLoginPage() {
 
         {/* Footer */}
         <p className="text-center text-xs text-muted-foreground mt-6">
-          Protected area. Authorized personnel only.
+          Site owner sign-in.
         </p>
       </div>
     </div>
+  );
+}
+
+// useSearchParams needs a Suspense boundary for the page to prerender.
+export default function AdminLoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginForm />
+    </Suspense>
   );
 }

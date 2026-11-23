@@ -3,7 +3,7 @@ import { pageMetadata } from "@/lib/seo";
 export const metadata = pageMetadata({
   title: "Experience",
   description:
-    "Work experience of Kunal Singh across software engineering and AI internships, covering full-stack development, GenAI pipelines, and production delivery.",
+    "Work history of Kunal Singh: software engineer at Technocratiq Digital, with earlier internships at Manipal Business Solution, Thales Group and MI Matdar.",
   path: "/experience",
 });
 

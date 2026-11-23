@@ -3,7 +3,7 @@ import { pageMetadata } from "@/lib/seo";
 export const metadata = pageMetadata({
   title: "About",
   description:
-    "About Kunal Singh, an AI Engineer and Full Stack Developer from Greater Noida with a B.Tech in Computer Science from Gautam Buddha University, building RAG systems and agentic workflows.",
+    "About Kunal Singh: software engineer at Technocratiq Digital in Delhi, B.Tech in Computer Science from Gautam Buddha University. Summary, education, languages and achievements.",
   path: "/about",
 });
 

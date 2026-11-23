@@ -5,8 +5,8 @@ export { default as Profile } from './Profile';
 export type { IProfileDoc } from './Profile';
 
 export { default as Project } from './Project';
-export type { IProjectDoc, ProjectCategory } from './Project';
-export { PROJECT_CATEGORIES } from './Project';
+export type { IProjectDoc, ProjectCategory, ProjectStatus } from './Project';
+export { PROJECT_CATEGORIES, PROJECT_STATUSES } from './Project';
 
 export { default as Certificate } from './Certificate';
 export type { ICertificateDoc } from './Certificate';

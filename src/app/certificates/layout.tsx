@@ -3,7 +3,7 @@ import { pageMetadata } from "@/lib/seo";
 export const metadata = pageMetadata({
   title: "Certifications",
   description:
-    "Certifications earned by Kunal Singh in cloud computing, generative AI, and APIs.",
+    "Certifications completed by Kunal Singh, from Google Cloud, AWS, Postman, HP LIFE and Forage job simulations with Walmart and Deloitte.",
   path: "/certificates",
 });
 

@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { toast } from 'sonner';
 import { Settings, Save, Palette, User, Mail, Phone, MapPin, Link as LinkIcon } from 'lucide-react';
+import { apiRequest, errorMessage } from '../_lib/api';
+import { LoadError } from '../_components/load-error';
 
 interface IProfileData {
   name: string;
@@ -26,6 +28,7 @@ export default function AdminSettingsPage() {
   const { data: session } = useSession();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [profile, setProfile] = useState<Partial<IProfileData>>({
     name: '',
     title: '',
@@ -44,20 +47,24 @@ export default function AdminSettingsPage() {
   });
 
   useEffect(() => {
-    async function fetchProfile() {
-      try {
-        const res = await fetch('/api/profile');
-        if (res.ok) {
-          const data = await res.json();
-          setProfile(data);
-        }
-      } catch (error) {
-        console.error('Failed to fetch profile settings:', error);
-      } finally {
-        setLoading(false);
-      }
-    }
-    if (session) fetchProfile();
+    if (!session) return;
+    let cancelled = false;
+    // ?source=db: 404 means nothing has been saved yet, so the form stays empty.
+    fetch('/api/profile?source=db')
+      .then(async (res) => {
+        if (cancelled) return;
+        if (res.ok) setProfile(await res.json());
+        else if (res.status !== 404) setLoadError('Could not load the saved profile. Saving now would overwrite it.');
+      })
+      .catch(() => {
+        if (!cancelled) setLoadError('Could not reach the server.');
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [session]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -65,22 +72,15 @@ export default function AdminSettingsPage() {
     setSaving(true);
 
     try {
-      const res = await fetch('/api/profile', {
+      const saved = await apiRequest<Partial<IProfileData>>('/api/profile', {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(profile),
       });
-
-      if (res.ok) {
-        const data = await res.json();
-        setProfile(data);
-        toast.success('Profile settings updated successfully!');
-      } else {
-        const data = await res.json();
-        toast.error(data.error || 'Failed to update profile');
-      }
-    } catch {
-      toast.error('Something went wrong');
+      setProfile(saved);
+      setLoadError(null);
+      toast.success('Profile saved');
+    } catch (err) {
+      toast.error(errorMessage(err, 'Failed to save profile'));
     } finally {
       setSaving(false);
     }
@@ -106,9 +106,11 @@ export default function AdminSettingsPage() {
           Settings
         </h1>
         <p className="text-muted-foreground mt-1">
-          Configure your personal info, branding colors, and portfolio integrations
+          Profile details, logo colours and profile links
         </p>
       </div>
+
+      {loadError && <LoadError message={loadError} onRetry={() => window.location.reload()} />}
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Personal Details */}

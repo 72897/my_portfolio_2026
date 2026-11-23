@@ -1,129 +1,85 @@
-"use client";
-
-import { type CSSProperties, useMemo, useState } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
 import {
   ArrowRight,
   Award,
   Briefcase,
-  Check,
   Code2,
-  Copy,
-  Cpu,
-  Database,
   Download,
   ExternalLink,
-  GitBranch,
-  Globe,
   GraduationCap,
+  Languages,
   Layers3,
   Mail,
   MapPin,
-  Rocket,
-  Server,
-  Sliders,
-  Terminal,
+  Trophy,
 } from "lucide-react";
-import { AiPlayground } from "@/components/effects/ai-playground";
-import { Magnetic } from "@/components/effects/magnetic";
-import { RagVisualizer } from "@/components/effects/rag-visualizer";
 import { ScrollRail } from "@/components/effects/scroll-rail";
 import { ScrollReveal } from "@/components/effects/scroll-reveal";
-import { AnimatedCounter } from "@/components/shared/animated-counter";
 import { Github, Linkedin } from "@/components/shared/brand-icons";
 import { ProjectPreviewVisual } from "@/components/shared/project-preview-visual";
-import { usePortfolio } from "@/hooks/usePortfolio";
-import { education as fallbackEducation, siteConfig } from "@/lib/constants";
+import {
+  achievements,
+  certificates,
+  education,
+  experiences,
+  languages,
+  projects,
+  siteConfig,
+  skillCategories,
+} from "@/lib/constants";
 
-const stats = [
-  { icon: Briefcase, label: "Work roles", value: 4, suffix: "", note: "AI + full-stack delivery" },
-  { icon: Rocket, label: "Projects shipped", value: 6, suffix: "+", note: "case-study ready builds" },
-  { icon: Code2, label: "DSA problems", value: 200, suffix: "+", note: "algorithmic fundamentals" },
-  { icon: Award, label: "Certificates", value: 6, suffix: "+", note: "cloud, GenAI, APIs" },
+const RAIL_SECTIONS = [
+  { id: "hero", label: "Top" },
+  { id: "about", label: "About" },
+  { id: "experience", label: "Experience" },
+  { id: "skills", label: "Skills" },
+  { id: "projects", label: "Projects" },
+  { id: "credentials", label: "Credentials" },
+  { id: "contact", label: "Contact" },
 ];
 
-const hiringTickerItems = [
-  "Available for freelance projects",
-  "Open to AI & full-stack roles",
-  "RAG systems",
-  "Agentic workflows",
-  "MERN + Next.js",
-  "Admin panels",
-  "Automation systems",
-  "Remote-ready from India",
-];
+const FEATURED_LIMIT = 4;
+const HOME_BULLET_LIMIT = 3;
 
-const workflow = [
+const SECTION_HEADING =
+  "mt-6 text-5xl font-black leading-[0.96] tracking-[-0.07em] md:text-7xl";
+
+const currentRole = experiences.find((exp) => exp.current);
+
+/* TIQ Platform leads the list; the rest keep their order in the data file. */
+const featuredProjects = projects
+  .filter((project) => project.featured)
+  .sort(
+    (a, b) =>
+      Number(b.slug === "tiq-platform") - Number(a.slug === "tiq-platform")
+  )
+  .slice(0, FEATURED_LIMIT);
+
+const glanceFacts = [
   {
-    eyebrow: "01 / Discovery",
-    title: "Turn messy product ideas into an executable system map.",
-    body: "I start by making the data, users, failure states, and measurable constraints visible before writing code.",
     icon: Layers3,
+    value: "47+",
+    label: "Automations shipped",
+    note: "Marketing, CRM, analytics, lead generation and internal operations at Technocratiq Digital.",
   },
   {
-    eyebrow: "02 / Build",
-    title: "Ship the backend, AI pipeline, and interface as one connected product.",
-    body: "RAG, agents, APIs, auth, databases, and UI states are designed together so the experience feels stable end-to-end.",
-    icon: GitBranch,
-  },
-  {
-    eyebrow: "03 / Harden",
-    title: "Instrument the details that separate demos from production.",
-    body: "Latency budgets, fallback flows, prompt boundaries, loading states, and deployment checks make the product easier to trust.",
-    icon: Server,
-  },
-];
-
-const capabilities = [
-  {
-    title: "AI product MVPs",
-    description:
-      "Turn an AI idea into a usable product with scoped flows, model integration, auth, admin controls, and polished UX.",
-    icon: Cpu,
-    points: ["RAG systems", "LLM apps", "MVP delivery"],
-  },
-  {
-    title: "Full-time engineering",
-    description:
-      "Join product teams as an AI/full-stack engineer who can ship frontend, backend, database models, and production UI.",
-    icon: Globe,
-    points: ["Next.js", "Node APIs", "MongoDB"],
-  },
-  {
-    title: "Automation systems",
-    description:
-      "Build workflow tools for lead ops, reporting, reminders, notifications, CRM updates, and repetitive business tasks.",
-    icon: Database,
-    points: ["Internal tools", "Integrations", "Dashboards"],
-  },
-  {
-    title: "Production handoff",
-    description:
-      "Package projects with clean deployment, environment setup, docs, performance checks, and maintainable ownership.",
-    icon: Terminal,
-    points: ["Vercel", "Docs", "Handoff"],
-  },
-];
-
-const engineeringSignals = [
-  {
-    title: "Readable systems",
-    body: "Every featured project is structured around the problem, architecture, constraints, and measurable outcome.",
-    meta: "Case studies",
     icon: Code2,
+    value: "150+",
+    label: "Problems solved",
+    note: "On LeetCode and GeeksforGeeks.",
   },
   {
-    title: "AI with boundaries",
-    body: "LLM features are treated like production surfaces: context windows, fallback paths, retrieval quality, and cost all matter.",
-    meta: "GenAI / RAG",
-    icon: Cpu,
+    icon: Trophy,
+    value: "3+",
+    label: "Hackathon finals",
+    note: "Reached as team lead.",
   },
   {
-    title: "Interface craft",
-    body: "The UI is now editorial, restrained, and content-first while keeping the interactive demos that make the portfolio memorable.",
-    meta: "UX system",
-    icon: Sliders,
+    icon: Award,
+    value: String(certificates.length),
+    label: "Certifications",
+    note: "Cloud, generative AI and API testing.",
   },
 ];
 
@@ -150,686 +106,604 @@ const overlapPanel = (index: number, ...extraClasses: string[]) => ({
   style: { "--overlap-index": index } as CSSProperties,
 });
 
-export default function HomePage() {
-  const { data } = usePortfolio();
-  const { profile, experience, projects, education } = data;
-  const [copied, setCopied] = useState(false);
-  const [briefCopied, setBriefCopied] = useState(false);
-
-  const sortedProjects = useMemo(
-    () =>
-      [...projects].sort((a, b) => {
-        if (a.highlight && !b.highlight) return -1;
-        if (!a.highlight && b.highlight) return 1;
-        return b.year.localeCompare(a.year);
-      }),
-    [projects]
+function Eyebrow({
+  icon,
+  children,
+  className = "",
+}: {
+  icon: ReactNode;
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <span className={`editorial-eyebrow ${className}`}>
+      {icon}
+      {children}
+    </span>
   );
+}
 
-  const featuredProjects = sortedProjects.slice(0, 4);
-  const hiringBrief = useMemo(
-    () =>
-      `# HIRE_KUNAL.md
+function HeroSection() {
+  return (
+    <section id="hero" className="editorial-hero scroll-mt-24">
+      <div className="editorial-container hero-layout">
+        <ScrollReveal>
+          <div className="hero-copy-card flex max-w-4xl flex-col items-start text-left">
+            {currentRole ? (
+              <span className="editorial-eyebrow">
+                <span className="status-dot" aria-hidden="true" />
+                Currently: {currentRole.role} at {currentRole.company}
+              </span>
+            ) : null}
 
-Candidate: ${profile.name || "Kunal Singh"}
-Role fit: AI Engineer - Full Stack Developer
-Location: ${profile.location || "India"} - remote-ready
+            <p className="mt-8 font-mono text-sm font-bold uppercase tracking-[0.18em]">
+              {siteConfig.name}
+            </p>
+            <h1 className="editorial-display mt-3 text-[length:clamp(2.4rem,4.6vw,4.25rem)]!">
+              {siteConfig.title}
+            </h1>
 
-Hire for:
-- Freelance AI product MVPs
-- RAG systems and LLM workflows
-- MERN / Next.js web apps
-- Admin panels, APIs, dashboards, and automations
-- Full-time AI/full-stack engineering roles
+            <p className="mt-7 max-w-2xl text-base leading-8 text-muted-foreground md:text-lg">
+              {siteConfig.description}
+            </p>
 
-Proof points:
-- 6+ shipped projects
-- 200+ DSA problems solved
-- 6+ certificates
-- Experience across GenAI, automation, and full-stack delivery
+            <div className="mt-8 flex flex-wrap justify-start gap-3">
+              <Link href="/projects" className="anime-btn">
+                View projects
+                <ArrowRight size={16} aria-hidden="true" />
+              </Link>
+              <a
+                href={siteConfig.links.resume}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="anime-btn-outline"
+              >
+                <Download size={16} aria-hidden="true" />
+                Resume
+              </a>
+              <Link href="/contact" className="anime-btn-outline">
+                <Mail size={16} aria-hidden="true" />
+                Contact
+              </Link>
+              <a
+                href={siteConfig.links.github}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="anime-btn-outline"
+              >
+                <Github className="size-4" aria-hidden="true" />
+                GitHub
+              </a>
+            </div>
+          </div>
+        </ScrollReveal>
 
-Contact:
-- Email: ${profile.social.email || siteConfig.email}
-- LinkedIn: ${profile.social.linkedin || siteConfig.links.linkedin}`,
-    [
-      profile.location,
-      profile.name,
-      profile.social.email,
-      profile.social.linkedin,
-    ]
+        <ScrollReveal delay={0.08}>
+          <div className="hero-art-card" aria-hidden="true">
+            <div className="hero-art-card__caption">
+              <span>Based in</span>
+              <strong>{siteConfig.location}</strong>
+            </div>
+          </div>
+        </ScrollReveal>
+      </div>
+    </section>
   );
-  const displayedEducation = [
-    ...education,
-    ...fallbackEducation.filter(
-      (fallback) =>
-        !education.some(
-          (item) =>
-            item.institution.toLowerCase() === fallback.institution.toLowerCase()
-        )
-    ),
-  ].slice(0, 3);
+}
 
-  const handleCopyEmail = () => {
-    const email = profile.social.email || siteConfig.email;
-    void navigator.clipboard.writeText(email);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  const handleCopyHiringBrief = () => {
-    void navigator.clipboard.writeText(hiringBrief);
-    setBriefCopied(true);
-    setTimeout(() => setBriefCopied(false), 2000);
-  };
+/* Decorative marquee of the current role's stack; the Skills panel carries the
+   same information for assistive tech. */
+function StackTicker() {
+  const items = currentRole?.technologies ?? [];
+  if (items.length === 0) return null;
 
   return (
-    <div className="relative min-h-screen overflow-x-clip bg-background text-foreground">
-      <ScrollRail />
-
-      <section id="hero" className="editorial-hero scroll-mt-24">
-        <div className="editorial-container hero-layout">
-          <ScrollReveal>
-            <div className="hero-copy-card flex max-w-4xl flex-col items-start text-left">
-              <span className="editorial-eyebrow">
-                <span className="status-dot" />
-                Available for freelance projects - AI & full-stack roles
-              </span>
-
-              <h1 className="editorial-display mt-8">
-                Hire me to build AI products.
-              </h1>
-
-              <p className="mt-7 max-w-2xl text-base leading-8 text-muted-foreground md:text-lg">
-                I&apos;m {profile.shortName || "Kunal"} - {profile.tagline}. I help freelance
-                clients and hiring teams turn AI ideas into reliable products: RAG systems,
-                automation workflows, admin panels, APIs, and polished web apps.
-              </p>
-
-              <div className="mt-8 flex flex-wrap justify-start gap-3">
-                {profile.social.resume ? (
-                  <Magnetic strength={0.18}>
-                    <a
-                      href={profile.social.resume}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="anime-btn"
-                    >
-                      <Download size={16} />
-                      Download resume
-                    </a>
-                  </Magnetic>
-                ) : null}
-                <Magnetic strength={0.18}>
-                  <Link href="/contact" className="anime-btn-outline">
-                    <Mail size={16} />
-                    Hire me for freelance
-                  </Link>
-                </Magnetic>
-                <Magnetic strength={0.18}>
-                  <Link href="/contact?type=company" className="anime-btn-outline">
-                    <Briefcase size={16} />
-                    Hire me full-time
-                  </Link>
-                </Magnetic>
-                <Magnetic strength={0.18}>
-                  <Link href="/blog" className="anime-btn-outline">
-                    <Code2 size={16} />
-                    Read blog
-                  </Link>
-                </Magnetic>
-              </div>
-            </div>
-          </ScrollReveal>
-
-          <ScrollReveal delay={0.08}>
-            <motion.div
-              className="hero-art-card"
-              aria-label="Anime-inspired AI product engineering visual"
-              role="img"
-              initial={{ y: 18, rotate: 1.2 }}
-              animate={{ y: 0, rotate: 0 }}
-              transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1] }}
-            >
-              <div className="hero-art-card__label">
-                <Code2 size={14} />
-                AI product systems
-              </div>
-              <div className="hero-art-card__caption">
-                <span>Portfolio mode</span>
-                <strong>Anime energy, professional delivery.</strong>
-              </div>
-            </motion.div>
-          </ScrollReveal>
+    <div className="agent-ticker-section" aria-hidden="true">
+      <div className="agent-ticker">
+        <div className="agent-ticker__track">
+          {[...items, ...items].map((item, index) => (
+            <span key={`${item}-${index}`}>{item}</span>
+          ))}
         </div>
-      </section>
+      </div>
+    </div>
+  );
+}
 
-      <section className="agent-ticker-section" aria-label="Hiring availability highlights">
-        <div className="agent-ticker">
-          <div className="agent-ticker__track">
-            {[...hiringTickerItems, ...hiringTickerItems].map((item, index) => (
-              <span key={`${item}-${index}`}>{item}</span>
-            ))}
-          </div>
+function GlanceSection() {
+  return (
+    <section
+      aria-labelledby="glance-heading"
+      {...overlapPanel(1, "editorial-section")}
+    >
+      <div className="editorial-container">
+        <div className="proof-header">
+          <Eyebrow icon={<Award size={14} aria-hidden="true" />}>
+            At a glance
+          </Eyebrow>
+          <h2 id="glance-heading">The short version.</h2>
         </div>
-      </section>
-
-      <section {...overlapPanel(1, "editorial-section")}>
-        <div className="editorial-container">
-          <div className="proof-header">
-            <span className="editorial-eyebrow">
-              <Award size={14} />
-              Proof in numbers
-            </span>
-            <h2>Signals clients and hiring teams can scan fast.</h2>
-          </div>
-          <div className="grid gap-4 md:grid-cols-4">
-            {stats.map((stat, index) => (
-              <ScrollReveal key={stat.label} delay={index * 0.04}>
-                <motion.div
-                  className="editorial-stat-card"
-                  whileHover={{ y: -6, rotateX: 2 }}
-                  transition={{ type: "spring", stiffness: 260, damping: 24 }}
-                >
-                  <div className="mb-8 flex items-center justify-between">
-                    <stat.icon size={19} className="text-muted-foreground" />
-                    <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-                      {String(index + 1).padStart(2, "0")}
-                    </span>
-                  </div>
-                  <div className="text-5xl font-black tracking-[-0.07em]">
-                    <AnimatedCounter target={stat.value} suffix={stat.suffix} />
-                  </div>
-                  <p className="mt-2 text-xs font-bold uppercase tracking-[0.14em]">{stat.label}</p>
-                  <p className="mt-3 text-sm leading-6 text-muted-foreground">{stat.note}</p>
-                </motion.div>
+        <ul className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {glanceFacts.map((fact, index) => (
+            <li key={fact.label}>
+              <ScrollReveal delay={index * 0.04} className="h-full">
+                <div className="editorial-stat-card h-full">
+                  <fact.icon
+                    size={19}
+                    className="mb-8 text-muted-foreground"
+                    aria-hidden="true"
+                  />
+                  <p className="text-5xl font-black tracking-[-0.07em]">
+                    {fact.value}
+                  </p>
+                  <p className="mt-2 text-xs font-bold uppercase tracking-[0.14em]">
+                    {fact.label}
+                  </p>
+                  <p className="mt-3 text-sm leading-6 text-muted-foreground">
+                    {fact.note}
+                  </p>
+                </div>
               </ScrollReveal>
-            ))}
-          </div>
-        </div>
-      </section>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  );
+}
 
-      <section id="story" {...overlapPanel(2, "editorial-section", "scroll-mt-24")}>
-        <div className="editorial-container">
-          <div className="grid gap-10 lg:grid-cols-[0.78fr_1.22fr] lg:gap-20">
-            <div className="lg:sticky lg:top-28 lg:h-fit">
-              <span className="editorial-eyebrow">
-                <Terminal size={14} />
-                Scroll-based build path
-              </span>
-              <h2 className="mt-6 text-5xl font-black leading-[0.95] tracking-[-0.07em] md:text-7xl">
-                From brief to shipped product.
-              </h2>
-              <p className="mt-6 text-base leading-8 text-muted-foreground">
-                For clients, I can scope and build a useful MVP. For companies, I bring
-                AI engineering plus full-stack execution into one practical workflow.
-              </p>
-            </div>
-
-            <div className="space-y-5">
-              {workflow.map((item, index) => (
-                <ScrollReveal key={item.title} delay={index * 0.05}>
-                  <motion.article
-                    className="editorial-feature-card"
-                    whileHover={{ x: -6 }}
-                    transition={{ type: "spring", stiffness: 250, damping: 25 }}
-                  >
-                    <div className="grid gap-8 md:grid-cols-[160px_1fr]">
-                      <div>
-                        <div className="editorial-icon">
-                          <item.icon size={20} />
-                        </div>
-                        <p className="mt-5 font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground">
-                          {item.eyebrow}
-                        </p>
-                      </div>
-                      <div>
-                        <h3 className="text-3xl font-black leading-tight tracking-[-0.055em] md:text-4xl">
-                          {item.title}
-                        </h3>
-                        <p className="mt-4 text-base leading-8 text-muted-foreground">{item.body}</p>
-                      </div>
-                    </div>
-                  </motion.article>
-                </ScrollReveal>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section id="about" {...overlapPanel(3, "editorial-section", "scroll-mt-24")}>
-        <div className="editorial-container">
-          <div className="grid gap-8 lg:grid-cols-2 lg:items-center lg:gap-20">
-            <ScrollReveal>
-              <motion.div
-                className="editorial-portrait-card"
-                whileInView={{ rotate: 0, scale: 1 }}
-                initial={{ rotate: -1.5, scale: 0.97 }}
-                viewport={{ once: true, amount: 0.3 }}
-                transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-              >
-                <div className="editorial-orbit-mark">
+function AboutSection() {
+  return (
+    <section
+      id="about"
+      aria-labelledby="about-heading"
+      {...overlapPanel(2, "editorial-section", "scroll-mt-24")}
+    >
+      <div className="editorial-container">
+        <div className="grid gap-8 lg:grid-cols-2 lg:items-center lg:gap-20">
+          <ScrollReveal>
+            <div className="editorial-portrait-card">
+              <div className="editorial-orbit-mark" aria-hidden="true">
                 <Code2 size={72} strokeWidth={1.3} />
-                </div>
-                <div className="editorial-floating-note editorial-floating-note--one">
-                  <span>Location</span>
-                  <strong>{profile.location}</strong>
-                </div>
-                <div className="editorial-floating-note editorial-floating-note--two">
-                  <span>Primary stack</span>
-                  <strong>AI - Next.js - MERN</strong>
-                </div>
-              </motion.div>
-            </ScrollReveal>
-
-            <ScrollReveal delay={0.05}>
-              <span className="editorial-eyebrow">
-                <MapPin size={14} />
-                About the engineer
-              </span>
-              <h2 className="mt-6 text-5xl font-black leading-[0.95] tracking-[-0.07em] md:text-7xl">
-                Available for freelance projects and product teams.
-              </h2>
-              <p className="mt-7 text-base leading-8 text-muted-foreground">{profile.bio}</p>
-              <div className="mt-8 grid gap-4 sm:grid-cols-3">
-                {displayedEducation.map((edu) => (
-                  <div key={edu.institution} className="editorial-mini-card">
-                    <GraduationCap size={18} />
-                    <h3>{edu.institution}</h3>
-                    <p>{edu.degree}</p>
-                    <span>{edu.period}</span>
-                  </div>
-                ))}
               </div>
-            </ScrollReveal>
-          </div>
-        </div>
-      </section>
+              <div className="editorial-floating-note editorial-floating-note--one">
+                <span>Location</span>
+                <strong>{siteConfig.location}</strong>
+              </div>
+              <div className="editorial-floating-note editorial-floating-note--two">
+                <span>Working in</span>
+                <strong>Python and TypeScript</strong>
+              </div>
+            </div>
+          </ScrollReveal>
 
-      <section id="experience" {...overlapPanel(4, "editorial-section", "scroll-mt-24")}>
-        <div className="editorial-container">
-          <div className="mx-auto mb-16 max-w-3xl text-center">
-            <span className="editorial-eyebrow mx-auto">
-              <Briefcase size={14} />
-              Work journey
-            </span>
-              <h2 className="mt-6 text-5xl font-black leading-[0.96] tracking-[-0.07em] md:text-7xl">
-                Practical delivery for real teams.
+          <ScrollReveal delay={0.05}>
+            <Eyebrow icon={<MapPin size={14} aria-hidden="true" />}>
+              About
+            </Eyebrow>
+            <h2 id="about-heading" className={SECTION_HEADING}>
+              What I do.
+            </h2>
+            <p className="mt-7 text-base leading-8 text-muted-foreground">
+              {siteConfig.description}
+            </p>
+            <ul className="mt-8 grid gap-4 sm:grid-cols-3">
+              {education.map((edu) => (
+                <li key={edu.institution} className="editorial-mini-card">
+                  <GraduationCap size={18} aria-hidden="true" />
+                  <h3>{edu.institution}</h3>
+                  <p>
+                    {edu.degree}
+                    {edu.grade ? `, ${edu.grade}` : ""}
+                  </p>
+                  <span>{edu.period}</span>
+                </li>
+              ))}
+            </ul>
+            <Link href="/about" className="anime-btn-outline mt-8 w-fit">
+              More about me
+              <ArrowRight size={15} aria-hidden="true" />
+            </Link>
+          </ScrollReveal>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ExperienceSection() {
+  return (
+    <section
+      id="experience"
+      aria-labelledby="experience-heading"
+      {...overlapPanel(3, "editorial-section", "scroll-mt-24")}
+    >
+      <div className="editorial-container">
+        <div className="mx-auto mb-16 max-w-3xl text-center">
+          <Eyebrow
+            icon={<Briefcase size={14} aria-hidden="true" />}
+            className="mx-auto"
+          >
+            Experience
+          </Eyebrow>
+          <h2 id="experience-heading" className={SECTION_HEADING}>
+            Where I have worked.
+          </h2>
+        </div>
+
+        <div className="editorial-timeline">
+          {experiences.map((exp, index) => (
+            <ScrollReveal
+              key={`${exp.company}-${exp.role}`}
+              delay={index * 0.04}
+              direction={index % 2 === 0 ? "left" : "right"}
+              className="editorial-timeline-item"
+            >
+              <article className="editorial-timeline-card">
+                <p className="font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                  {exp.startDate} to {exp.endDate} · {exp.type}
+                </p>
+                <h3 className="mt-3 text-3xl font-black tracking-[-0.055em]">
+                  {exp.role}
+                </h3>
+                <p className="mt-1 text-sm font-semibold text-muted-foreground">
+                  {exp.company}, {exp.location}
+                </p>
+                <ul className="mt-6 grid gap-3 border-t border-border/70 pt-6">
+                  {exp.bullets.slice(0, HOME_BULLET_LIMIT).map((bullet) => (
+                    <li
+                      key={bullet}
+                      className="flex gap-3 text-sm leading-6 text-muted-foreground"
+                    >
+                      <span
+                        className="mt-2 size-1.5 shrink-0 rounded-full bg-foreground"
+                        aria-hidden="true"
+                      />
+                      <span>{bullet}</span>
+                    </li>
+                  ))}
+                </ul>
+              </article>
+            </ScrollReveal>
+          ))}
+        </div>
+
+        <div className="mt-12 flex justify-center">
+          <Link href="/experience" className="anime-btn-outline">
+            Full experience
+            <ArrowRight size={15} aria-hidden="true" />
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function SkillsSection() {
+  return (
+    <section
+      id="skills"
+      aria-labelledby="skills-heading"
+      {...overlapPanel(4, "editorial-section", "scroll-mt-24")}
+    >
+      <div className="editorial-container">
+        <div className="mb-14 flex flex-col justify-between gap-6 md:flex-row md:items-end">
+          <div>
+            <Eyebrow icon={<Layers3 size={14} aria-hidden="true" />}>
+              Skills
+            </Eyebrow>
+            <h2
+              id="skills-heading"
+              className={`${SECTION_HEADING} max-w-3xl`}
+            >
+              What I work with.
             </h2>
           </div>
-
-          <div className="editorial-timeline">
-            {experience.map((exp, index) => (
-              <ScrollReveal
-                key={`${exp.company}-${exp.role}`}
-                delay={index * 0.04}
-                direction={index % 2 === 0 ? "left" : "right"}
-                className="editorial-timeline-item"
-              >
-                <article className="editorial-timeline-card">
-                  <div className="flex flex-wrap items-start justify-between gap-4">
-                    <div>
-                      <p className="font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground">
-                        {exp.period} - {exp.type}
-                      </p>
-                      <h3 className="mt-3 text-3xl font-black tracking-[-0.055em]">{exp.role}</h3>
-                      <p className="mt-1 text-sm font-semibold text-muted-foreground">
-                        {exp.company} - {exp.location}
-                      </p>
-                    </div>
-                    <span className="mono-pill">{String(index + 1).padStart(2, "0")}</span>
-                  </div>
-                  <p className="mt-6 text-base leading-8 text-muted-foreground">{exp.summary}</p>
-                  <ul className="mt-6 grid gap-3 border-t border-border/70 pt-6 md:grid-cols-2">
-                    {exp.highlights.slice(0, 4).map((highlight) => (
-                      <li key={highlight} className="flex gap-3 text-sm leading-6 text-muted-foreground">
-                        <span className="mt-2 size-1.5 shrink-0 rounded-full bg-foreground" />
-                        <span>{highlight}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </article>
-              </ScrollReveal>
-            ))}
-          </div>
+          <Link href="/skills" className="anime-btn-outline w-fit">
+            All skills
+            <ArrowRight size={15} aria-hidden="true" />
+          </Link>
         </div>
-      </section>
 
-      <section id="services" {...overlapPanel(5, "editorial-section", "scroll-mt-24")}>
-        <div className="editorial-container">
-          <div className="mb-14 flex flex-col justify-between gap-6 md:flex-row md:items-end">
-            <div>
-              <span className="editorial-eyebrow">
-                <Cpu size={14} />
-                Hire me for
-              </span>
-              <h2 className="mt-6 max-w-3xl text-5xl font-black leading-[0.96] tracking-[-0.07em] md:text-7xl">
-                Clear ways I can help you ship.
-              </h2>
-              <p className="mt-5 max-w-2xl text-base leading-8 text-muted-foreground">
-                Pick the path that matches your need: freelance delivery, company role,
-                automation buildout, or a clean production handoff.
-              </p>
-            </div>
-            <Link href="/skills" className="anime-btn-outline w-fit">
-              View skill architecture
-              <ArrowRight size={15} />
-            </Link>
-          </div>
-
-          <div className="grid gap-5 md:grid-cols-2">
-            {capabilities.map((item, index) => (
-              <ScrollReveal key={item.title} delay={index * 0.04}>
-                <motion.article
-                  className="editorial-capability-card"
-                  whileHover={{ y: -6 }}
-                  transition={{ type: "spring", stiffness: 260, damping: 25 }}
-                >
-                  <div className="mb-10 flex items-center justify-between">
-                    <div className="editorial-icon">
-                      <item.icon size={20} />
-                    </div>
-                    <span className="font-mono text-xs text-muted-foreground">
-                      /{String(index + 1).padStart(2, "0")}
-                    </span>
-                  </div>
-                  <h3 className="text-3xl font-black tracking-[-0.055em]">{item.title}</h3>
-                  <p className="mt-4 text-base leading-8 text-muted-foreground">{item.description}</p>
-                  <div className="mt-7 flex flex-wrap gap-2">
-                    {item.points.map((point) => (
-                      <span key={point} className="mono-pill">{point}</span>
-                    ))}
-                  </div>
-                </motion.article>
-              </ScrollReveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section
-        id="playground"
-        {...overlapPanel(6, "editorial-section", "portfolio-demo-section", "scroll-mt-24")}
-      >
-        <div className="editorial-container">
-          <div className="portfolio-demo-stage">
-            <div className="portfolio-demo-header">
-              <ScrollReveal>
-                <span className="editorial-eyebrow">
-                  <Sliders size={14} />
-                  Interactive AI sandbox
-                </span>
-                <h2 className="mt-5 text-5xl font-black leading-[0.96] tracking-[-0.07em] md:text-7xl">
-                  Inspect the AI behavior before you hire.
-                </h2>
-              </ScrollReveal>
-              <ScrollReveal delay={0.05}>
-                <p className="portfolio-demo-lede">
-                  Clients can test the AI twin live, adjust model controls, and see
-                  how I reason about LLM behavior beyond a polished homepage.
-                </p>
-              </ScrollReveal>
-            </div>
-            <ScrollReveal delay={0.08}>
-              <div className="portfolio-demo-console">
-                <AiPlayground />
-              </div>
+        <div className="grid gap-5 md:grid-cols-2">
+          {skillCategories.map((group, index) => (
+            <ScrollReveal key={group.category} delay={index * 0.04}>
+              <article className="editorial-capability-card h-full">
+                <h3 className="text-2xl font-black tracking-[-0.055em]">
+                  {group.category}
+                </h3>
+                <ul className="mt-6 flex flex-wrap gap-2">
+                  {group.skills.map((skill) => (
+                    <li key={skill.name} className="mono-pill">
+                      {skill.name}
+                    </li>
+                  ))}
+                </ul>
+              </article>
             </ScrollReveal>
-          </div>
+          ))}
         </div>
-      </section>
+      </div>
+    </section>
+  );
+}
 
-      <section
-        id="rag-simulator"
-        {...overlapPanel(7, "editorial-section", "portfolio-demo-section", "scroll-mt-24")}
-      >
-        <div className="editorial-container">
-          <div className="portfolio-demo-stage portfolio-demo-stage--inverse">
-            <div className="portfolio-demo-header">
-              <ScrollReveal>
-                <span className="editorial-eyebrow">
-                  <Database size={14} />
-                  Retrieval walkthrough
-                </span>
-                <h2 className="mt-5 text-5xl font-black leading-[0.96] tracking-[-0.07em] md:text-7xl">
-                  Show the pipeline behind the answer.
-                </h2>
-              </ScrollReveal>
-              <ScrollReveal delay={0.05}>
-                <p className="portfolio-demo-lede">
-                  The RAG walkthrough turns invisible infrastructure into proof:
-                  ingestion, chunking, embeddings, retrieval, context injection, and verified output.
-                </p>
-              </ScrollReveal>
-            </div>
-            <ScrollReveal delay={0.08}>
-              <div className="portfolio-demo-console">
-                <RagVisualizer />
-              </div>
-            </ScrollReveal>
+function ProjectsSection() {
+  return (
+    <section
+      id="projects"
+      aria-labelledby="projects-heading"
+      {...overlapPanel(5, "editorial-section", "scroll-mt-24")}
+    >
+      <div className="editorial-container">
+        <div className="mb-14 flex flex-col justify-between gap-6 md:flex-row md:items-end">
+          <div>
+            <Eyebrow icon={<Code2 size={14} aria-hidden="true" />}>
+              Featured work
+            </Eyebrow>
+            <h2
+              id="projects-heading"
+              className={`${SECTION_HEADING} max-w-3xl`}
+            >
+              Things I have built.
+            </h2>
           </div>
+          <Link href="/projects" className="anime-btn-outline w-fit">
+            All projects
+            <ArrowRight size={15} aria-hidden="true" />
+          </Link>
         </div>
-      </section>
 
-      <section id="projects" {...overlapPanel(8, "editorial-section", "scroll-mt-24")}>
-        <div className="editorial-container">
-          <div className="mb-14 flex flex-col justify-between gap-6 md:flex-row md:items-end">
-            <div>
-              <span className="editorial-eyebrow">
-                <Code2 size={14} />
-                Featured work
-              </span>
-              <h2 className="mt-6 max-w-3xl text-5xl font-black leading-[0.96] tracking-[-0.07em] md:text-7xl">
-                Work samples that support hiring decisions.
-              </h2>
-            </div>
-            <Link href="/projects" className="anime-btn-outline w-fit">
-              All projects
-              <ArrowRight size={15} />
-            </Link>
-          </div>
+        <div className="space-y-7">
+          {featuredProjects.map((project, index) => {
+            const isInternal = project.status === "Internal";
+            const meta = [project.year, project.role].filter(Boolean).join(" · ");
 
-          <div className="space-y-7">
-            {featuredProjects.map((project, index) => (
-              <ScrollReveal key={project.id} delay={index * 0.04}>
-                <motion.article
-                  className="editorial-project-card"
-                  whileHover={{ scale: 0.992 }}
-                  transition={{ type: "spring", stiffness: 220, damping: 26 }}
-                >
-                  <div className="grid gap-8 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
+            return (
+              <ScrollReveal key={project.slug} delay={index * 0.04}>
+                <article className="editorial-project-card">
+                  <div
+                    className={
+                      project.image
+                        ? "grid gap-8 lg:grid-cols-[0.95fr_1.05fr] lg:items-center"
+                        : undefined
+                    }
+                  >
                     <div className="order-2 lg:order-1">
-                      <p className="font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground">
-                        Project {String(index + 1).padStart(2, "0")} - {project.year}
-                      </p>
+                      {meta ? (
+                        <p className="font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                          {meta}
+                        </p>
+                      ) : null}
                       <h3 className="mt-4 text-4xl font-black leading-none tracking-[-0.065em] md:text-6xl">
                         {project.title}
                       </h3>
-                      <p className="mt-3 text-sm font-bold uppercase tracking-[0.14em] text-muted-foreground">
-                        {project.subtitle}
-                      </p>
+                      {isInternal ? (
+                        <p className="mono-pill mt-4 w-fit">
+                          Internal project at Technocratiq Digital
+                        </p>
+                      ) : null}
                       <p className="mt-5 max-w-2xl text-base leading-8 text-muted-foreground">
                         {project.description}
                       </p>
 
-                      {project.metrics ? (
-                        <div className="mt-7 grid gap-3 sm:grid-cols-3">
-                          {Object.entries(project.metrics).slice(0, 3).map(([key, value]) => (
-                            <div key={key} className="editorial-metric">
-                              <span>{key}</span>
-                              <strong>{value}</strong>
-                            </div>
-                          ))}
-                        </div>
-                      ) : null}
-
-                      <div className="mt-7 flex flex-wrap gap-2">
-                        {project.stack.slice(0, 6).map((tech) => (
-                          <span key={tech} className="mono-pill">{tech}</span>
+                      <ul className="mt-7 flex flex-wrap gap-2">
+                        {project.techStack.slice(0, 8).map((tech) => (
+                          <li key={tech} className="mono-pill">
+                            {tech}
+                          </li>
                         ))}
-                      </div>
+                      </ul>
 
                       <div className="mt-8 flex flex-wrap gap-3">
-                        <Link href={`/projects/${project.id}`} className="anime-btn-outline">
-                          Case study
-                          <ArrowRight size={15} />
+                        <Link
+                          href={`/projects/${project.slug}`}
+                          className="anime-btn-outline"
+                          aria-label={`${project.title} details`}
+                        >
+                          Details
+                          <ArrowRight size={15} aria-hidden="true" />
                         </Link>
-                        {project.liveUrl || project.link ? (
+                        {!isInternal && project.liveUrl ? (
                           <a
-                            href={project.liveUrl || project.link}
+                            href={project.liveUrl}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="anime-btn"
+                            aria-label={`${project.title} live site`}
                           >
-                            Live demo
-                            <ExternalLink size={15} />
+                            Live site
+                            <ExternalLink size={15} aria-hidden="true" />
                           </a>
                         ) : null}
-                        {project.githubUrl ? (
+                        {!isInternal && project.githubUrl ? (
                           <a
                             href={project.githubUrl}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="anime-btn-outline"
+                            aria-label={`${project.title} source code on GitHub`}
                           >
-                            <Github className="size-4" />
+                            <Github className="size-4" aria-hidden="true" />
                             Code
                           </a>
                         ) : null}
                       </div>
                     </div>
 
-                    <div className="order-1 lg:order-2">
-                      <ProjectPreviewVisual
-                        image={project.image}
-                        title={project.title}
-                        label={project.subtitle}
-                        className="min-h-[280px] md:min-h-[390px]"
-                      />
-                    </div>
+                    {project.image ? (
+                      <div className="order-1 lg:order-2">
+                        <ProjectPreviewVisual
+                          image={project.image}
+                          title={project.title}
+                        />
+                      </div>
+                    ) : null}
                   </div>
-                </motion.article>
+                </article>
               </ScrollReveal>
-            ))}
-          </div>
+            );
+          })}
         </div>
-      </section>
+      </div>
+    </section>
+  );
+}
 
-      <section id="signal" {...overlapPanel(9, "editorial-section", "scroll-mt-24")}>
-        <div className="editorial-container">
-          <div className="mx-auto mb-14 max-w-3xl text-center">
-            <span className="editorial-eyebrow mx-auto">
-              <Server size={14} />
-              Professional signal
-            </span>
-            <h2 className="mt-6 text-5xl font-black leading-[0.96] tracking-[-0.07em] md:text-7xl">
-              Clear reasons to hire.
-            </h2>
-          </div>
+function CredentialsSection() {
+  return (
+    <section
+      id="credentials"
+      aria-labelledby="credentials-heading"
+      {...overlapPanel(6, "editorial-section", "scroll-mt-24")}
+    >
+      <div className="editorial-container">
+        <div className="mx-auto mb-14 max-w-3xl text-center">
+          <Eyebrow
+            icon={<Award size={14} aria-hidden="true" />}
+            className="mx-auto"
+          >
+            Credentials
+          </Eyebrow>
+          <h2 id="credentials-heading" className={SECTION_HEADING}>
+            Certifications and other notes.
+          </h2>
+        </div>
 
-          <div className="grid gap-5 md:grid-cols-3">
-            {engineeringSignals.map((item, index) => (
-              <ScrollReveal key={item.title} delay={index * 0.04}>
-                <motion.article
-                  className="editorial-signal-card"
-                  whileHover={{ y: -5 }}
-                  transition={{ type: "spring", stiffness: 260, damping: 25 }}
-                >
-                  <div className="mb-9 flex items-center justify-between">
-                    <div className="editorial-icon">
-                      <item.icon size={20} />
-                    </div>
-                    <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-                      {item.meta}
+        <div className="grid gap-5 md:grid-cols-3">
+          <ScrollReveal>
+            <article className="editorial-signal-card h-full">
+              <div className="editorial-icon mb-9">
+                <Award size={20} aria-hidden="true" />
+              </div>
+              <h3 className="text-2xl font-black tracking-[-0.055em]">
+                Certifications
+              </h3>
+              <ul className="mt-4 space-y-3 text-sm leading-6 text-muted-foreground">
+                {certificates.map((cert) => (
+                  <li key={cert.title}>
+                    <span className="font-semibold text-foreground">
+                      {cert.title}
                     </span>
-                  </div>
-                  <h3 className="text-2xl font-black tracking-[-0.055em]">{item.title}</h3>
-                  <p className="mt-4 text-sm leading-7 text-muted-foreground">{item.body}</p>
-                </motion.article>
-              </ScrollReveal>
-            ))}
+                    , {cert.organization}
+                  </li>
+                ))}
+              </ul>
+              <Link href="/certificates" className="anime-btn-outline mt-7 w-fit">
+                All certificates
+                <ArrowRight size={15} aria-hidden="true" />
+              </Link>
+            </article>
+          </ScrollReveal>
+
+          <ScrollReveal delay={0.04}>
+            <article className="editorial-signal-card h-full">
+              <div className="editorial-icon mb-9">
+                <Trophy size={20} aria-hidden="true" />
+              </div>
+              <h3 className="text-2xl font-black tracking-[-0.055em]">
+                Achievements
+              </h3>
+              <ul className="mt-4 space-y-3 text-sm leading-6 text-muted-foreground">
+                {achievements.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </article>
+          </ScrollReveal>
+
+          <ScrollReveal delay={0.08}>
+            <article className="editorial-signal-card h-full">
+              <div className="editorial-icon mb-9">
+                <Languages size={20} aria-hidden="true" />
+              </div>
+              <h3 className="text-2xl font-black tracking-[-0.055em]">
+                Languages
+              </h3>
+              <ul className="mt-4 space-y-3 text-sm leading-6 text-muted-foreground">
+                {languages.map((language) => (
+                  <li key={language.name}>
+                    <span className="font-semibold text-foreground">
+                      {language.name}
+                    </span>
+                    , {language.level}
+                  </li>
+                ))}
+              </ul>
+            </article>
+          </ScrollReveal>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ContactSection() {
+  return (
+    <section
+      id="contact"
+      aria-labelledby="contact-heading"
+      {...overlapPanel(7, "editorial-final-cta", "scroll-mt-24")}
+    >
+      <div className="editorial-container">
+        <div className="editorial-final-panel">
+          <div className="max-w-3xl">
+            <span className="editorial-eyebrow editorial-eyebrow--dark">
+              <Mail size={14} aria-hidden="true" />
+              Contact
+            </span>
+            <h2
+              id="contact-heading"
+              className="mt-8 text-5xl font-black leading-[0.95] tracking-[-0.075em] text-white md:text-7xl"
+            >
+              Get in touch.
+            </h2>
+            <p className="mt-6 max-w-2xl text-base leading-8 text-white/62">
+              For roles, projects or questions about my work, use the contact
+              form or email me at {siteConfig.email}.
+            </p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Link href="/contact" className="anime-btn anime-btn--light">
+                Contact form
+                <ArrowRight size={15} aria-hidden="true" />
+              </Link>
+              <a
+                href={`mailto:${siteConfig.email}`}
+                className="anime-btn-outline anime-btn-outline--dark"
+              >
+                <Mail size={15} aria-hidden="true" />
+                Email
+              </a>
+              <a
+                href={siteConfig.links.linkedin}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="anime-btn-outline anime-btn-outline--dark"
+              >
+                <Linkedin className="size-4" aria-hidden="true" />
+                LinkedIn
+              </a>
+            </div>
           </div>
         </div>
-      </section>
+      </div>
+    </section>
+  );
+}
 
-      <section id="agent-brief" {...overlapPanel(10, "editorial-section", "scroll-mt-24")}>
-        <div className="editorial-container">
-          <div className="agent-brief-panel">
-            <div className="agent-brief-copy">
-              <span className="editorial-eyebrow">
-                <Terminal size={14} />
-                Agent-ready brief
-              </span>
-              <h2 className="mt-6 text-5xl font-black leading-[0.96] tracking-[-0.07em] md:text-7xl">
-                Send this to a recruiter, founder, or hiring bot.
-              </h2>
-              <p className="mt-6 max-w-2xl text-base leading-8 text-muted-foreground">
-                A professional portfolio should work for humans and screening systems.
-                This brief summarizes what I build, where I fit, and how to contact me.
-              </p>
-              <div className="mt-8 flex flex-wrap gap-3">
-                <button type="button" onClick={handleCopyHiringBrief} className="anime-btn">
-                  {briefCopied ? <Check size={15} /> : <Copy size={15} />}
-                  {briefCopied ? "Brief copied" : "Copy hiring brief"}
-                </button>
-                <Link href="/contact" className="anime-btn-outline">
-                  Start conversation
-                  <ArrowRight size={15} />
-                </Link>
-              </div>
-            </div>
-
-            <div className="agent-brief-terminal" aria-label="Hiring brief preview">
-              <div className="agent-brief-terminal__top">
-                <span />
-                <span />
-                <span />
-                <small>HIRE_KUNAL.md</small>
-              </div>
-              <pre>{hiringBrief}</pre>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section id="contact" {...overlapPanel(11, "editorial-final-cta", "scroll-mt-24")}>
-        <div className="editorial-container">
-          <div className="editorial-final-panel">
-            <div className="max-w-3xl">
-              <span className="editorial-eyebrow editorial-eyebrow--dark">
-                <Mail size={14} />
-                Available for select opportunities
-              </span>
-              <h2 className="mt-8 text-5xl font-black leading-[0.95] tracking-[-0.075em] text-white md:text-7xl">
-                Bring me a real problem.
-              </h2>
-              <p className="mt-6 max-w-2xl text-base leading-8 text-white/62">
-                Hire me for freelance MVPs, AI integrations, automation systems, admin
-                dashboards, or full-time AI/full-stack engineering roles.
-              </p>
-              <div className="mt-8 flex flex-wrap gap-3">
-                <Link href="/contact" className="anime-btn anime-btn--light">
-                  Start hiring conversation
-                  <ArrowRight size={15} />
-                </Link>
-                <a
-                  href={profile.social.linkedin || siteConfig.links.linkedin}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="anime-btn-outline anime-btn-outline--dark"
-                >
-                  <Linkedin className="size-4" />
-                  LinkedIn
-                </a>
-                <button type="button" onClick={handleCopyEmail} className="anime-btn-outline anime-btn-outline--dark">
-                  {copied ? <Check size={15} /> : <Copy size={15} />}
-                  {copied ? "Email copied" : "Copy email"}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+export default function HomePage() {
+  return (
+    <div className="relative min-h-screen overflow-x-clip bg-background text-foreground">
+      <ScrollRail sections={RAIL_SECTIONS} />
+      <HeroSection />
+      <StackTicker />
+      <GlanceSection />
+      <AboutSection />
+      <ExperienceSection />
+      <SkillsSection />
+      <ProjectsSection />
+      <CredentialsSection />
+      <ContactSection />
     </div>
   );
 }

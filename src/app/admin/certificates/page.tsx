@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { toast } from 'sonner';
 import {
@@ -12,6 +12,8 @@ import {
   ExternalLink,
 } from 'lucide-react';
 import type { ICertificate } from '@/types';
+import { apiRequest, errorMessage, useAdminList } from '../_lib/api';
+import { LoadError } from '../_components/load-error';
 
 const emptyCertificate: Partial<ICertificate> = {
   title: '',
@@ -24,31 +26,14 @@ const emptyCertificate: Partial<ICertificate> = {
 
 export default function AdminCertificatesPage() {
   const { data: session } = useSession();
-  const [certificates, setCertificates] = useState<ICertificate[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { items: certificates, loading, error, reload } = useAdminList<ICertificate>(
+    '/api/certificates',
+    Boolean(session)
+  );
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState<Partial<ICertificate>>(emptyCertificate);
   const [saving, setSaving] = useState(false);
-
-  const fetchCertificates = useCallback(async () => {
-    try {
-      const res = await fetch('/api/certificates');
-      if (res.ok) {
-        const data = await res.json();
-        setCertificates(data);
-      }
-    } catch (error) {
-      console.error('Failed to fetch certificates:', error);
-      toast.error('Failed to fetch certificates');
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (session) fetchCertificates();
-  }, [session, fetchCertificates]);
 
   const resetForm = () => {
     setFormData(emptyCertificate);
@@ -57,12 +42,7 @@ export default function AdminCertificatesPage() {
   };
 
   const handleEdit = (cert: ICertificate) => {
-    // Format date to YYYY-MM-DD for the date input field
-    const formattedDate = cert.issueDate ? new Date(cert.issueDate).toISOString().split('T')[0] : '';
-    setFormData({
-      ...cert,
-      issueDate: formattedDate,
-    });
+    setFormData(cert);
     setEditingId(cert._id || null);
     setShowForm(true);
   };
@@ -72,25 +52,15 @@ export default function AdminCertificatesPage() {
     setSaving(true);
 
     try {
-      const url = editingId ? `/api/certificates/${editingId}` : '/api/certificates';
-      const method = editingId ? 'PUT' : 'POST';
-
-      const res = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
+      await apiRequest(editingId ? `/api/certificates/${editingId}` : '/api/certificates', {
+        method: editingId ? 'PUT' : 'POST',
         body: JSON.stringify(formData),
       });
-
-      if (res.ok) {
-        toast.success(editingId ? 'Certificate updated!' : 'Certificate created!');
-        resetForm();
-        fetchCertificates();
-      } else {
-        const data = await res.json();
-        toast.error(data.error || 'Failed to save certificate');
-      }
-    } catch {
-      toast.error('Something went wrong');
+      toast.success(editingId ? 'Certificate updated' : 'Certificate created');
+      resetForm();
+      reload();
+    } catch (err) {
+      toast.error(errorMessage(err, 'Failed to save'));
     } finally {
       setSaving(false);
     }
@@ -100,15 +70,11 @@ export default function AdminCertificatesPage() {
     if (!confirm('Are you sure you want to delete this certificate?')) return;
 
     try {
-      const res = await fetch(`/api/certificates/${id}`, { method: 'DELETE' });
-      if (res.ok) {
-        toast.success('Certificate deleted!');
-        fetchCertificates();
-      } else {
-        toast.error('Failed to delete certificate');
-      }
-    } catch {
-      toast.error('Something went wrong');
+      await apiRequest(`/api/certificates/${id}`, { method: 'DELETE' });
+      toast.success('Certificate deleted');
+      reload();
+    } catch (err) {
+      toast.error(errorMessage(err, 'Failed to delete'));
     }
   };
 
@@ -181,12 +147,15 @@ export default function AdminCertificatesPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="block text-sm font-medium text-foreground">Issue Date</label>
+                <label className="block text-sm font-medium text-foreground">
+                  Issue date <span className="text-muted-foreground font-normal">(optional, shown as typed)</span>
+                </label>
                 <input
-                  type="date"
+                  type="text"
                   value={formData.issueDate || ''}
                   onChange={(e) => setFormData({ ...formData, issueDate: e.target.value })}
-                  required
+                  maxLength={40}
+                  placeholder="e.g. Mar 2024"
                   className="w-full px-4 py-2.5 bg-muted border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground"
                 />
               </div>
@@ -194,8 +163,11 @@ export default function AdminCertificatesPage() {
                 <label className="block text-sm font-medium text-foreground">Display Order</label>
                 <input
                   type="number"
-                  value={formData.order || 1}
-                  onChange={(e) => setFormData({ ...formData, order: parseInt(e.target.value) || 1 })}
+                  min={0}
+                  value={formData.order ?? 0}
+                  onChange={(e) =>
+                    setFormData({ ...formData, order: Math.max(0, parseInt(e.target.value, 10) || 0) })
+                  }
                   required
                   className="w-full px-4 py-2.5 bg-muted border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground"
                   placeholder="1"
@@ -245,6 +217,8 @@ export default function AdminCertificatesPage() {
         </div>
       )}
 
+      {error && <LoadError message={error} onRetry={reload} />}
+
       {/* Certificates List */}
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -259,10 +233,10 @@ export default function AdminCertificatesPage() {
             </div>
           ))}
         </div>
-      ) : certificates.length === 0 ? (
+      ) : error && certificates.length === 0 ? null : certificates.length === 0 ? (
         <div className="anime-card rounded-2xl p-12 text-center">
           <Award className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-          <p className="text-muted-foreground">No certificates yet. Add your first certification!</p>
+          <p className="text-muted-foreground">No certificates in the database. The site shows its built-in list until you add one.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -286,7 +260,7 @@ export default function AdminCertificatesPage() {
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition shrink-0">
+                  <div className="flex items-center gap-1 shrink-0">
                     {cert.credentialUrl && (
                       <a
                         href={cert.credentialUrl}
@@ -319,10 +293,7 @@ export default function AdminCertificatesPage() {
               </div>
               <div className="mt-4 pt-3 border-t border-border/50 flex items-center justify-between text-xs text-muted-foreground">
                 <span>
-                  {cert.issueDate ? new Date(cert.issueDate).toLocaleDateString(undefined, {
-                    year: 'numeric',
-                    month: 'short',
-                  }) : ''}
+                  {cert.issueDate || ''}
                 </span>
                 <span className="bg-muted px-2 py-0.5 rounded">
                   Order: {cert.order}

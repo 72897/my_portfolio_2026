@@ -1,40 +1,32 @@
 "use client";
 
+import { useSyncExternalStore } from "react";
 import { useTheme } from "next-themes";
-import { Sun, Moon } from "lucide-react";
-import { motion } from "framer-motion";
+import { Moon, Sun } from "lucide-react";
 
-import { useEffect, useState } from "react";
+const subscribe = () => () => {};
 
 export function ThemeToggle() {
-  const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
+  const { resolvedTheme, setTheme } = useTheme();
+  // The theme is only known in the browser; render a spacer on the server.
+  const mounted = useSyncExternalStore(subscribe, () => true, () => false);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  if (!mounted) return <div className="size-9" />;
 
-  if (!mounted) {
-    return <div className="w-9 h-9" />;
-  }
+  const isDark = resolvedTheme === "dark";
 
   return (
     <button
-      onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-      className="relative p-2 rounded-lg hover:bg-muted transition-colors cursor-pointer"
-      aria-label="Toggle theme"
+      type="button"
+      onClick={() => setTheme(isDark ? "light" : "dark")}
+      className="grid size-9 cursor-pointer place-items-center rounded-lg transition-colors hover:bg-black/5"
+      aria-label={isDark ? "Switch to light theme" : "Switch to dark theme"}
     >
-      <motion.div
-        initial={false}
-        animate={{ rotate: theme === "dark" ? 0 : 180 }}
-        transition={{ duration: 0.3, ease: "easeInOut" }}
-      >
-        {theme === "dark" ? (
-          <Sun size={18} className="text-yellow-400" />
-        ) : (
-          <Moon size={18} className="text-primary" />
-        )}
-      </motion.div>
+      {isDark ? (
+        <Sun size={18} aria-hidden="true" />
+      ) : (
+        <Moon size={18} aria-hidden="true" />
+      )}
     </button>
   );
 }

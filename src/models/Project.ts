@@ -11,6 +11,10 @@ export const PROJECT_CATEGORIES = [
 
 export type ProjectCategory = (typeof PROJECT_CATEGORIES)[number];
 
+export const PROJECT_STATUSES = ['Live', 'Internal', 'Archived'] as const;
+
+export type ProjectStatus = (typeof PROJECT_STATUSES)[number];
+
 export interface IProjectDoc extends Document {
   title: string;
   slug: string;
@@ -18,17 +22,16 @@ export interface IProjectDoc extends Document {
   longDescription?: string;
   techStack: string[];
   features: string[];
-  githubUrl: string;
-  liveUrl: string;
+  githubUrl?: string;
+  liveUrl?: string;
   image?: string;
   screenshots: string[];
   category: ProjectCategory;
   featured: boolean;
+  role?: string;
+  year?: string;
+  status?: ProjectStatus;
   order: number;
-  metrics?: Record<string, string>;
-  challenges?: string;
-  solutions?: string;
-  architectureSteps?: { title: string; description: string }[];
 }
 
 const ProjectSchema = new Schema<IProjectDoc>(
@@ -96,31 +99,24 @@ const ProjectSchema = new Schema<IProjectDoc>(
       default: 0,
       index: true,
     },
-    metrics: {
-      type: Map,
-      of: String,
-    },
-    challenges: {
+    role: {
       type: String,
-      default: '',
+      trim: true,
     },
-    solutions: {
+    year: {
       type: String,
-      default: '',
+      trim: true,
     },
-    architectureSteps: [
-      {
-        title: { type: String, required: true },
-        description: { type: String, required: true },
-      },
-    ],
+    status: {
+      type: String,
+      enum: PROJECT_STATUSES,
+    },
   },
   {
     timestamps: true,
   }
 );
 
-// Compound index for sorted listing queries
 ProjectSchema.index({ featured: -1, order: 1 });
 ProjectSchema.index({ category: 1, order: 1 });
 

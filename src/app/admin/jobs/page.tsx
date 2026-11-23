@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { toast } from 'sonner';
 import {
@@ -15,6 +15,8 @@ import {
   Lock,
   Globe,
 } from 'lucide-react';
+import { apiRequest, errorMessage, useAdminList } from '../_lib/api';
+import { LoadError } from '../_components/load-error';
 
 interface IJobPost {
   _id?: string;
@@ -46,31 +48,14 @@ const emptyJob: Partial<IJobPost> = {
 
 export default function AdminJobsPage() {
   const { data: session } = useSession();
-  const [jobs, setJobs] = useState<IJobPost[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { items: jobs, loading, error, reload } = useAdminList<IJobPost>(
+    '/api/jobs',
+    Boolean(session)
+  );
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState<Partial<IJobPost>>(emptyJob);
   const [saving, setSaving] = useState(false);
-
-  const fetchJobs = useCallback(async () => {
-    try {
-      const res = await fetch('/api/jobs');
-      if (res.ok) {
-        const data = await res.json();
-        setJobs(data);
-      }
-    } catch (error) {
-      console.error('Failed to fetch jobs:', error);
-      toast.error('Failed to fetch jobs');
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (session) fetchJobs();
-  }, [session, fetchJobs]);
 
   const resetForm = () => {
     setFormData(emptyJob);
@@ -79,7 +64,9 @@ export default function AdminJobsPage() {
   };
 
   const handleEdit = (job: IJobPost) => {
-    const formattedDate = job.appliedDate ? new Date(job.appliedDate).toISOString().split('T')[0] : '';
+    const applied = job.appliedDate ? new Date(job.appliedDate) : null;
+    const formattedDate =
+      applied && !Number.isNaN(applied.getTime()) ? applied.toISOString().split('T')[0] : '';
     setFormData({
       ...job,
       appliedDate: formattedDate,
@@ -93,25 +80,15 @@ export default function AdminJobsPage() {
     setSaving(true);
 
     try {
-      const url = editingId ? `/api/jobs/${editingId}` : '/api/jobs';
-      const method = editingId ? 'PUT' : 'POST';
-
-      const res = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
+      await apiRequest(editingId ? `/api/jobs/${editingId}` : '/api/jobs', {
+        method: editingId ? 'PUT' : 'POST',
         body: JSON.stringify(formData),
       });
-
-      if (res.ok) {
-        toast.success(editingId ? 'Job updated!' : 'Job created!');
-        resetForm();
-        fetchJobs();
-      } else {
-        const data = await res.json();
-        toast.error(data.error || 'Failed to save job');
-      }
-    } catch {
-      toast.error('Something went wrong');
+      toast.success(editingId ? 'Job updated' : 'Job created');
+      resetForm();
+      reload();
+    } catch (err) {
+      toast.error(errorMessage(err, 'Failed to save'));
     } finally {
       setSaving(false);
     }
@@ -121,15 +98,11 @@ export default function AdminJobsPage() {
     if (!confirm('Are you sure you want to delete this job application?')) return;
 
     try {
-      const res = await fetch(`/api/jobs/${id}`, { method: 'DELETE' });
-      if (res.ok) {
-        toast.success('Job application deleted!');
-        fetchJobs();
-      } else {
-        toast.error('Failed to delete job application');
-      }
-    } catch {
-      toast.error('Something went wrong');
+      await apiRequest(`/api/jobs/${id}`, { method: 'DELETE' });
+      toast.success('Job deleted');
+      reload();
+    } catch (err) {
+      toast.error(errorMessage(err, 'Failed to delete'));
     }
   };
 
@@ -330,6 +303,8 @@ export default function AdminJobsPage() {
       )}
 
       {/* Jobs List */}
+      {error && <LoadError message={error} onRetry={reload} />}
+
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {[...Array(2)].map((_, i) => (
@@ -339,7 +314,7 @@ export default function AdminJobsPage() {
             />
           ))}
         </div>
-      ) : jobs.length === 0 ? (
+      ) : error && jobs.length === 0 ? null : jobs.length === 0 ? (
         <div className="anime-card rounded-2xl p-12 text-center border border-dashed border-border/60">
           <Briefcase className="w-12 h-12 text-muted-foreground mx-auto mb-4 opacity-50" />
           <p className="text-muted-foreground">No job applications tracked yet. Start adding your applications!</p>
@@ -361,7 +336,7 @@ export default function AdminJobsPage() {
                       {job.company}
                     </p>
                   </div>
-                  <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition shrink-0">
+                  <div className="flex items-center gap-1.5 shrink-0">
                     {job.applicationUrl && (
                       <a
                         href={job.applicationUrl}

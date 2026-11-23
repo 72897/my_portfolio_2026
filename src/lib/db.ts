@@ -1,46 +1,69 @@
 import mongoose from "mongoose";
 
-const MONGODB_URI = process.env.MONGODB_URI!;
-
-if (!MONGODB_URI) {
-  throw new Error("Please define the MONGODB_URI environment variable inside .env.local");
+/** Thrown when the database is not configured or cannot be reached. */
+export class DbUnavailableError extends Error {
+  constructor(message: string, options?: { cause?: unknown }) {
+    super(message, options);
+    this.name = "DbUnavailableError";
+  }
 }
 
 interface MongooseCache {
   conn: typeof mongoose | null;
   promise: Promise<typeof mongoose> | null;
+  lastFailure: number;
 }
 
 declare global {
-  // eslint-disable-next-line no-var
-  var mongoose: MongooseCache | undefined;
+  var mongooseCache: MongooseCache | undefined;
 }
 
-const cached: MongooseCache = global.mongoose || { conn: null, promise: null };
+const cached: MongooseCache =
+  globalThis.mongooseCache ?? { conn: null, promise: null, lastFailure: 0 };
+globalThis.mongooseCache = cached;
 
-if (!global.mongoose) {
-  global.mongoose = cached;
+const SERVER_SELECTION_TIMEOUT_MS = 5000;
+// After a failed connection, fail fast for a while instead of making every
+// request wait for another server-selection timeout.
+const RETRY_AFTER_MS = 30_000;
+
+export function isDbConfigured(): boolean {
+  return Boolean(process.env.MONGODB_URI);
 }
 
 async function dbConnect(): Promise<typeof mongoose> {
   if (cached.conn) {
-    return cached.conn;
+    if (mongoose.connection.readyState === 1) return cached.conn;
+    if (mongoose.connection.readyState === 0) {
+      // The connection dropped; start a fresh one.
+      cached.conn = null;
+      cached.promise = null;
+    }
+  }
+
+  const uri = process.env.MONGODB_URI;
+  if (!uri) {
+    throw new DbUnavailableError("MONGODB_URI is not set");
   }
 
   if (!cached.promise) {
-    const opts = {
+    if (Date.now() - cached.lastFailure < RETRY_AFTER_MS) {
+      throw new DbUnavailableError("Database connection failed recently; retrying shortly");
+    }
+    cached.promise = mongoose.connect(uri, {
       bufferCommands: false,
-    };
-    cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
-      return mongoose;
+      serverSelectionTimeoutMS: SERVER_SELECTION_TIMEOUT_MS,
+      connectTimeoutMS: SERVER_SELECTION_TIMEOUT_MS,
     });
   }
 
   try {
     cached.conn = await cached.promise;
-  } catch (e) {
+  } catch (error) {
     cached.promise = null;
-    throw e;
+    cached.conn = null;
+    cached.lastFailure = Date.now();
+    throw new DbUnavailableError("Could not connect to the database", { cause: error });
   }
 
   return cached.conn;

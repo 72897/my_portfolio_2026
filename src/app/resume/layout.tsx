@@ -3,7 +3,7 @@ import { pageMetadata } from "@/lib/seo";
 export const metadata = pageMetadata({
   title: "Resume",
   description:
-    "Resume of Kunal Singh, AI Engineer and Full Stack Developer: experience, projects, education, and skills.",
+    "Resume of Kunal Singh, software engineer: experience, projects, skills, education and certifications. Download the PDF or print the page.",
   path: "/resume",
 });
 

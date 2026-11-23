@@ -1,41 +1,25 @@
-import { NextRequest, NextResponse } from 'next/server'
-import dbConnect from '@/lib/db'
-import ContactMessage from '@/models/ContactMessage'
+import { NextResponse } from 'next/server';
+import dbConnect from '@/lib/db';
+import ContactMessage from '@/models/ContactMessage';
+import { enforceRateLimit, errorResponse, parseBody } from '@/app/api/_lib/http';
+import { contactSchema } from '@/app/api/_lib/schemas';
 
-export async function POST(req: NextRequest) {
+const MAX_MESSAGES_PER_WINDOW = 5;
+const WINDOW_MS = 10 * 60 * 1000;
+
+export async function POST(req: Request) {
   try {
-    await dbConnect()
+    enforceRateLimit(req, 'contact', MAX_MESSAGES_PER_WINDOW, WINDOW_MS);
+    const data = await parseBody(req, contactSchema);
 
-    const body = await req.json()
-    const { name, email, subject, message } = body
-
-    // Validate required fields
-    if (!name || !email || !subject || !message) {
-      return NextResponse.json(
-        { error: 'All fields are required: name, email, subject, message' },
-        { status: 400 }
-      )
-    }
-
-    // Basic email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!emailRegex.test(email)) {
-      return NextResponse.json({ error: 'Invalid email address' }, { status: 400 })
-    }
-
-    const contactMessage = await ContactMessage.create({
-      name: name.trim(),
-      email: email.trim().toLowerCase(),
-      subject: subject.trim(),
-      message: message.trim(),
-    })
+    await dbConnect();
+    const contactMessage = await ContactMessage.create(data);
 
     return NextResponse.json(
       { message: 'Message sent successfully', id: contactMessage._id },
       { status: 201 }
-    )
+    );
   } catch (error) {
-    console.error('Contact POST error:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    return errorResponse(error, 'Contact');
   }
 }

@@ -1,36 +1,45 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
-import { auth } from '@/lib/auth';
 import Blog from '@/models/Blog';
+import { staticJson } from '@/app/api/_lib/crud';
+import { errorResponse, optionalSession, parseBody, requireSession } from '@/app/api/_lib/http';
+import { blogSchema } from '@/app/api/_lib/schemas';
+import { readingTimeMinutes } from '@/app/api/_lib/blog';
 
-export async function GET(req: NextRequest) {
+const MAX_POSTS = 200;
+
+// Visitors get published posts only; a signed-in admin gets drafts too.
+export async function GET() {
+  const session = await optionalSession();
   try {
     await dbConnect();
-    const session = await auth();
-
-    // If authenticated, return all. If public, return only published ones.
-    const query = session ? {} : { published: true };
-    const blogs = await Blog.find(query).sort({ publishedAt: -1, createdAt: -1 }).lean();
+    const blogs = await Blog.find(session ? {} : { published: true })
+      .sort({ publishedAt: -1, createdAt: -1 })
+      .limit(MAX_POSTS)
+      .lean();
     return NextResponse.json(blogs);
   } catch (error) {
-    console.error('Blog GET error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    // There is no static copy of the blog, so visitors get an empty list.
+    if (!session) {
+      console.error('Blog list: database unavailable:', error instanceof Error ? error.message : error);
+      return staticJson([]);
+    }
+    return errorResponse(error, 'Blog list');
   }
 }
 
-export async function POST(req: NextRequest) {
+export async function POST(req: Request) {
   try {
-    const session = await auth();
-    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-
+    await requireSession();
+    const data = await parseBody(req, blogSchema);
     await dbConnect();
-
-    const body = await req.json();
-    const blog = await Blog.create(body);
-
+    const blog = await Blog.create({
+      ...data,
+      publishedAt: data.publishedAt ?? (data.published ? new Date() : undefined),
+      readingTime: readingTimeMinutes(data.content),
+    });
     return NextResponse.json(blog, { status: 201 });
   } catch (error) {
-    console.error('Blog POST error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return errorResponse(error, 'Blog create');
   }
 }

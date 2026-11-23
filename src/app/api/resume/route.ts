@@ -1,56 +1,56 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
-import { auth } from '@/lib/auth';
 import Resume from '@/models/Resume';
+import { staticJson } from '@/app/api/_lib/crud';
+import { errorResponse, parseBody, requireSession } from '@/app/api/_lib/http';
+import { resumeSchema } from '@/app/api/_lib/schemas';
+import { RESUME_PDF_URL } from '@/app/api/_lib/static-data';
 
-export async function GET() {
+const emptyResume = () => ({
+  summary: '',
+  pdfUrl: RESUME_PDF_URL,
+  highlights: {
+    experience: '',
+    skills: '',
+    projects: '',
+    education: '',
+    certifications: '',
+  },
+  downloadCount: 0,
+});
+
+export async function GET(req: Request) {
+  const databaseOnly = new URL(req.url).searchParams.get('source') === 'db';
   try {
     await dbConnect();
-    let resume = await Resume.findOne().lean();
-    if (!resume) {
-      // Return default if not found
-      return NextResponse.json({
-        summary: '',
-        pdfUrl: 'https://drive.google.com/file/d/1t7Ws-Be5RBMl-QMIKngor6LCMr2gpBQ-/view?usp=sharing',
-        highlights: {
-          experience: '',
-          skills: '',
-          projects: '',
-          education: '',
-          certifications: '',
-        },
-        downloadCount: 0,
-      });
-    }
-    return NextResponse.json(resume);
+    const resume = await Resume.findOne().lean();
+    return resume ? NextResponse.json(resume) : staticJson(emptyResume());
   } catch (error) {
-    console.error('Resume GET error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    if (databaseOnly) return errorResponse(error, 'Resume read');
+    console.error('Resume: serving defaults:', error instanceof Error ? error.message : error);
+    return staticJson(emptyResume());
   }
 }
 
-export async function PUT(req: NextRequest) {
+export async function PUT(req: Request) {
   try {
-    const session = await auth();
-    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    await requireSession();
+    const { highlights, ...fields } = await parseBody(req, resumeSchema);
 
-    await dbConnect();
-
-    const body = await req.json();
-    let resume = await Resume.findOne();
-
-    if (resume) {
-      resume = await Resume.findByIdAndUpdate(resume._id, body, {
-        new: true,
-        runValidators: true,
-      });
-    } else {
-      resume = await Resume.create(body);
+    // Dotted paths so a partial highlights object does not wipe the others.
+    const update: Record<string, unknown> = { ...fields, lastUpdated: new Date() };
+    for (const [key, value] of Object.entries(highlights ?? {})) {
+      update[`highlights.${key}`] = value;
     }
 
+    await dbConnect();
+    const resume = await Resume.findOneAndUpdate(
+      {},
+      { $set: update },
+      { returnDocument: 'after', runValidators: true, upsert: true, setDefaultsOnInsert: true }
+    ).lean();
     return NextResponse.json(resume);
   } catch (error) {
-    console.error('Resume PUT error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return errorResponse(error, 'Resume update');
   }
 }

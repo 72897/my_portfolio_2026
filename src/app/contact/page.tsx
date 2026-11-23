@@ -1,20 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
 import { useForm } from "react-hook-form";
-import {
-  Mail,
-  Phone,
-  MapPin,
-  Send,
-  ExternalLink,
-  Loader2,
-  CheckCircle2,
-} from "lucide-react";
+import { Code2, Loader2, Mail, MapPin, Phone, Send } from "lucide-react";
 import { Github, Linkedin } from "@/components/shared/brand-icons";
+import { PageHeader } from "@/components/shared/page-header";
 import { siteConfig } from "@/lib/constants";
-import { toast } from "sonner";
 
 interface ContactFormData {
   name: string;
@@ -23,8 +14,21 @@ interface ContactFormData {
   message: string;
 }
 
+type SubmitState =
+  | { status: "idle" }
+  | { status: "sent" }
+  | { status: "error"; message: string };
+
+const profileLinks = [
+  { name: "GitHub", href: siteConfig.links.github, icon: Github },
+  { name: "LinkedIn", href: siteConfig.links.linkedin, icon: Linkedin },
+  { name: "LeetCode", href: siteConfig.links.leetcode, icon: Code2 },
+];
+
+const fallbackError = `Your message could not be sent. Please email ${siteConfig.email} instead.`;
+
 export default function ContactPage() {
-  const [submitted, setSubmitted] = useState(false);
+  const [submitState, setSubmitState] = useState<SubmitState>({ status: "idle" });
 
   const {
     register,
@@ -34,6 +38,7 @@ export default function ContactPage() {
   } = useForm<ContactFormData>();
 
   const onSubmit = async (data: ContactFormData) => {
+    setSubmitState({ status: "idle" });
     try {
       const res = await fetch("/api/contact", {
         method: "POST",
@@ -41,320 +46,196 @@ export default function ContactPage() {
         body: JSON.stringify(data),
       });
       if (res.ok) {
-        setSubmitted(true);
         reset();
-        toast.success("Message sent successfully!");
-      } else {
-        toast.error("Failed to send message. Please try again.");
+        setSubmitState({ status: "sent" });
+        return;
       }
+      const body: { error?: string } | null = await res.json().catch(() => null);
+      // 4xx errors describe what to fix; 5xx errors are not useful to a visitor.
+      setSubmitState({
+        status: "error",
+        message: res.status < 500 && body?.error ? body.error : fallbackError,
+      });
     } catch {
-      toast.error("Something went wrong. Please try again.");
+      setSubmitState({ status: "error", message: fallbackError });
     }
   };
 
-  const socialLinks = [
+  const fields = [
     {
-      name: "GitHub",
-      href: siteConfig.links.github,
-      icon: Github,
-      handle: "@72897",
+      id: "name" as const,
+      label: "Name",
+      type: "text",
+      autoComplete: "name",
+      rules: {
+        required: "Enter your name",
+        minLength: { value: 2, message: "Name must be at least 2 characters" },
+      },
     },
     {
-      name: "LinkedIn",
-      href: siteConfig.links.linkedin,
-      icon: Linkedin,
-      handle: "Kunal Singh",
+      id: "email" as const,
+      label: "Email",
+      type: "email",
+      autoComplete: "email",
+      rules: {
+        required: "Enter your email address",
+        pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: "Enter a valid email address" },
+      },
     },
     {
-      name: "LeetCode",
-      href: siteConfig.links.leetcode,
-      icon: ExternalLink,
-      handle: "@kunal26_7",
+      id: "subject" as const,
+      label: "Subject",
+      type: "text",
+      autoComplete: "off",
+      rules: {
+        required: "Enter a subject",
+        minLength: { value: 3, message: "Subject must be at least 3 characters" },
+      },
     },
   ];
 
   return (
     <>
-      {/* Hero */}
-      <section className="py-20 bg-muted/30 grid-pattern">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center"
-          >
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-[family-name:var(--font-heading)]">
-              Hire Kunal <span className="gradient-text">Singh</span>
-            </h1>
-            <p className="mt-4 text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
-              Freelance clients can request an MVP or AI integration. Companies
-              can reach out for AI/full-stack engineering roles.
-            </p>
-          </motion.div>
-        </div>
-      </section>
+      <PageHeader
+        title="Contact"
+        description="Send a message with the form, or email me directly."
+      />
 
-      {/* Contact Section */}
-      <section className="py-20">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-            {/* Form */}
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
+      <section className="py-16">
+        <div className="mx-auto grid max-w-6xl grid-cols-1 gap-12 px-4 sm:px-6 lg:grid-cols-2">
+          <div>
+            <h2 className="sr-only">Send a message</h2>
+            <form
+              onSubmit={handleSubmit(onSubmit)}
+              noValidate
+              className="anime-card space-y-6 rounded-2xl p-6 sm:p-8"
             >
-              {submitted ? (
-                <div className="anime-card rounded-2xl p-10 text-center">
-                  <CheckCircle2 className="w-16 h-16 mx-auto text-accent mb-4" />
-                  <h3 className="text-2xl font-bold font-[family-name:var(--font-heading)]">
-                    Message Sent!
-                  </h3>
-                  <p className="mt-2 text-muted-foreground">
-                    Thank you for reaching out. I&apos;ll get back to you soon.
+              {fields.map((field) => {
+                const error = errors[field.id]?.message;
+                return (
+                  <div key={field.id}>
+                    <label htmlFor={field.id} className="mb-2 block text-sm font-medium">
+                      {field.label}
+                    </label>
+                    <input
+                      id={field.id}
+                      type={field.type}
+                      autoComplete={field.autoComplete}
+                      aria-invalid={error ? true : undefined}
+                      aria-describedby={error ? `${field.id}-error` : undefined}
+                      {...register(field.id, field.rules)}
+                      className="anime-input w-full"
+                    />
+                    {error ? (
+                      <p id={`${field.id}-error`} className="mt-1 text-xs text-red-500">
+                        {error}
+                      </p>
+                    ) : null}
+                  </div>
+                );
+              })}
+
+              <div>
+                <label htmlFor="message" className="mb-2 block text-sm font-medium">
+                  Message
+                </label>
+                <textarea
+                  id="message"
+                  rows={6}
+                  aria-invalid={errors.message ? true : undefined}
+                  aria-describedby={errors.message ? "message-error" : undefined}
+                  {...register("message", {
+                    required: "Enter a message",
+                    minLength: { value: 10, message: "Message must be at least 10 characters" },
+                  })}
+                  className="anime-input w-full resize-y"
+                />
+                {errors.message ? (
+                  <p id="message-error" className="mt-1 text-xs text-red-500">
+                    {errors.message.message}
                   </p>
-                  <button
-                    onClick={() => setSubmitted(false)}
-                    className="anime-btn-outline mt-6"
-                  >
-                    Send Another Message
-                  </button>
-                </div>
-              ) : (
-                <form
-                  onSubmit={handleSubmit(onSubmit)}
-                  className="anime-card rounded-2xl p-8 space-y-6"
-                >
-                  <div>
-                    <label
-                      htmlFor="name"
-                      className="block text-sm font-medium mb-2"
-                    >
-                      Name
-                    </label>
-                    <input
-                      id="name"
-                      type="text"
-                      autoComplete="name"
-                      placeholder="Your name"
-                      {...register("name", {
-                        required: "Name is required",
-                        minLength: {
-                          value: 2,
-                          message: "Name must be at least 2 characters",
-                        },
-                      })}
-                      className="anime-input w-full"
-                    />
-                    {errors.name && (
-                      <p className="mt-1 text-xs text-destructive">
-                        {errors.name.message}
-                      </p>
-                    )}
-                  </div>
-
-                  <div>
-                    <label
-                      htmlFor="email"
-                      className="block text-sm font-medium mb-2"
-                    >
-                      Email
-                    </label>
-                    <input
-                      id="email"
-                      type="email"
-                      autoComplete="email"
-                      spellCheck={false}
-                      placeholder="your@email.com"
-                      {...register("email", {
-                        required: "Email is required",
-                        pattern: {
-                          value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                          message: "Enter a valid email address",
-                        },
-                      })}
-                      className="anime-input w-full"
-                    />
-                    {errors.email && (
-                      <p className="mt-1 text-xs text-destructive">
-                        {errors.email.message}
-                      </p>
-                    )}
-                  </div>
-
-                  <div>
-                    <label
-                      htmlFor="subject"
-                      className="block text-sm font-medium mb-2"
-                    >
-                      Subject
-                    </label>
-                    <input
-                      id="subject"
-                      type="text"
-                      autoComplete="off"
-                      placeholder="Freelance project, AI integration, or full-time role"
-                      {...register("subject", {
-                        required: "Subject is required",
-                        minLength: {
-                          value: 3,
-                          message: "Subject must be at least 3 characters",
-                        },
-                      })}
-                      className="anime-input w-full"
-                    />
-                    {errors.subject && (
-                      <p className="mt-1 text-xs text-destructive">
-                        {errors.subject.message}
-                      </p>
-                    )}
-                  </div>
-
-                  <div>
-                    <label
-                      htmlFor="message"
-                      className="block text-sm font-medium mb-2"
-                    >
-                      Message
-                    </label>
-                    <textarea
-                      id="message"
-                      rows={5}
-                      autoComplete="off"
-                      placeholder="Tell me the goal, timeline, budget/range if relevant, and what kind of help you need…"
-                      {...register("message", {
-                        required: "Message is required",
-                        minLength: {
-                          value: 10,
-                          message: "Message must be at least 10 characters",
-                        },
-                      })}
-                      className="anime-input w-full resize-none"
-                    />
-                    {errors.message && (
-                      <p className="mt-1 text-xs text-destructive">
-                        {errors.message.message}
-                      </p>
-                    )}
-                  </div>
-
-                  <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="anime-btn w-full flex items-center justify-center gap-2"
-                  >
-                    {isSubmitting ? (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        Sending…
-                      </>
-                    ) : (
-                      <>
-                        <Send className="w-4 h-4" />
-                        Send hiring request
-                      </>
-                    )}
-                  </button>
-                </form>
-              )}
-            </motion.div>
-
-            {/* Contact Info + Social Links */}
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              className="space-y-8"
-            >
-              {/* Contact Info */}
-              <div className="anime-card rounded-2xl p-8 space-y-6">
-                <h3 className="text-xl font-bold font-[family-name:var(--font-heading)]">
-                  Contact Information
-                </h3>
-                <div className="space-y-4">
-                  <a
-                    href={`mailto:${siteConfig.email}`}
-                    className="flex items-center gap-4 cursor-pointer group"
-                  >
-                    <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/20 transition-colors duration-200">
-                      <Mail className="w-5 h-5 text-primary" />
-                    </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground">Email</p>
-                      <p className="text-sm font-medium group-hover:text-primary transition-colors duration-200">
-                        {siteConfig.email}
-                      </p>
-                    </div>
-                  </a>
-
-                  <a
-                    href={`tel:${siteConfig.phone}`}
-                    className="flex items-center gap-4 cursor-pointer group"
-                  >
-                    <div className="w-10 h-10 rounded-xl bg-secondary/10 flex items-center justify-center flex-shrink-0 group-hover:bg-secondary/20 transition-colors duration-200">
-                      <Phone className="w-5 h-5 text-secondary" />
-                    </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground">Phone</p>
-                      <p className="text-sm font-medium group-hover:text-secondary transition-colors duration-200">
-                        {siteConfig.phone}
-                      </p>
-                    </div>
-                  </a>
-
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center flex-shrink-0">
-                      <MapPin className="w-5 h-5 text-accent" />
-                    </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground">Location</p>
-                      <p className="text-sm font-medium">
-                        {siteConfig.location}
-                      </p>
-                    </div>
-                  </div>
-                </div>
+                ) : null}
               </div>
 
-              {/* Social Links */}
-              <div className="anime-card rounded-2xl p-8">
-                <h3 className="text-xl font-bold font-[family-name:var(--font-heading)] mb-4">
-                  Social Links
-                </h3>
-                <div className="space-y-3">
-                  {socialLinks.map((social) => (
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="anime-btn flex w-full cursor-pointer items-center justify-center gap-2 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+                    Sending
+                  </>
+                ) : (
+                  <>
+                    <Send className="size-4" aria-hidden="true" />
+                    Send message
+                  </>
+                )}
+              </button>
+
+              <div aria-live="polite">
+                {submitState.status === "sent" ? (
+                  <p className="rounded-xl border border-emerald-500/40 bg-emerald-500/10 px-4 py-3 text-sm text-foreground">
+                    Message sent. Thanks for getting in touch.
+                  </p>
+                ) : null}
+                {submitState.status === "error" ? (
+                  <p className="rounded-xl border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-foreground">
+                    {submitState.message}
+                  </p>
+                ) : null}
+              </div>
+            </form>
+          </div>
+
+          <div className="space-y-8">
+            <div className="anime-card rounded-2xl p-6 sm:p-8">
+              <h2 className="text-xl font-bold font-[family-name:var(--font-heading)]">
+                Contact details
+              </h2>
+              <ul className="mt-5 space-y-4 text-sm">
+                <li className="flex items-center gap-3">
+                  <Mail className="size-5 shrink-0 text-primary" aria-hidden="true" />
+                  <a href={`mailto:${siteConfig.email}`} className="font-medium hover:text-primary hover:underline">
+                    {siteConfig.email}
+                  </a>
+                </li>
+                <li className="flex items-center gap-3">
+                  <Phone className="size-5 shrink-0 text-primary" aria-hidden="true" />
+                  <a
+                    href={`tel:${siteConfig.phone.replace(/\s+/g, "")}`}
+                    className="font-medium hover:text-primary hover:underline"
+                  >
+                    {siteConfig.phone}
+                  </a>
+                </li>
+                <li className="flex items-center gap-3">
+                  <MapPin className="size-5 shrink-0 text-primary" aria-hidden="true" />
+                  <span className="font-medium">{siteConfig.location}</span>
+                </li>
+              </ul>
+            </div>
+
+            <div className="anime-card rounded-2xl p-6 sm:p-8">
+              <h2 className="text-xl font-bold font-[family-name:var(--font-heading)]">Profiles</h2>
+              <ul className="mt-4 space-y-1">
+                {profileLinks.map((profile) => (
+                  <li key={profile.name}>
                     <a
-                      key={social.name}
-                      href={social.href}
+                      href={profile.href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-4 p-3 rounded-xl cursor-pointer hover:bg-primary/5 border border-transparent hover:border-primary/20 transition-all duration-300 group"
+                      className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                     >
-                      <social.icon className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors duration-200" />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium">{social.name}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {social.handle}
-                        </p>
-                      </div>
-                      <ExternalLink className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+                      <profile.icon className="size-5" aria-hidden="true" />
+                      {profile.name}
                     </a>
-                  ))}
-                </div>
-              </div>
-
-              {/* CTA */}
-              <div className="anime-card rounded-2xl p-8 text-center">
-                <p className="text-lg font-bold font-[family-name:var(--font-heading)]">
-                  Available for{" "}
-                  <span className="gradient-text-anime">freelance and hiring</span>
-                </p>
-                <p className="mt-2 text-sm text-muted-foreground">
-                  Best fit: AI products, automation workflows, RAG tools,
-                  admin dashboards, and MERN/Next.js applications.
-                </p>
-              </div>
-            </motion.div>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
         </div>
       </section>

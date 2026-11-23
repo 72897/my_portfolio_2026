@@ -1,36 +1,59 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# kunaltechie.me
 
-## Getting Started
+Personal resume and portfolio site of Kunal Singh, live at https://www.kunaltechie.me.
 
-First, run the development server:
+Public pages: home, about, skills, experience, projects, GitHub and LeetCode stats, certificates, blog, resume and contact. An admin panel under `/admin` edits the same content in MongoDB.
+
+## Stack
+
+- Next.js 16 (App Router) and React 19, TypeScript
+- Tailwind CSS 4, Framer Motion, React Three Fiber for the hero scene
+- MongoDB with Mongoose
+- NextAuth (credentials) for the admin panel
+
+## Setup
 
 ```bash
+npm install
+cp .env.example .env   # then fill in the values
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The public pages work without a database: they fall back to the content in `src/lib/constants.ts`. The admin panel, blog and contact form need MongoDB.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Environment variables
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Name | Used for |
+| --- | --- |
+| `MONGODB_URI` | MongoDB connection string |
+| `NEXTAUTH_SECRET`, `AUTH_SECRET` | Session signing for NextAuth |
+| `NEXTAUTH_URL` | Base URL of the site for NextAuth |
+| `AUTH_TRUST_HOST` | Lets NextAuth trust the host header behind a proxy |
+| `ADMIN_EMAIL`, `ADMIN_PASSWORD` | Admin account created by the seed script |
+| `GITHUB_USERNAME`, `LEETCODE_USERNAME` | Profile handles |
+| `NEXT_PUBLIC_SITE_URL` | Public site URL |
+| `GROQ_API_KEY` | Chat endpoint (`/api/chat`) |
+| `LINKEDIN_ACCESS_TOKEN`, `LINKEDIN_PERSON_URN`, `LINKEDIN_API_VERSION` | Importing LinkedIn posts into the blog |
 
-## Learn More
+`GITHUB_TOKEN` is optional. When set, `/api/github` uses it for a higher GitHub API rate limit.
 
-To learn more about Next.js, take a look at the following resources:
+## Scripts
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+| Command | What it does |
+| --- | --- |
+| `npm run dev` | Development server (Turbopack) |
+| `npm run build` | Production build |
+| `npm run start` | Serve the production build |
+| `npm run lint` | ESLint |
+| `npm run seed` | Write the content in `src/lib/constants.ts` into MongoDB |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Editing content
 
-## Deploy on Vercel
+There are two places content lives, and one feeds the other:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. **`src/lib/constants.ts`** is the source of truth for profile, experience, projects, skills, education, certificates, languages and achievements. Pages use it directly when the database has nothing to offer.
+2. **MongoDB** holds what the site serves day to day. Edit it through the admin panel at `/admin` (sign in with the admin account).
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+`npm run seed` copies `constants.ts` into MongoDB. It replaces the profile, projects, certificates, experience, skills, education and resume summary, and resets the admin password to `ADMIN_PASSWORD`. Blog posts, job posts and contact messages are not touched. If you changed something in the admin panel and want to keep it, make the same change in `constants.ts` before seeding.
+
+Types for all of this are in `src/types/index.ts`; the Mongoose models are in `src/models`.

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { toast } from 'sonner';
 import {
@@ -17,6 +17,8 @@ import {
   ExternalLink,
 } from 'lucide-react';
 import { Linkedin } from '@/components/shared/brand-icons';
+import { apiRequest, errorMessage, useAdminList } from '../_lib/api';
+import { LoadError } from '../_components/load-error';
 
 interface IBlog {
   _id?: string;
@@ -48,37 +50,13 @@ const emptyBlog: Partial<IBlog> = {
 
 export default function AdminBlogPage() {
   const { data: session } = useSession();
-  const [blogs, setBlogs] = useState<IBlog[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { items: blogs, loading, error, reload } = useAdminList<IBlog>('/api/blog', Boolean(session));
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState<Partial<IBlog>>(emptyBlog);
   const [tagsInput, setTagsInput] = useState('');
   const [saving, setSaving] = useState(false);
   const [syncingLinkedIn, setSyncingLinkedIn] = useState(false);
-
-  const fetchBlogs = useCallback(async () => {
-    try {
-      const res = await fetch('/api/blog');
-      if (res.ok) {
-        const data = await res.json();
-        setBlogs(data);
-      }
-    } catch (error) {
-      console.error('Failed to fetch blogs:', error);
-      toast.error('Failed to fetch blogs');
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (!session) return;
-    const timer = window.setTimeout(() => {
-      void fetchBlogs();
-    }, 0);
-    return () => window.clearTimeout(timer);
-  }, [session, fetchBlogs]);
 
   const resetForm = () => {
     setFormData(emptyBlog);
@@ -104,8 +82,12 @@ export default function AdminBlogPage() {
   };
 
   const handleTitleChange = (title: string) => {
-    const slug = generateSlug(title);
-    setFormData((prev) => ({ ...prev, title, slug }));
+    setFormData((prev) => ({
+      ...prev,
+      title,
+      // A saved post keeps its slug so its URL does not change.
+      slug: editingId ? prev.slug : generateSlug(title),
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -118,25 +100,15 @@ export default function AdminBlogPage() {
     };
 
     try {
-      const url = editingId ? `/api/blog/${editingId}` : '/api/blog';
-      const method = editingId ? 'PUT' : 'POST';
-
-      const res = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
+      await apiRequest(editingId ? `/api/blog/${editingId}` : '/api/blog', {
+        method: editingId ? 'PUT' : 'POST',
         body: JSON.stringify(payload),
       });
-
-      if (res.ok) {
-        toast.success(editingId ? 'Blog updated!' : 'Blog created!');
-        resetForm();
-        fetchBlogs();
-      } else {
-        const data = await res.json();
-        toast.error(data.error || 'Failed to save blog');
-      }
-    } catch {
-      toast.error('Something went wrong');
+      toast.success(editingId ? 'Post updated' : 'Post created');
+      resetForm();
+      reload();
+    } catch (err) {
+      toast.error(errorMessage(err, 'Failed to save'));
     } finally {
       setSaving(false);
     }
@@ -146,31 +118,22 @@ export default function AdminBlogPage() {
     if (!confirm('Are you sure you want to delete this blog post?')) return;
 
     try {
-      const res = await fetch(`/api/blog/${id}`, { method: 'DELETE' });
-      if (res.ok) {
-        toast.success('Blog deleted!');
-        fetchBlogs();
-      } else {
-        toast.error('Failed to delete blog');
-      }
-    } catch {
-      toast.error('Something went wrong');
+      await apiRequest(`/api/blog/${id}`, { method: 'DELETE' });
+      toast.success('Post deleted');
+      reload();
+    } catch (err) {
+      toast.error(errorMessage(err, 'Failed to delete'));
     }
   };
 
   const handleLinkedInSync = async () => {
     setSyncingLinkedIn(true);
     try {
-      const res = await fetch('/api/linkedin/sync', { method: 'POST' });
-      const data = await res.json();
-      if (res.ok) {
-        toast.success(data.message || 'LinkedIn posts synced');
-        fetchBlogs();
-      } else {
-        toast.error(data.error || 'LinkedIn sync failed');
-      }
-    } catch {
-      toast.error('Could not connect to LinkedIn sync');
+      const data = await apiRequest<{ message?: string }>('/api/linkedin/sync', { method: 'POST' });
+      toast.success(data.message || 'LinkedIn posts synced');
+      reload();
+    } catch (err) {
+      toast.error(errorMessage(err, 'LinkedIn sync failed'));
     } finally {
       setSyncingLinkedIn(false);
     }
@@ -374,6 +337,8 @@ export default function AdminBlogPage() {
       )}
 
       {/* Blogs List */}
+      {error && <LoadError message={error} onRetry={reload} />}
+
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {[...Array(2)].map((_, i) => (
@@ -383,7 +348,7 @@ export default function AdminBlogPage() {
             />
           ))}
         </div>
-      ) : blogs.length === 0 ? (
+      ) : error && blogs.length === 0 ? null : blogs.length === 0 ? (
         <div className="anime-card rounded-2xl p-12 text-center border border-dashed border-border/60">
           <BookOpen className="w-12 h-12 text-muted-foreground mx-auto mb-4 opacity-50" />
           <p className="text-muted-foreground">No blog posts written yet. Write your first article!</p>
@@ -405,7 +370,7 @@ export default function AdminBlogPage() {
                       /{blog.slug}
                     </p>
                   </div>
-                  <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition shrink-0">
+                  <div className="flex items-center gap-1.5 shrink-0">
                     <button
                       onClick={() => handleEdit(blog)}
                       className="p-1.5 text-muted-foreground hover:text-primary transition cursor-pointer"

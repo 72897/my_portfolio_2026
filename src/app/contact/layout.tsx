@@ -1,9 +1,9 @@
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata = pageMetadata({
-  title: "Hire Kunal Singh",
+  title: "Contact",
   description:
-    "Hire Kunal Singh for freelance AI and full-stack projects or a full-time engineering role. Send a project brief or job opportunity.",
+    "Contact Kunal Singh by email, phone or the message form. Links to GitHub, LinkedIn and LeetCode.",
   path: "/contact",
 });
 

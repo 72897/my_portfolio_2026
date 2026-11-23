@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 
-export const alt = "Kunal Singh, AI Engineer & Full Stack Developer";
+export const alt = "Kunal Singh, Software Engineer: AI automation and full-stack web";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -26,11 +26,11 @@ export default function OpengraphImage() {
         <div style={{ display: "flex", flexDirection: "column" }}>
           <div style={{ fontSize: 92, fontWeight: 800, lineHeight: 1.05 }}>Kunal Singh</div>
           <div style={{ marginTop: 20, fontSize: 44, color: "#c4b5fd" }}>
-            AI Engineer &amp; Full Stack Developer
+            Software Engineer
           </div>
         </div>
         <div style={{ display: "flex", fontSize: 30, color: "#a5a8c0" }}>
-          RAG systems · Agentic workflows · Next.js · MERN
+          AI automation and full-stack web · Python · TypeScript · Next.js
         </div>
       </div>
     ),

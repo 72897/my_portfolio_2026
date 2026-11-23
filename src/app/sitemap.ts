@@ -7,64 +7,65 @@ import { siteConfig, projects as fallbackProjects } from "@/lib/constants";
 // Rebuild hourly so new blog posts and projects show up without a redeploy.
 export const revalidate = 3600;
 
+type SlugDoc = { slug: string; updatedAt?: Date };
+
+const staticPaths = [
+  "",
+  "/about",
+  "/skills",
+  "/experience",
+  "/projects",
+  "/github",
+  "/leetcode",
+  "/certificates",
+  "/blog",
+  "/contact",
+  "/resume",
+];
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = siteConfig.url;
 
-  // Static routes
-  const staticPaths = [
-    "",
-    "/about",
-    "/skills",
-    "/experience",
-    "/projects",
-    "/github",
-    "/leetcode",
-    "/certificates",
-    "/blog",
-    "/contact",
-    "/resume",
-  ];
-
   // No lastModified here: stamping every static page with the build time
   // teaches crawlers to ignore the field.
-  const staticUrls = staticPaths.map((path) => ({
+  const staticUrls: MetadataRoute.Sitemap = staticPaths.map((path) => ({
     url: `${baseUrl}${path}`,
-    changeFrequency: "weekly" as const,
+    changeFrequency: "weekly",
     priority: path === "" ? 1.0 : 0.8,
   }));
 
+  // /projects/[slug] serves a project from the database or, failing that, from
+  // constants.ts, so both sets of slugs are valid URLs.
+  const projectModified = new Map<string, Date | undefined>(
+    fallbackProjects.map((project) => [project.slug, undefined])
+  );
   let blogUrls: MetadataRoute.Sitemap = [];
-  let projectUrls: MetadataRoute.Sitemap = fallbackProjects.map((project) => ({
-    url: `${baseUrl}/projects/${project.slug}`,
-    changeFrequency: "monthly" as const,
-    priority: 0.7,
-  }));
 
   try {
     await dbConnect();
 
-    // Fetch dynamic published blogs
-    const blogs = await Blog.find({ published: true }).select("slug updatedAt").lean();
-    blogUrls = blogs.map((blog: any) => ({
+    const blogs = await Blog.find({ published: true }).select("slug updatedAt").lean<SlugDoc[]>();
+    blogUrls = blogs.map((blog) => ({
       url: `${baseUrl}/blog/${blog.slug}`,
-      lastModified: blog.updatedAt ? new Date(blog.updatedAt) : undefined,
-      changeFrequency: "monthly" as const,
+      lastModified: blog.updatedAt,
+      changeFrequency: "monthly",
       priority: 0.6,
     }));
 
-    // Fetch dynamic projects
-    const projects = await Project.find({}).select("slug updatedAt").lean();
-    if (projects.length > 0) {
-      projectUrls = projects.map((project: any) => ({
-        url: `${baseUrl}/projects/${project.slug}`,
-        lastModified: project.updatedAt ? new Date(project.updatedAt) : undefined,
-        changeFrequency: "monthly" as const,
-        priority: 0.7,
-      }));
+    const projects = await Project.find({}).select("slug updatedAt").lean<SlugDoc[]>();
+    for (const project of projects) {
+      projectModified.set(project.slug, project.updatedAt);
     }
   } catch (error) {
     console.error("Sitemap generation database error:", error);
   }
+
+  const projectUrls: MetadataRoute.Sitemap = [...projectModified].map(([slug, lastModified]) => ({
+    url: `${baseUrl}/projects/${slug}`,
+    lastModified,
+    changeFrequency: "monthly",
+    priority: 0.7,
+  }));
 
   return [...staticUrls, ...blogUrls, ...projectUrls];
 }

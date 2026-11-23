@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { toast } from 'sonner';
 import {
@@ -13,8 +13,11 @@ import {
   MapPin,
 } from 'lucide-react';
 import type { IExperience } from '@/types';
+import { apiRequest, errorMessage, useAdminList } from '../_lib/api';
+import { LoadError } from '../_components/load-error';
 
-const EXPERIENCE_TYPES = ['Internship', 'Full-Time', 'Part-Time', 'Freelance', 'Contract'] as const;
+// Must match EXPERIENCE_TYPES in src/models/Experience.ts, or saving fails validation.
+const EXPERIENCE_TYPES = ['Full-time', 'Part-time', 'Internship', 'Contract'] as const;
 
 const emptyExperience: Partial<IExperience> = {
   company: '',
@@ -31,33 +34,16 @@ const emptyExperience: Partial<IExperience> = {
 
 export default function AdminExperiencePage() {
   const { data: session } = useSession();
-  const [experiences, setExperiences] = useState<IExperience[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { items: experiences, loading, error, reload } = useAdminList<IExperience>(
+    '/api/experience',
+    Boolean(session)
+  );
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState<Partial<IExperience>>(emptyExperience);
   const [bulletsInput, setBulletsInput] = useState('');
   const [technologiesInput, setTechnologiesInput] = useState('');
   const [saving, setSaving] = useState(false);
-
-  const fetchExperiences = useCallback(async () => {
-    try {
-      const res = await fetch('/api/experience');
-      if (res.ok) {
-        const data = await res.json();
-        setExperiences(data);
-      }
-    } catch (error) {
-      console.error('Failed to fetch experiences:', error);
-      toast.error('Failed to fetch experiences');
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (session) fetchExperiences();
-  }, [session, fetchExperiences]);
 
   const resetForm = () => {
     setFormData(emptyExperience);
@@ -87,25 +73,15 @@ export default function AdminExperiencePage() {
     };
 
     try {
-      const url = editingId ? `/api/experience/${editingId}` : '/api/experience';
-      const method = editingId ? 'PUT' : 'POST';
-
-      const res = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
+      await apiRequest(editingId ? `/api/experience/${editingId}` : '/api/experience', {
+        method: editingId ? 'PUT' : 'POST',
         body: JSON.stringify(payload),
       });
-
-      if (res.ok) {
-        toast.success(editingId ? 'Experience updated!' : 'Experience created!');
-        resetForm();
-        fetchExperiences();
-      } else {
-        const data = await res.json();
-        toast.error(data.error || 'Failed to save experience');
-      }
-    } catch {
-      toast.error('Something went wrong');
+      toast.success(editingId ? 'Experience updated' : 'Experience created');
+      resetForm();
+      reload();
+    } catch (err) {
+      toast.error(errorMessage(err, 'Failed to save'));
     } finally {
       setSaving(false);
     }
@@ -115,15 +91,11 @@ export default function AdminExperiencePage() {
     if (!confirm('Are you sure you want to delete this experience?')) return;
 
     try {
-      const res = await fetch(`/api/experience/${id}`, { method: 'DELETE' });
-      if (res.ok) {
-        toast.success('Experience deleted!');
-        fetchExperiences();
-      } else {
-        toast.error('Failed to delete experience');
-      }
-    } catch {
-      toast.error('Something went wrong');
+      await apiRequest(`/api/experience/${id}`, { method: 'DELETE' });
+      toast.success('Experience deleted');
+      reload();
+    } catch (err) {
+      toast.error(errorMessage(err, 'Failed to delete'));
     }
   };
 
@@ -224,8 +196,11 @@ export default function AdminExperiencePage() {
                 <label className="block text-sm font-medium text-foreground">Display Order</label>
                 <input
                   type="number"
-                  value={formData.order || 1}
-                  onChange={(e) => setFormData({ ...formData, order: parseInt(e.target.value) || 1 })}
+                  min={0}
+                  value={formData.order ?? 0}
+                  onChange={(e) =>
+                    setFormData({ ...formData, order: Math.max(0, parseInt(e.target.value, 10) || 0) })
+                  }
                   required
                   className="w-full px-4 py-2.5 bg-muted border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground"
                 />
@@ -318,6 +293,8 @@ export default function AdminExperiencePage() {
       )}
 
       {/* Experience List */}
+      {error && <LoadError message={error} onRetry={reload} />}
+
       {loading ? (
         <div className="space-y-4">
           {[...Array(2)].map((_, i) => (
@@ -332,7 +309,7 @@ export default function AdminExperiencePage() {
             </div>
           ))}
         </div>
-      ) : experiences.length === 0 ? (
+      ) : error && experiences.length === 0 ? null : experiences.length === 0 ? (
         <div className="anime-card rounded-2xl p-12 text-center">
           <Briefcase className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
           <p className="text-muted-foreground">No experience items yet. Add your first job/internship!</p>
@@ -372,7 +349,7 @@ export default function AdminExperiencePage() {
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 md:opacity-0 group-hover:opacity-100 transition shrink-0 self-end md:self-start">
+                <div className="flex items-center gap-2 shrink-0 self-end md:self-start">
                   <button
                     onClick={() => handleEdit(exp)}
                     className="p-2 bg-muted text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-xl transition cursor-pointer"
